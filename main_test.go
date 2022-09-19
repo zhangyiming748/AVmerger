@@ -1,10 +1,11 @@
-package main
+package AVmerger
 
 import (
 	"fmt"
 	"github.com/zhangyiming748/AVmerger/merge"
 	"log"
 	"os"
+	"testing"
 	"time"
 )
 
@@ -12,7 +13,7 @@ func init() {
 	log.SetFlags(log.Lshortfile)
 	os.RemoveAll(".DS_store")
 }
-func main() {
+func TestMaster(t *testing.T) {
 	start := time.Now()
 	log.Println("程序开始时间:", time.Now().Format("2006-01-02 15:04:05"))
 	defer func() {
