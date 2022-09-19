@@ -1,9 +1,9 @@
-package composite
+package merge
 
 import (
-	"AVmerger/log"
 	"encoding/json"
 	"fmt"
+	"github.com/zhangyiming748/AVmerger/log"
 	"os"
 	"os/exec"
 	"strings"

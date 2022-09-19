@@ -1,7 +1,7 @@
-package composite
+package merge
 
 import (
-	"AVmerger/log"
+	"github.com/zhangyiming748/AVmerger/log"
 	"strings"
 )
 

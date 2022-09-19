@@ -1,8 +1,8 @@
 package main
 
 import (
-	"AVmerger/composite"
 	"fmt"
+	"github.com/zhangyiming748/AVmerger/merge"
 	"log"
 	"os"
 	"time"
@@ -35,9 +35,9 @@ func main() {
 	}
 	switch way {
 	case "Single":
-		composite.Single(src, dst)
+		merge.Single(src, dst)
 	case "Multi":
-		composite.Multi(src, dst)
+		merge.Multi(src, dst)
 	case "--help":
 		manual()
 	default:
