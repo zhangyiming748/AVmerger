@@ -9,16 +9,20 @@ import (
 	"time"
 )
 
+var (
+	cstZone = time.FixedZone("CST", 8*3600)
+)
+
 func init() {
 	log.SetFlags(log.Lshortfile)
 	os.RemoveAll(".DS_store")
 }
 func TestMaster(t *testing.T) {
 	start := time.Now()
-	log.Println("程序开始时间:", time.Now().Format("2006-01-02 15:04:05"))
+	log.Println("程序开始时间:", time.Now().In(cstZone).Format("2006-01-02 15:04:05"))
 	defer func() {
 		end := time.Now()
-		log.Println("程序结束时间:", time.Now().Format("2006-01-02 15:04:05"))
+		log.Println("程序结束时间:", time.Now().In(cstZone).Format("2006-01-02 15:04:05"))
 		sub := end.Sub(start)
 		log.Println("程序用时:", sub)
 	}()
