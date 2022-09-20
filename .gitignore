@@ -38,3 +38,7 @@ AVMerger4Linux32
 AVMerger4Linux64
 AVMerger4Android
 AVMerger4Raspi64
+*.json
+*.xml
+*.m4s
+report.txt
