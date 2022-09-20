@@ -100,17 +100,37 @@ func readEntry(dir string) (e entry) {
 	}
 	log.Info.Printf("获取到的partname:%s\n", e.PageData.Part)
 	log.Info.Printf("获取到的title:%s\n", e.Title)
-
+	e.PageData.Part = replace(e.PageData.Part)
+	e.Title = replace(e.Title)
+	log.Info.Printf("替换后的partname:%s\n", e.PageData.Part)
+	log.Info.Printf("替换后的title:%s\n", e.Title)
 	return e
 }
 func merge(infos []Info, dst string) {
 	for _, info := range infos {
-		command(info.title, info.video, info.audio, dst)
+		err := command(info.title, info.video, info.audio, dst)
+		if err != "" {
+			content := fmt.Sprintf("%v路径下的文件可能出现问题,跳过\n", info.video)
+			writeAll("report.txt", content)
+		}
+	}
+}
+func writeAll(fname, content string) {
+	f, err := os.OpenFile(fname, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0776)
+	if err != nil {
+		log.Debug.Println(err)
+	}
+	n, err := f.WriteString(content)
+	if err != nil {
+		log.Debug.Println("写文件出错")
+	} else {
+		log.Info.Printf("写入%d个字节", n)
 	}
 }
 
 // func command(title, dst string) {
-func command(title, video, audio, dst string) {
+func command(title, video, audio, dst string) string {
+	var errorReport string
 	newname := strings.Join([]string{replace(title), "mp4"}, ".")
 	output := strings.Join([]string{dst, newname}, "/")
 	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-codec", "copy", output)
@@ -118,10 +138,11 @@ func command(title, video, audio, dst string) {
 	stdout, err := cmd.StdoutPipe()
 	cmd.Stderr = cmd.Stdout
 	if err != nil {
-		log.Debug.Printf("cmd.StdoutPipe产生的错误:%v", err)
+		errorReport = strings.Join([]string{errorReport, fmt.Sprintf("cmd.StdoutPipe产生的错误:%v", err)}, "\n")
 	}
 	if err = cmd.Start(); err != nil {
-		log.Debug.Panicf("cmd.Run产生的错误:%v", err)
+		errorReport = strings.Join([]string{errorReport, fmt.Sprintf("cmd.Run产生的错误:%v", err)}, "\n")
+
 	}
 	for {
 		tmp := make([]byte, 1024)
@@ -133,8 +154,9 @@ func command(title, video, audio, dst string) {
 		}
 	}
 	if err = cmd.Wait(); err != nil {
-		log.Debug.Panicln("命令执行中有错误产生", err)
+		errorReport = strings.Join([]string{errorReport, fmt.Sprintf("命令执行中有错误产生:%v", err)}, "\n")
 	}
+	return errorReport
 }
 
 func replace(str string) string {
@@ -155,6 +177,10 @@ func replace(str string) string {
 	str = strings.Replace(str, "\uE000", "", -1)
 	str = strings.Replace(str, "、", "", -1)
 	str = strings.Replace(str, "\u0000", "", -1)
+	str = strings.Replace(str, "/", "", -1)
+	str = strings.Replace(str, "！", "", -1)
+	str = strings.Replace(str, "|", "", -1)
+	str = strings.Replace(str, "｜", "", -1)
 
 	///usr/local/bin/ffmpeg -threads 3 -i download/207257026/c_386723432/80/video.m4s -i download/207257026/c_386723432/80/audio.m4s -codec copy -thread新三国29曹操真是奸诈无比，连自己的发小许攸，都一骗再骗.mp4
 
