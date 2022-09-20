@@ -7,6 +7,8 @@ import (
 
 func Multi(src, dst string) {
 	rmds(src)
+	src = strings.Join([]string{src, getDir(src)[0]}, "/")
+	rmds(src)
 	var infos []Info
 	head := getDir(src)
 	log.Info.Printf("给定的目标文件下全部文件夹:%s\n", head)

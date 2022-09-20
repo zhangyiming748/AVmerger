@@ -42,7 +42,7 @@ func TestCmd(t *testing.T) {
 }
 
 func TestMulti(t *testing.T) {
-	Multi("/Volumes/exchange/file", "/Volumes/exchange/done")
+	Multi("/Users/zen/Github/AVmerger/file/download/multi", "/Users/zen/Github/AVmerger/file/download/done")
 }
 func TestSingle(t *testing.T) {
 	Single("/Users/zen/Github/AVmerger/file/download/single", "/Users/zen/Github/AVmerger/file/download/done")
