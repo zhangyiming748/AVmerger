@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/zhangyiming748/AVmerger/log"
+	"github.com/zhangyiming748/replace"
 	"os"
 	"os/exec"
 	"strings"
@@ -100,8 +101,8 @@ func readEntry(dir string) (e entry) {
 	}
 	log.Info.Printf("获取到的partname:%s\n", e.PageData.Part)
 	log.Info.Printf("获取到的title:%s\n", e.Title)
-	e.PageData.Part = replace(e.PageData.Part)
-	e.Title = replace(e.Title)
+	e.PageData.Part = replace.Replace(e.PageData.Part)
+	e.Title = replace.Replace(e.Title)
 	log.Info.Printf("替换后的partname:%s\n", e.PageData.Part)
 	log.Info.Printf("替换后的title:%s\n", e.Title)
 	return e
@@ -131,7 +132,7 @@ func writeAll(fname, content string) {
 // func command(title, dst string) {
 func command(title, video, audio, dst string) string {
 	var errorReport string
-	newname := strings.Join([]string{replace(title), "mp4"}, ".")
+	newname := strings.Join([]string{replace.Replace(title), "mp4"}, ".")
 	output := strings.Join([]string{dst, newname}, "/")
 	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-codec", "copy", output)
 	log.Debug.Printf("生成的命令是:%s", cmd)
@@ -148,7 +149,7 @@ func command(title, video, audio, dst string) string {
 		tmp := make([]byte, 1024)
 		_, err := stdout.Read(tmp)
 		t := string(tmp)
-		log.Info.Println(replace(t))
+		log.Info.Println(replace.Replace(t))
 		if err != nil {
 			break
 		}
@@ -157,34 +158,6 @@ func command(title, video, audio, dst string) string {
 		errorReport = strings.Join([]string{errorReport, fmt.Sprintf("命令执行中有错误产生:%v", err)}, "\n")
 	}
 	return errorReport
-}
-
-func replace(str string) string {
-	str = strings.Replace(str, "\n", "", -1)
-	str = strings.Replace(str, "，", ",", -1)
-	str = strings.Replace(str, " ", "", -1)
-	str = strings.Replace(str, " ", "", -1)
-	str = strings.Replace(str, "《", "", -1)
-	str = strings.Replace(str, "》", "", -1)
-	str = strings.Replace(str, "【", "", -1)
-	str = strings.Replace(str, "】", "", -1)
-	str = strings.Replace(str, "(", "", -1)
-	str = strings.Replace(str, ")", "", -1)
-	str = strings.Replace(str, " ", "", -1)
-	str = strings.Replace(str, "\u00A0", "", -1)
-	str = strings.Replace(str, "_", "", -1)
-	str = strings.Replace(str, "·", "", -1)
-	str = strings.Replace(str, "\uE000", "", -1)
-	str = strings.Replace(str, "、", "", -1)
-	str = strings.Replace(str, "\u0000", "", -1)
-	str = strings.Replace(str, "/", "", -1)
-	str = strings.Replace(str, "！", "", -1)
-	str = strings.Replace(str, "|", "", -1)
-	str = strings.Replace(str, "｜", "", -1)
-
-	///usr/local/bin/ffmpeg -threads 3 -i download/207257026/c_386723432/80/video.m4s -i download/207257026/c_386723432/80/audio.m4s -codec copy -thread新三国29曹操真是奸诈无比，连自己的发小许攸，都一骗再骗.mp4
-
-	return str
 }
 
 // 删除当前目录下的DS_store文件
