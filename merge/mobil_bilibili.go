@@ -134,7 +134,7 @@ func command(title, video, audio, dst string) string {
 	var errorReport string
 	newname := strings.Join([]string{replace.Replace(title), "mp4"}, ".")
 	output := strings.Join([]string{dst, newname}, "/")
-	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-codec", "copy", output)
+	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-c:v", "libx265", output)
 	log.Debug.Printf("生成的命令是:%s", cmd)
 	stdout, err := cmd.StdoutPipe()
 	cmd.Stderr = cmd.Stdout
