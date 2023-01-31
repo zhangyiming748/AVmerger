@@ -1,7 +1,7 @@
 package merge
 
 import (
-	"github.com/zhangyiming748/AVmerger/log"
+	"github.com/zhangyiming748/log"
 	"strings"
 )
 

@@ -3,7 +3,7 @@ package merge
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/zhangyiming748/AVmerger/log"
+	"github.com/zhangyiming748/log"
 	"github.com/zhangyiming748/replace"
 	"os"
 	"os/exec"
