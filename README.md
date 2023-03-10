@@ -186,3 +186,12 @@ single/
 
 20 directories, 51 files
 ```
+
+
+# 优化
+
+
+一把梭
+
+
+自动判断方式
