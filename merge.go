@@ -7,6 +7,7 @@ import (
 	"github.com/zhangyiming748/replace"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
@@ -190,7 +191,14 @@ func get(root string) []Info {
 func merge(dst string, info Info) {
 	name := strings.Join([]string{info.Name, "mp4"}, ".")
 	target := strings.Join([]string{dst, name}, string(os.PathSeparator))
-	cmd := exec.Command("ffmpeg", "-i", info.Video, "-i", info.Audio, target)
+	var cmd *exec.Cmd
+	//cmd := exec.Command("ffmpeg", "-i", info.Video, "-i", info.Audio, target)
+	switch runtime.GOOS {
+	case "darwin":
+		cmd = exec.Command("ffmpeg", "-hwaccel" ,"videotoolbox","-i", info.Video, "-i", info.Audio, target)
+	default:
+		cmd = exec.Command("ffmpeg", "-i", info.Video, "-i", info.Audio, target)
+	}
 	log.Debug.Printf("生成的命令是%v\n", cmd)
 	stdout, err := cmd.StdoutPipe()
 	cmd.Stderr = cmd.Stdout
