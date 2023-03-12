@@ -70,7 +70,8 @@ type Entry struct {
 func AllIn(root string) {
 	infos := get(root)
 	log.Debug.Printf("返回的视频:%v\n", infos)
-	for _, info := range infos {
+	for i, info := range infos {
+		log.Debug.Printf("正在合并第 %d/%d 个视频\n", i+1, len(infos))
 		merge(root, info)
 	}
 }
@@ -136,7 +137,7 @@ func get(root string) []Info {
 							info := Info{
 								Video: video,
 								Audio: audio,
-								Name:  duplicate(title, '_'),
+								Name:  title,
 								Del:   third,
 							}
 							infos = append(infos, info)
@@ -176,7 +177,7 @@ func get(root string) []Info {
 							info := Info{
 								Video: video,
 								Audio: audio,
-								Name:  duplicate(title, '_'),
+								Name:  title,
 								Del:   third,
 							}
 							infos = append(infos, info)
@@ -193,7 +194,9 @@ func get(root string) []Info {
 }
 
 func merge(dst string, info Info) {
-	name := strings.Join([]string{info.Name, "mp4"}, ".")
+	n := duplicate(info.Name, '_')
+	n = duplicate(n, '.')
+	name := strings.Join([]string{n, "mp4"}, ".")
 	target := strings.Join([]string{dst, name}, string(os.PathSeparator))
 	var cmd *exec.Cmd
 	//cmd := exec.Command("ffmpeg", "-i", info.Video, "-i", info.Audio, target)
@@ -227,7 +230,7 @@ func merge(dst string, info Info) {
 	if err = cmd.Wait(); err != nil {
 		log.Warn.Panicf("命令执行中有错误产生:%v\n", err)
 	}
-	log.Debug.Printf("完成当前文件的处理:源文件是%s\t目标文件是%s\n", info.Name, dst)
+	log.Info.Printf("完成当前文件的处理:源文件是%s\t目标文件夹%s\n", info.Name, dst)
 	if err := os.RemoveAll(info.Del); err != nil {
 		log.Warn.Printf("删除源文件失败:%v\n", err)
 	} else {
