@@ -85,6 +85,10 @@ func get(root string) []Info {
 		if strings.HasPrefix(dir.Name(), ".") {
 			continue
 		}
+		if !dir.IsDir() {
+			log.Info.Printf("跳过文件:%v\n", dir.Name())
+			continue
+		}
 		//log.Debug.Printf("%+v\n", dir.Name())
 		afterRoot := strings.Join([]string{root, dir.Name()}, string(os.PathSeparator))
 		log.Debug.Printf("获取到的视频目录%+v\n", afterRoot)
@@ -132,7 +136,7 @@ func get(root string) []Info {
 							info := Info{
 								Video: video,
 								Audio: audio,
-								Name:  title,
+								Name:  duplicate(title, '_'),
 								Del:   third,
 							}
 							infos = append(infos, info)
@@ -172,7 +176,7 @@ func get(root string) []Info {
 							info := Info{
 								Video: video,
 								Audio: audio,
-								Name:  title,
+								Name:  duplicate(title, '_'),
 								Del:   third,
 							}
 							infos = append(infos, info)
@@ -195,7 +199,7 @@ func merge(dst string, info Info) {
 	//cmd := exec.Command("ffmpeg", "-i", info.Video, "-i", info.Audio, target)
 	switch runtime.GOOS {
 	case "darwin":
-		cmd = exec.Command("ffmpeg", "-hwaccel" ,"videotoolbox","-i", info.Video, "-i", info.Audio, target)
+		cmd = exec.Command("ffmpeg", "-hwaccel", "videotoolbox", "-i", info.Video, "-i", info.Audio, target)
 	default:
 		cmd = exec.Command("ffmpeg", "-i", info.Video, "-i", info.Audio, target)
 	}
@@ -229,4 +233,30 @@ func merge(dst string, info Info) {
 	} else {
 		log.Debug.Printf("删除源目录:%v\n", info.Del)
 	}
+}
+
+// todo 我有一个业务是对字符串中指定重复字符去重，我看网上都是利用map实现，所以自己写了一个，但是感觉不够优雅，你有更好的方式吗
+/*
+s: 原字符串
+dup: 需要被去重的字符
+*/
+func duplicate(s string, dup byte) string {
+	sb := []byte(s)
+	var nb []byte
+	for i := 0; i < len(sb); i++ {
+		if i == 0 {
+			// 如果是第一个字符,直接原样写入字节数组
+			nb = append(nb, sb[i])
+		} else {
+			// 如果不是第一个字符
+			if sb[i] == dup && sb[i-1] == dup {
+				//如果本身和前一个字符都是dup则跳过
+				continue
+			} else {
+				//否则写入新字节数组
+				nb = append(nb, sb[i])
+			}
+		}
+	}
+	return string(nb)
 }
