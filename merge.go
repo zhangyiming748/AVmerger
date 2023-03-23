@@ -72,10 +72,19 @@ type Entry struct {
 func AllIn(root string) {
 	infos := get(root)
 	log.Debug.Printf("返回的视频:%v\n", infos)
-	for i, info := range *infos {
-		log.Debug.Printf("正在合并第 %d/%d 个视频\n", i+1, len(*infos))
-		merge(root, info)
+	switch runtime.GOOS {
+	case "windows":
+		for i, info := range *infos {
+			log.Debug.Printf("正在合并第 %d/%d 个视频\n", i+1, len(*infos))
+			Powershell(root, info)
+		}
+	default:
+		for i, info := range *infos {
+			log.Debug.Printf("正在合并第 %d/%d 个视频\n", i+1, len(*infos))
+			Bash(root, info)
+		}
 	}
+
 }
 
 func get(root string) *[]Info {
@@ -110,11 +119,10 @@ func get(root string) *[]Info {
 			for _, av := range avs {
 				audio := strings.Join([]string{rootvp, av.Name(), "audio.m4s"}, string(os.PathSeparator))
 				video := strings.Join([]string{rootvp, av.Name(), "video.m4s"}, string(os.PathSeparator))
-
 				info := Info{
 					Video: strings.Replace(video, " ", "", -1),
 					Audio: strings.Replace(audio, " ", "", -1),
-					Name:  strings.Join([]string{name.Title, name.PageData.Part}, "_"),
+					Name:  strings.Join([]string{name.Title, name.PageData.Part}, ""),
 					Del:   rootvp,
 				}
 				infos = append(infos, info)
@@ -147,57 +155,12 @@ func getChildDir(dir string) ([]os.DirEntry, error) {
 	return cDir, err
 }
 
-func merge(dst string, info Info) {
-	n := duplicate(info.Name, '_')
-	n = duplicate(n, '.')
-	name := strings.Join([]string{n, "mp4"}, ".")
-	target := strings.Join([]string{dst, name}, string(os.PathSeparator))
-	var cmd *exec.Cmd
-	//cmd := exec.Command("ffmpeg", "-i", info.Video, "-i", info.Audio, target)
-	switch runtime.GOOS {
-	case "darwin":
-		cmd = exec.Command("ffmpeg", "-hwaccel", "videotoolbox", "-i", info.Video, "-i", info.Audio, target)
-	default:
-		cmd = exec.Command("ffmpeg", "-i", info.Video, "-i", info.Audio, target)
-	}
-	log.Debug.Printf("生成的命令是%v\n", cmd)
-	stdout, err := cmd.StdoutPipe()
-	cmd.Stderr = cmd.Stdout
-	if err != nil {
-		log.Warn.Panicf("cmd.StdoutPipe产生的错误:%v\n", err)
-	}
-	if err = cmd.Start(); err != nil {
-		log.Warn.Panicf("cmd.Run产生的错误:%v\n", err)
-	}
-	for {
-		tmp := make([]byte, 1024)
-		_, err := stdout.Read(tmp)
-		//写成输出日志
-		//log.Info.Printf("正在处理第 %d/%d 个文件: %s\n", index+1, total, file)
-		t := string(tmp)
-		t = replace.Replace(t)
-		log.TTY.Printf("%v\b", t)
-		if err != nil {
-			break
-		}
-	}
-	if err = cmd.Wait(); err != nil {
-		log.Warn.Panicf("命令执行中有错误产生:%v\n", err)
-	}
-	log.Info.Printf("完成当前文件的处理:源文件是%s\t目标文件夹%s\n", info.Name, dst)
-	if err := os.RemoveAll(info.Del); err != nil {
-		log.Warn.Printf("删除源文件失败:%v\n", err)
-	} else {
-		log.Debug.Printf("删除源目录:%v\n", info.Del)
-	}
-}
-
 // todo 我有一个业务是对字符串中指定重复字符去重，我看网上都是利用map实现，所以自己写了一个，但是感觉不够优雅，你有更好的方式吗
 /*
 s: 原字符串
 dup: 需要被去重的字符
 */
-func duplicate(s string, dup byte) string {
+func Duplicate(s string, dup byte) string {
 	sb := []byte(s)
 	var nb []byte
 	for i := 0; i < len(sb); i++ {
@@ -216,4 +179,75 @@ func duplicate(s string, dup byte) string {
 		}
 	}
 	return string(nb)
+}
+func Bash(dst string, info Info) {
+	n := Duplicate(info.Name, '_')
+	n = Duplicate(n, '.')
+	name := strings.Join([]string{n, "mp4"}, ".")
+	target := strings.Join([]string{dst, name}, string(os.PathSeparator))
+	cmd := exec.Command("ffmpeg", "-i", info.Video, "-i", info.Audio, target)
+	log.Debug.Printf("生成的命令是%v\n", cmd)
+	stdout, err := cmd.StdoutPipe()
+	cmd.Stderr = cmd.Stdout
+	if err != nil {
+		log.Warn.Panicf("cmd.StdoutPipe产生的错误:%v\n", err)
+	}
+	if err = cmd.Start(); err != nil {
+		log.Warn.Panicf("cmd.Run产生的错误:%v\n", err)
+	}
+	for {
+		tmp := make([]byte, 1024)
+		_, err := stdout.Read(tmp)
+		t := string(tmp)
+		t = replace.Replace(t)
+		log.TTY.Printf("%v\b", t)
+		if err != nil {
+			break
+		}
+	}
+	if err = cmd.Wait(); err != nil {
+		log.Warn.Panicf("命令执行中有错误产生:%v\n", err)
+	}
+	log.Info.Printf("完成当前文件的处理:源文件是%s\t目标文件夹%s\n", info.Name, dst)
+	if err := os.RemoveAll(info.Del); err != nil {
+		log.Warn.Printf("删除源文件失败:%v\n", err)
+	} else {
+		log.Debug.Printf("删除源目录:%v\n", info.Del)
+	}
+}
+func Powershell(dst string, info Info) {
+	n := Duplicate(info.Name, '_')
+	n = Duplicate(n, '.')
+	name := strings.Join([]string{n, "mp4"}, ".")
+	target := strings.Join([]string{dst, name}, string(os.PathSeparator))
+	target = strings.Join([]string{"\"", target, "\""}, "")
+	cmd := exec.Command("powershell.exe", "ffmpeg", "-i", info.Video, "-i", info.Audio, target)
+	log.Debug.Printf("生成的命令是%v\n", cmd)
+	stdout, err := cmd.StdoutPipe()
+	cmd.Stderr = cmd.Stdout
+	if err != nil {
+		log.Warn.Panicf("cmd.StdoutPipe产生的错误:%v\n", err)
+	}
+	if err = cmd.Start(); err != nil {
+		log.Warn.Panicf("cmd.Run产生的错误:%v\n", err)
+	}
+	for {
+		tmp := make([]byte, 1024)
+		_, err := stdout.Read(tmp)
+		t := string(tmp)
+		t = replace.Replace(t)
+		log.TTY.Printf("%v\b", t)
+		if err != nil {
+			break
+		}
+	}
+	if err = cmd.Wait(); err != nil {
+		log.Warn.Panicf("命令执行中有错误产生:%v\n", err)
+	}
+	log.Info.Printf("完成当前文件的处理:源文件是%s\t目标文件夹%s\n", info.Name, dst)
+	if err := os.RemoveAll(info.Del); err != nil {
+		log.Warn.Printf("删除源文件失败:%v\n", err)
+	} else {
+		log.Debug.Printf("删除源目录:%v\n", info.Del)
+	}
 }
