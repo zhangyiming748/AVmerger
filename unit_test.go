@@ -2,6 +2,7 @@ package AVmerger
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"testing"
 )
@@ -30,4 +31,17 @@ func TestDup(t *testing.T) {
 	// 期望 "a_s_1_2"
 	ret := duplicate(s1, '_')
 	t.Log(ret)
+}
+func TestGetNew(t *testing.T) {
+	ret := get("C:\\Users\\zen\\Github\\AVmerger\\testfile")
+
+	f, err := os.OpenFile("list.txt", os.O_CREATE|os.O_RDWR, 0777)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	for i, v := range *ret {
+		s := fmt.Sprintf("%d. %+v\n", i, v)
+		f.WriteString(s)
+	}
 }

@@ -3,7 +3,6 @@ package AVmerger
 import (
 	"encoding/json"
 	"github.com/zhangyiming748/log"
-	"github.com/zhangyiming748/pretty"
 	"github.com/zhangyiming748/replace"
 	"os"
 	"os/exec"
@@ -54,8 +53,11 @@ type Entry struct {
 		From             string `json:"from"`
 		Part             string `json:"part"`
 		Link             string `json:"link"`
+		RichVid          string `json:"rich_vid"`
 		Vid              string `json:"vid"`
 		HasAlias         bool   `json:"has_alias"`
+		Weblink          string `json:"weblink"`
+		Offsite          string `json:"offsite"`
 		Tid              int    `json:"tid"`
 		Width            int    `json:"width"`
 		Height           int    `json:"height"`
@@ -70,127 +72,79 @@ type Entry struct {
 func AllIn(root string) {
 	infos := get(root)
 	log.Debug.Printf("返回的视频:%v\n", infos)
-	for i, info := range infos {
-		log.Debug.Printf("正在合并第 %d/%d 个视频\n", i+1, len(infos))
+	for i, info := range *infos {
+		log.Debug.Printf("正在合并第 %d/%d 个视频\n", i+1, len(*infos))
 		merge(root, info)
 	}
 }
 
-func get(root string) []Info {
+func get(root string) *[]Info {
 	var infos []Info
-	dirs, err := os.ReadDir(root)
+	vs, err := getChildDir(root)
 	if err != nil {
-		log.Warn.Panicf("读取根目录发生错误:%v\n", dirs)
+		log.Warn.Panicf("读取视频根目录发生错误:%v\n", err)
 	}
-	for _, dir := range dirs {
-		if strings.HasPrefix(dir.Name(), ".") {
-			continue
-		}
-		if !dir.IsDir() {
-			log.Info.Printf("跳过文件:%v\n", dir.Name())
-			continue
-		}
-		//log.Debug.Printf("%+v\n", dir.Name())
-		afterRoot := strings.Join([]string{root, dir.Name()}, string(os.PathSeparator))
-		log.Debug.Printf("获取到的视频目录%+v\n", afterRoot)
-		//获取到的视频目录/Users/zen/Github/AVmerger/file/307014787
-		seconds, err := os.ReadDir(afterRoot)
+	for _, v := range vs {
+		rootv := strings.Join([]string{root, v.Name()}, string(os.PathSeparator))
+		p, err := getChildDir(rootv)
 		if err != nil {
-			log.Warn.Panicf("获取视频目录出错:%v\n", err)
+			log.Warn.Panicf("读取视频根目录发生错误:%v\n", err)
 		}
-		folderNum := 0
-		for i := range seconds {
-			log.Debug.Printf("i = %v\n", i)
-			folderNum++
-		}
-		log.Debug.Printf("文件夹数%v\n", folderNum)
+		for _, entry := range p {
+			rootvp := strings.Join([]string{rootv, entry.Name()}, string(os.PathSeparator))
+			// log.Info.Println(rootvp)
+			entry := strings.Join([]string{rootvp, "entry.json"}, string(os.PathSeparator))
+			j, err := os.ReadFile(entry)
+			if err != nil {
+				log.Warn.Panicf("读取entry.json文件发生错误%v\n", err)
+			}
+			var name Entry
+			err = json.Unmarshal(j, &name)
+			if err != nil {
+				log.Warn.Panicf("读取entry.json文件发生错误%v\n", err)
+			}
+			avs, err := getChildDir(rootvp)
+			if err != nil {
+				log.Warn.Panicf("读取视频根目录发生错误:%v\n", err)
+			}
+			for _, av := range avs {
+				audio := strings.Join([]string{rootvp, av.Name(), "audio.m4s"}, string(os.PathSeparator))
+				video := strings.Join([]string{rootvp, av.Name(), "video.m4s"}, string(os.PathSeparator))
 
-		switch folderNum {
-		case 1:
-			for _, afterSecond := range seconds {
-				if afterSecond.IsDir() {
-					third := strings.Join([]string{afterRoot, afterSecond.Name()}, string(os.PathSeparator))
-					log.Debug.Printf("连接的三级目录:%v\n", third)
-					entry := strings.Join([]string{third, "entry.json"}, string(os.PathSeparator))
-					js, err := os.ReadFile(entry)
-					if err != nil {
-						log.Warn.Panicf("读取json文件发生错误%v\n", err)
-					}
-					var e Entry
-					err = json.Unmarshal(js, &e)
-					if err != nil {
-						log.Warn.Panicf("json反序列化出现问题:%v\n", err)
-					}
-					//pretty.P(e)
-					title := replace.ForFileName(e.Title)
-					log.Debug.Printf("单文件的entry标题:%v\n", title)
-					afterThird, err := os.ReadDir(third)
-					if err != nil {
-						log.Warn.Panicf("获取随机数目录出错:%v\n", err)
-					}
-					for _, fourth := range afterThird {
-						if fourth.IsDir() {
-							afterFourth := strings.Join([]string{third, fourth.Name()}, string(os.PathSeparator))
-							log.Debug.Printf("连接的四级目录:%v\n", afterFourth)
-							audio := strings.Join([]string{afterFourth, "audio.m4s"}, string(os.PathSeparator))
-							video := strings.Join([]string{afterFourth, "video.m4s"}, string(os.PathSeparator))
-							info := Info{
-								Video: video,
-								Audio: audio,
-								Name:  title,
-								Del:   third,
-							}
-							infos = append(infos, info)
-						}
-					}
+				info := Info{
+					Video: strings.Replace(video, " ", "", -1),
+					Audio: strings.Replace(audio, " ", "", -1),
+					Name:  strings.Join([]string{name.Title, name.PageData.Part}, "_"),
+					Del:   rootvp,
 				}
-			}
-		default:
-			for _, afterSecond := range seconds {
-				if afterSecond.IsDir() {
-					third := strings.Join([]string{afterRoot, afterSecond.Name()}, string(os.PathSeparator))
-					log.Debug.Printf("连接的三级目录:%v\n", third)
-					entry := strings.Join([]string{third, "entry.json"}, string(os.PathSeparator))
-					js, err := os.ReadFile(entry)
-					if err != nil {
-						log.Warn.Panicf("读取json文件发生错误%v\n", err)
-					}
-					var e Entry
-					err = json.Unmarshal(js, &e)
-					if err != nil {
-						log.Warn.Panicf("json反序列化出现问题:%v\n", err)
-					}
-					//pretty.P(e)
-					title := strings.Join([]string{e.Title, e.PageData.Part}, "-")
-					title = replace.ForFileName(title)
-					log.Debug.Printf("混合文件的entry标题:%v\n", title)
-					afterThird, err := os.ReadDir(third)
-					if err != nil {
-						log.Warn.Panicf("获取随机数目录出错:%v\n", err)
-					}
-					for _, fourth := range afterThird {
-						if fourth.IsDir() {
-							afterFourth := strings.Join([]string{third, fourth.Name()}, string(os.PathSeparator))
-							log.Debug.Printf("连接的四级目录:%v\n", afterFourth)
-							audio := strings.Join([]string{afterFourth, "audio.m4s"}, string(os.PathSeparator))
-							video := strings.Join([]string{afterFourth, "video.m4s"}, string(os.PathSeparator))
-							info := Info{
-								Video: video,
-								Audio: audio,
-								Name:  title,
-								Del:   third,
-							}
-							infos = append(infos, info)
-						}
-					}
-				}
+				infos = append(infos, info)
 			}
 		}
 	}
-	for _, info := range infos {
-		pretty.P(info)
+	return &infos
+}
+
+/*
+获取子目录
+*/
+func getChildDir(dir string) ([]os.DirEntry, error) {
+	var cDir []os.DirEntry
+	readDir, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
 	}
-	return infos
+	for _, child := range readDir {
+		if strings.HasPrefix(child.Name(), ".") {
+			// log.Info.Printf("跳过隐藏文件夹:%v\n", child.Name())
+			continue
+		}
+		if !child.IsDir() {
+			// log.Info.Printf("跳过文件:%v\n", child.Name())
+			continue
+		}
+		cDir = append(cDir, child)
+	}
+	return cDir, err
 }
 
 func merge(dst string, info Info) {
