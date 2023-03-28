@@ -185,11 +185,12 @@ func getChildDir(dir string) ([]os.DirEntry, error) {
 	}
 	for _, child := range readDir {
 		if strings.HasPrefix(child.Name(), ".") {
-			// log.Info.Printf("跳过隐藏文件夹:%v\n", child.Name())
+			slog.Info("跳过隐藏文件夹", slog.Any("文件名", child.Name()))
 			continue
 		}
 		if !child.IsDir() {
 			// log.Info.Printf("跳过文件:%v\n", child.Name())
+			slog.Info("跳过文件", slog.Any("文件名", child.Name()))
 			continue
 		}
 		cDir = append(cDir, child)
