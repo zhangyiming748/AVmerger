@@ -229,7 +229,7 @@ func Bash(dst string, info Info) {
 	name := strings.Join([]string{n, "mp4"}, ".")
 	target := strings.Join([]string{dst, name}, string(os.PathSeparator))
 	cmd := exec.Command("ffmpeg", "-i", info.Video, "-i", info.Audio, target)
-	slog.Info("", slog.Any("生成的命令", cmd))
+	slog.Info("", slog.Any("生成的命令", fmt.Sprint(cmd)))
 	stdout, err := cmd.StdoutPipe()
 	cmd.Stderr = cmd.Stdout
 	if err != nil {
