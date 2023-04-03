@@ -39,33 +39,28 @@ type Entry struct {
 	QualityPithyDescription    string `json:"quality_pithy_description"`
 	QualitySuperscript         string `json:"quality_superscript"`
 	CacheVersionCode           int    `json:"cache_version_code"`
-	PreferredAudioQuality      int    `json:"preferred_audio_quality"`
-	AudioQuality               int    `json:"audio_quality"`
-	Avid                       int    `json:"avid"`
-	Spid                       int    `json:"spid"`
-	SeasionId                  int    `json:"seasion_id"`
-	Bvid                       string `json:"bvid"`
-	OwnerId                    int    `json:"owner_id"`
-	OwnerName                  string `json:"owner_name"`
-	OwnerAvatar                string `json:"owner_avatar"`
-	PageData                   struct {
-		Cid              int    `json:"cid"`
-		Page             int    `json:"page"`
-		From             string `json:"from"`
-		Part             string `json:"part"`
-		Link             string `json:"link"`
-		RichVid          string `json:"rich_vid"`
-		Vid              string `json:"vid"`
-		HasAlias         bool   `json:"has_alias"`
-		Weblink          string `json:"weblink"`
-		Offsite          string `json:"offsite"`
-		Tid              int    `json:"tid"`
-		Width            int    `json:"width"`
-		Height           int    `json:"height"`
-		Rotate           int    `json:"rotate"`
-		DownloadTitle    string `json:"download_title"`
-		DownloadSubtitle string `json:"download_subtitle"`
-	} `json:"page_data"`
+	SeasonId                   string `json:"season_id"`
+	Source                     struct {
+		AvId    int    `json:"av_id"`
+		Cid     int    `json:"cid"`
+		Website string `json:"website"`
+	} `json:"source"`
+	Ep struct {
+		AvId       int    `json:"av_id"`
+		Page       int    `json:"page"`
+		Danmaku    int    `json:"danmaku"`
+		Cover      string `json:"cover"`
+		EpisodeId  int    `json:"episode_id"`
+		Index      string `json:"index"`
+		IndexTitle string `json:"index_title"`
+		From       string `json:"from"`
+		SeasonType int    `json:"season_type"`
+		Width      int    `json:"width"`
+		Height     int    `json:"height"`
+		Rotate     int    `json:"rotate"`
+		Link       string `json:"link"`
+		Bvid       string `json:"bvid"`
+	} `json:"ep"`
 }
 
 func init() {
@@ -163,7 +158,7 @@ func get(root string) *[]Info {
 				info := Info{
 					Video: strings.Replace(video, " ", "", -1),
 					Audio: strings.Replace(audio, " ", "", -1),
-					Name:  strings.Join([]string{name.Title, name.PageData.Part}, ""),
+					Name:  strings.Replace(strings.Join([]string{name.Title, name.Ep.IndexTitle}, ""), string(os.PathSeparator), "", -1),
 					Del:   rootvp,
 				}
 				slog.Debug("一个完整视频的基本信息", slog.Any("视频", info.Video), slog.Any("音频", info.Audio), slog.Any("文件名", info.Name), slog.Any("删除后不会影响其他视频的目录", info.Del))
