@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/zhangyiming748/replace"
 	"golang.org/x/exp/slog"
-	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -67,59 +66,14 @@ type Entry struct {
 		DownloadSubtitle string `json:"download_subtitle"`
 	} `json:"page_data"`
 }
-var mylog *slog.Logger
 
-func SetLog(level string) {
-	var opt slog.HandlerOptions
-	switch level {
-	case "Debug":
-		opt = slog.HandlerOptions{ // 自定义option
-			AddSource: true,
-			Level:     slog.LevelDebug, // slog 默认日志级别是 info
-		}
-	case "Info":
-		opt = slog.HandlerOptions{ // 自定义option
-			AddSource: true,
-			Level:     slog.LevelInfo, // slog 默认日志级别是 info
-		}
-	case "Warn":
-		opt = slog.HandlerOptions{ // 自定义option
-			AddSource: true,
-			Level:     slog.LevelWarn, // slog 默认日志级别是 info
-		}
-	case "Err":
-		opt = slog.HandlerOptions{ // 自定义option
-			AddSource: true,
-			Level:     slog.LevelError, // slog 默认日志级别是 info
-		}
-	default:
-		slog.Warn("需要正确设置环境变量 Debug,Info,Warn or Err")
-		slog.Info("默认使用Debug等级")
-		opt = slog.HandlerOptions{ // 自定义option
-			AddSource: true,
-			Level:     slog.LevelDebug, // slog 默认日志级别是 info
-		}
-
-	}
-	file := "AVmerger.log"
-	logf, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
-	if err != nil {
-		panic(err)
-	}
-	//defer logf.Close() //如果不关闭可能造成内存泄露
-	mylog = slog.New(opt.NewJSONHandler(io.MultiWriter(logf, os.Stdout)))
-}
-func init() {
-	l := os.Getenv("LEVEL")
-	SetLog(l)
-}
 // todo 目录使用序数词
 // /Users/zen/Github/AVmerger/file 包括单p和多p
 func AllIn(root string) {
 	infos := get(root)
-	mylog.Debug("解析后", slog.Any("返回的视频", infos))
+	slog.Debug("解析后", slog.Any("返回的视频", infos))
 	for i, info := range *infos {
-		mylog.Info(fmt.Sprintf("正在合并第 %d/%d 个视频\n", i+1, len(*infos)))
+		slog.Info(fmt.Sprintf("正在合并第 %d/%d 个视频\n", i+1, len(*infos)))
 		Bash(root, info)
 	}
 }
@@ -128,14 +82,14 @@ func get(root string) *[]Info {
 	var infos []Info
 	vs, err := getChildDir(root)
 	if err != nil {
-		mylog.Warn("错误", slog.Any("读取视频根目录", err))
+		slog.Warn("错误", slog.Any("读取视频根目录", err))
 		return nil
 	}
 	for _, v := range vs {
 		rootv := strings.Join([]string{root, v.Name()}, string(os.PathSeparator))
 		p, err := getChildDir(rootv)
 		if err != nil {
-			mylog.Warn("错误", slog.Any("读取视频根目录", err))
+			slog.Warn("错误", slog.Any("读取视频根目录", err))
 			return nil
 		}
 		for _, entry := range p {
@@ -144,18 +98,18 @@ func get(root string) *[]Info {
 			entry := strings.Join([]string{rootvp, "entry.json"}, string(os.PathSeparator))
 			j, err := os.ReadFile(entry)
 			if err != nil {
-				mylog.Warn("错误", slog.Any("读取entry.json文件", err))
+				slog.Warn("错误", slog.Any("读取entry.json文件", err))
 				return nil
 			}
 			var name Entry
 			err = json.Unmarshal(j, &name)
 			if err != nil {
-				mylog.Warn("错误", slog.Any("解析entry.json文件", err))
+				slog.Warn("错误", slog.Any("解析entry.json文件", err))
 				return nil
 			}
 			avs, err := getChildDir(rootvp)
 			if err != nil {
-				mylog.Warn("错误", slog.Any("读取分p视频目录", err))
+				slog.Warn("错误", slog.Any("读取分p视频目录", err))
 				return nil
 			}
 			for _, av := range avs {
@@ -167,7 +121,7 @@ func get(root string) *[]Info {
 					Name:  strings.Join([]string{name.Title, name.PageData.Part}, ""),
 					Del:   rootvp,
 				}
-				mylog.Debug("一个完整视频的基本信息", slog.Any("视频", info.Video), slog.Any("音频", info.Audio), slog.Any("文件名", info.Name), slog.Any("删除后不会影响其他视频的目录", info.Del))
+				slog.Debug("一个完整视频的基本信息", slog.Any("视频", info.Video), slog.Any("音频", info.Audio), slog.Any("文件名", info.Name), slog.Any("删除后不会影响其他视频的目录", info.Del))
 				infos = append(infos, info)
 			}
 		}
@@ -186,12 +140,12 @@ func getChildDir(dir string) ([]os.DirEntry, error) {
 	}
 	for _, child := range readDir {
 		if strings.HasPrefix(child.Name(), ".") {
-			mylog.Info("跳过隐藏文件夹", slog.Any("文件名", child.Name()))
+			slog.Info("跳过隐藏文件夹", slog.Any("文件名", child.Name()))
 			continue
 		}
 		if !child.IsDir() {
 			// log.Info.Printf("跳过文件:%v\n", child.Name())
-			mylog.Info("跳过文件", slog.Any("文件名", child.Name()))
+			slog.Info("跳过文件", slog.Any("文件名", child.Name()))
 			continue
 		}
 		cDir = append(cDir, child)
@@ -230,15 +184,15 @@ func Bash(dst string, info Info) {
 	name := strings.Join([]string{n, "mp4"}, ".")
 	target := strings.Join([]string{dst, name}, string(os.PathSeparator))
 	cmd := exec.Command("ffmpeg", "-i", info.Video, "-i", info.Audio, target)
-	mylog.Info("命令", slog.Any("ffmpeg", fmt.Sprint(cmd)))
+	slog.Info("命令", slog.Any("ffmpeg", fmt.Sprint(cmd)))
 	stdout, err := cmd.StdoutPipe()
 	cmd.Stderr = cmd.Stdout
 	if err != nil {
-		mylog.Warn("错误", slog.Any("cmd.StdoutPipe", err))
+		slog.Warn("错误", slog.Any("cmd.StdoutPipe", err))
 		return
 	}
 	if err = cmd.Start(); err != nil {
-		mylog.Warn("错误", slog.Any("cmd.Run", err))
+		slog.Warn("错误", slog.Any("cmd.Run", err))
 		return
 	}
 	for {
@@ -252,13 +206,13 @@ func Bash(dst string, info Info) {
 		}
 	}
 	if err = cmd.Wait(); err != nil {
-		mylog.Warn("错误", slog.Any("命令执行中", err))
+		slog.Warn("错误", slog.Any("命令执行中", err))
 		return
 	}
-	mylog.Info("完成当前文件的处理", slog.Any("源文件", info.Name), slog.Any("目标文件夹", dst))
+	slog.Info("完成当前文件的处理", slog.Any("源文件", info.Name), slog.Any("目标文件夹", dst))
 	if err := os.RemoveAll(info.Del); err != nil {
-		mylog.Warn("", slog.Any("删除源文件失败", err))
+		slog.Warn("", slog.Any("删除源文件失败", err))
 	} else {
-		mylog.Warn("", slog.Any("删除源目录", info.Del))
+		slog.Warn("", slog.Any("删除源目录", info.Del))
 	}
 }
