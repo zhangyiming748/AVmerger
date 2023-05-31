@@ -126,7 +126,7 @@ func get(root string) *[]Info {
 				info := Info{
 					Video: strings.Replace(video, " ", "", -1),
 					Audio: strings.Replace(audio, " ", "", -1),
-					Name:  strings.Join([]string{name.Title, name.PageData.Part}, ""),
+					Name:  strings.Replace(strings.Join([]string{name.Title, name.PageData.Part}, ""), "|", "", -1),
 					Del:   rootvp,
 				}
 				slog.Debug("一个完整视频的基本信息", slog.Any("视频", info.Video), slog.Any("音频", info.Audio), slog.Any("文件名", info.Name), slog.Any("删除后不会影响其他视频的目录", info.Del))
