@@ -8,6 +8,7 @@ import (
 
 func TestAllIn(t *testing.T) {
 	AllIn("C:\\Users\\zen\\Github\\AVmerger\\testfile")
+	AllInH265("")
 }
 
 func TestGet(t *testing.T) {
