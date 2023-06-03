@@ -10,9 +10,7 @@ import (
 )
 
 func hevc(dst string, info Info) {
-	n := Duplicate(info.Name, '_')
-	n = Duplicate(n, '.')
-	n = replace.ForFileName(n)
+	n := replace.ForFileName(info.Name)
 	name := strings.Join([]string{n, "mp4"}, ".")
 	target := strings.Join([]string{dst, name}, string(os.PathSeparator))
 	cmd := exec.Command("ffmpeg", "-i", info.Video, "-i", info.Audio, "-c:v", "libx265", "-tag:v", "hvc1", target)
@@ -29,9 +27,8 @@ func hevc(dst string, info Info) {
 	}
 	for {
 		tmp := make([]byte, 1024)
-		_, err := stdout.Read(tmp)
+		_, err = stdout.Read(tmp)
 		t := string(tmp)
-		t = replace.Replace(t)
 		fmt.Println(t)
 		if err != nil {
 			break

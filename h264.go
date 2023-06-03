@@ -10,9 +10,7 @@ import (
 )
 
 func avc(dst string, info Info) {
-	n := Duplicate(info.Name, '_')
-	n = Duplicate(n, '.')
-	n = replace.ForFileName(n)
+	n := replace.ForFileName(info.Name)
 	name := strings.Join([]string{n, "mp4"}, ".")
 	target := strings.Join([]string{dst, name}, string(os.PathSeparator))
 	cmd := exec.Command("ffmpeg", "-i", info.Video, "-i", info.Audio, target)
@@ -29,7 +27,7 @@ func avc(dst string, info Info) {
 	}
 	for {
 		tmp := make([]byte, 1024)
-		_, err := stdout.Read(tmp)
+		_, err = stdout.Read(tmp)
 		t := string(tmp)
 		t = replace.Replace(t)
 		fmt.Println(t)
@@ -42,7 +40,7 @@ func avc(dst string, info Info) {
 		return
 	}
 	slog.Info("完成当前文件的处理", slog.Any("源文件", info.Name), slog.Any("目标文件夹", dst))
-	if err := os.RemoveAll(info.Del); err != nil {
+	if err = os.RemoveAll(info.Del); err != nil {
 		slog.Warn("", slog.Any("删除源文件失败", err))
 	} else {
 		slog.Warn("", slog.Any("删除源目录", info.Del))
