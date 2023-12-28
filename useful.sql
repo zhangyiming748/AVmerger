@@ -1,0 +1,1 @@
+select title,part_name,av_id from bilis order by id desc ;

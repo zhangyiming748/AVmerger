@@ -89,8 +89,18 @@ func Merge(rootPath string) {
 				audio := strings.Join([]string{third, "audio.m4s"}, string(os.PathSeparator))
 
 				fname := strings.Join([]string{name, "mp4"}, ".")
+				voicefname := strings.Join([]string{name, "ogg"}, ".")
 				if isExist(prefix) {
 					aim := strings.Join([]string{prefix, "bili"}, string(os.PathSeparator))
+
+					voiceAim := strings.Join([]string{prefix, "audio"}, string(os.PathSeparator))
+					os.Mkdir(voiceAim, 0777)
+					voicefname = strings.Join([]string{voiceAim, voicefname}, string(os.PathSeparator))
+					voice := exec.Command("ffmpeg", "-i", audio, "-vn", "-ac", "1", voicefname)
+					if VoiceErr := util.ExecCommand(voice); VoiceErr != nil {
+						slog.Warn("转换有声书失败")
+					}
+
 					os.Mkdir(aim, 0777)
 					fname = strings.Join([]string{aim, fname}, string(os.PathSeparator))
 				} else {
@@ -112,12 +122,6 @@ func Merge(rootPath string) {
 				}
 				slog.Info("WARNING", slog.String("vTAG", mi.VideoCodecID))
 				cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", fname)
-
-				voiceName := strings.Replace(fname, ".mp4", ".ogg", 1)
-				voice := exec.Command("ffmpeg", "-i", audio, "-vn", "-ac", "1", voiceName)
-				if VoiceErr := util.ExecCommand(voice); VoiceErr != nil {
-					slog.Warn("转换有声书失败")
-				}
 
 				if mi.VideoCodecID == "avc1" {
 					cmd = exec.Command("ffmpeg", "-i", video, "-i", audio, "-c:v", "copy", "-c:a", "copy", "-ac", "1", fname)
