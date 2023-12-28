@@ -2,6 +2,7 @@ package merge
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/zhangyiming748/AVmerger/replace"
 	"github.com/zhangyiming748/AVmerger/sql"
@@ -123,8 +124,17 @@ func Merge(rootPath string) {
 					slog.Warn("哔哩哔哩合成出错", slog.Any("错误原文", err), slog.Any("命令原文", fmt.Sprint(cmd)))
 					continue
 				}
-				clean(sec)
 			}
+		}
+	}
+	for _, sec := range roots {
+		if err := os.RemoveAll(sec); err != nil {
+			slog.Warn("删除文件夹失败", slog.Any("错误原文", err))
+			if errors.Is(err, errors.New("exit status 1")) {
+				fmt.Println("经典错误")
+			}
+		} else {
+			slog.Info("删除文件夹成功")
 		}
 	}
 }
@@ -172,6 +182,10 @@ func getName(jackson string) (name string) {
 	record.UpdatedAt = sql.S2T(strconv.FormatInt(entry.TimeUpdateStamp, 10))
 	record.Owner = entry.OwnerName
 	record.PartName = entry.PageData.Part
+	// https://www.bilibili.com/video/av229337132
+	record.AvID = strings.Join([]string{"https://www.bilibili.com/video/av", strconv.Itoa(entry.Avid)}, "")
+	// https://www.bilibili.com/video/BV
+	record.BvID = strings.Join([]string{"https://www.bilibili.com/video/BV", entry.Bvid}, "")
 	record.Original = string(file)
 	record.SetOne()
 

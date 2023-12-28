@@ -10,6 +10,8 @@ import (
 type Bili struct {
 	gorm.Model
 	ID        uint      `gorm:"primaryKey"`
+	AvID      string    `gorm:"avid,type=string;comment:av"`
+	BvID      string    `gorm:"bvid,type=string;comment:bv"`
 	Cover     string    `gorm:"cover,type=string;comment:视频封面"`
 	Title     string    `gorm:"title;comment:视频标题"`
 	Owner     string    `gorm:"owner;comment:视频作者"`
