@@ -50,9 +50,5 @@ func ExecCommand(c *exec.Cmd) (e error) {
 			slog.Debug("命令执行完毕", slog.String("输出", string(output)))
 		}
 	}
-	if exit := GetExitStatus(); exit {
-		slog.Debug("命令端获取到退出状态,命令结束后退出", slog.Bool("信号值", exit), slog.String("最后一条命令", fmt.Sprint(c)))
-		os.Exit(0)
-	}
 	return nil
 }
