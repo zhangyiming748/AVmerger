@@ -82,10 +82,16 @@ func Merge(rootPath string) {
 			thirds := getall(sec)
 			for _, third := range thirds {
 				slog.Info("3", slog.String("3", third))
+				prefix := util.GetVal("merge", "prefix")
+
 				video := strings.Join([]string{third, "video.m4s"}, string(os.PathSeparator))
 				audio := strings.Join([]string{third, "audio.m4s"}, string(os.PathSeparator))
+				voiceName := strings.Join([]string{prefix, string(os.PathSeparator), name, ".ogg"}, "")
+				voice := exec.Command("ffmpeg", "-i", audio, "-vn", "-ac", "1", voiceName)
+				if VoiceErr := util.ExecCommand(voice); VoiceErr != nil {
+					slog.Warn("转换有声书失败")
+				}
 				fname := strings.Join([]string{name, "mp4"}, ".")
-				prefix := util.GetVal("merge", "prefix")
 				if isExist(prefix) {
 					aim := strings.Join([]string{prefix, "bili"}, string(os.PathSeparator))
 					os.Mkdir(aim, 0777)
@@ -117,17 +123,17 @@ func Merge(rootPath string) {
 					slog.Warn("哔哩哔哩合成出错", slog.Any("错误原文", err), slog.Any("命令原文", fmt.Sprint(cmd)))
 					continue
 				}
-				if err = os.RemoveAll(sec); err != nil {
-					slog.Debug("删除失败", slog.String("目录名", sec), slog.Any("错误原文", err))
-					return
-				} else {
-					slog.Debug("删除成功", slog.String("目录名", sec))
-				}
+				clean(sec)
 			}
 		}
 	}
 }
-
+func clean(dir string) {
+	delFile := exec.Command("find", dir, "-type", "f", "-exec", "rm", "{}", "\\;").Run()
+	fmt.Println("删除文件错误", delFile)
+	delFolders := exec.Command("find", dir, "-type", "d", "-exec", "rmdir", "{}", "\\;").Run()
+	fmt.Println("删除文件夹错误", delFolders)
+}
 func isDir(path string) bool {
 	fileInfo, _ := os.Stat(path)
 	if fileInfo.IsDir() {
