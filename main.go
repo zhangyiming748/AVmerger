@@ -14,14 +14,17 @@ func init() {
 	setLog()
 	sql.SetEngine()
 }
+
 func main() {
 	src := util.GetVal("merge", "src")
-	bilibilihd := "/sdcard/Android/data/tv.danmaku.bilibilihd"
-	bilibili := "/sdcard/Android/data/tv.danmaku.bili"
+	bilibilihd := "/sdcard/Android/data/tv.danmaku.bilibilihd/download"
+	bilibili := "/sdcard/Android/data/tv.danmaku.bili/download"
 	if existFolder(bilibilihd) {
 		src = bilibilihd
+		util.SetVal("merge", "prefix", "/sdcard/Movies")
 	} else if existFolder(bilibili) {
 		src = bilibili
+		util.SetVal("merge", "prefix", "/sdcard/Movies")
 	}
 	merge.Merge(src)
 }
