@@ -1,1 +1,2 @@
-select title,part_name,av_id from bilis order by id desc ;
+select id,title,part_name,original from bilis order by id desc ;
+select * from  bilis where title like '%PK%'

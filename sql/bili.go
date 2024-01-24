@@ -9,7 +9,8 @@ import (
 
 type Bili struct {
 	gorm.Model
-	ID        uint      `gorm:"primaryKey"`
+	ID        uint64    `gorm:"primaryKey"`
+	Format    string    `gorm:"format,type=string;comment:format"`
 	AvID      string    `gorm:"avid,type=string;comment:av"`
 	BvID      string    `gorm:"bvid,type=string;comment:bv"`
 	Cover     string    `gorm:"cover,type=string;comment:视频封面"`
@@ -34,4 +35,8 @@ func S2T(timestampStr string) time.Time {
 
 func (b *Bili) SetOne() *gorm.DB {
 	return GetEngine().Create(&b)
+}
+
+func (b *Bili) UpdateFormatById() *gorm.DB {
+	return GetEngine().Model(&Bili{}).Where("id = ?", b.ID).Update("format", b.Format)
 }

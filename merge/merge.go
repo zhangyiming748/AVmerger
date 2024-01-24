@@ -64,6 +64,48 @@ type Entry struct {
 		DownloadSubtitle string `json:"download_subtitle"`
 	} `json:"page_data"`
 }
+type PlanB struct {
+	MediaType                  int    `json:"media_type"`
+	HasDashAudio               bool   `json:"has_dash_audio"`
+	IsCompleted                bool   `json:"is_completed"`
+	TotalBytes                 int    `json:"total_bytes"`
+	DownloadedBytes            int    `json:"downloaded_bytes"`
+	Title                      string `json:"title"`
+	TypeTag                    string `json:"type_tag"`
+	Cover                      string `json:"cover"`
+	VideoQuality               int    `json:"video_quality"`
+	PreferedVideoQuality       int    `json:"prefered_video_quality"`
+	GuessedTotalBytes          int    `json:"guessed_total_bytes"`
+	TotalTimeMilli             int    `json:"total_time_milli"`
+	DanmakuCount               int    `json:"danmaku_count"`
+	TimeUpdateStamp            int64  `json:"time_update_stamp"`
+	TimeCreateStamp            int64  `json:"time_create_stamp"`
+	CanPlayInAdvance           bool   `json:"can_play_in_advance"`
+	InterruptTransformTempFile bool   `json:"interrupt_transform_temp_file"`
+	QualityPithyDescription    string `json:"quality_pithy_description"`
+	QualitySuperscript         string `json:"quality_superscript"`
+	CacheVersionCode           int    `json:"cache_version_code"`
+	PreferredAudioQuality      int    `json:"preferred_audio_quality"`
+	AudioQuality               int    `json:"audio_quality"`
+	Ep                         struct {
+		AvId       int    `json:"av_id"`
+		Page       int    `json:"page"`
+		Danmaku    int    `json:"danmaku"`
+		Cover      string `json:"cover"`
+		EpisodeId  int    `json:"episode_id"`
+		Index      string `json:"index"`
+		IndexTitle string `json:"index_title"`
+		From       string `json:"from"`
+		SeasonType int    `json:"season_type"`
+		Width      int    `json:"width"`
+		Height     int    `json:"height"`
+		Rotate     int    `json:"rotate"`
+		Link       string `json:"link"`
+		Bvid       string `json:"bvid"`
+		SortIndex  int    `json:"sort_index"`
+	} `json:"ep"`
+	SeasonId string `json:"season_id"`
+}
 
 func Merge(rootPath string) {
 	entrys := GetFileInfo.GetAllFilesInfo(rootPath, "json")
@@ -73,7 +115,8 @@ func Merge(rootPath string) {
 			content := getFolder(entryFile.PurgePath)
 			video := strings.Join([]string{content, "video.m4s"}, string(os.PathSeparator))
 			audio := strings.Join([]string{content, "audio.m4s"}, string(os.PathSeparator))
-			jname, errJ := getName(entryFile.FullPath)
+			jname, sid, errJ := getName(entryFile.FullPath)
+			slog.Info(fmt.Sprintf("数据库写入后获取的id = %d", sid))
 			jname = replace.ForFileName(jname)
 			// 替换连续空格
 			jname = strings.Replace(jname, "  ", " ", -1)
@@ -125,25 +168,14 @@ func isDir(path string) bool {
 	}
 }
 
-func getall(rootPath string) (realFolders []string) {
-	folders, _ := os.ReadDir(rootPath)
-	for _, folder := range folders {
-		folderPath := strings.Join([]string{rootPath, folder.Name()}, string(os.PathSeparator))
-		if isDir(folderPath) {
-			realFolders = append(realFolders, folderPath)
-		}
-	}
-	return realFolders
-}
-
 /*
 解析并返回文件名和entry原始文件
 */
-func getName(jackson string) (name string, err error) {
+func getName(jackson string) (name string, id uint64, err error) {
 	var entry Entry
 	file, err := os.ReadFile(jackson)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	err = json.Unmarshal(file, &entry)
 
@@ -160,14 +192,24 @@ func getName(jackson string) (name string, err error) {
 	record.BvID = strings.Join([]string{"https://www.bilibili.com/video/BV", entry.Bvid}, "")
 	record.Original = string(file)
 	record.SetOne()
-
+	fmt.Println("return id", record.ID)
+	slog.Info("return id", slog.Uint64("id", record.ID))
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
-	name = strings.Join([]string{entry.PageData.Part, entry.Title}, "")
+	if entry.PageData.Part == entry.Title {
+		name = entry.Title
+	} else if entry.PageData.Part == "" || entry.Title == "" {
+		var b PlanB
+		json.Unmarshal(file, &b)
+		index_title := b.Ep.IndexTitle
+		name = strings.Join([]string{index_title, entry.Title}, "")
+	} else {
+		name = strings.Join([]string{entry.PageData.Part, entry.Title}, "")
+	}
 	name = replace.ForFileName(name)
 	slog.Debug("解析之后拼接", slog.String("名称", name))
-	return name, nil
+	return name, record.ID, nil
 }
 
 /*

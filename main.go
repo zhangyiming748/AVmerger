@@ -33,10 +33,7 @@ func main() {
 			src = "/sdcard/Android/data/tv.danmaku.bilibilihd/download"
 		case "global":
 			src = "/sdcard/Android/data/com.bilibili.app.in/download"
-		case "-h":
-			println("go run main.go { bili | hd | global | <path/to/file> |none(./download) }")
-			return
-		case "--help":
+		case "-h", "--help":
 			println("go run main.go { bili | hd | global | <path/to/file> |none(./download) }")
 			return
 		default:
