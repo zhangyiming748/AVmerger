@@ -191,7 +191,7 @@ func getName(jackson string) (name string, id uint64, err error) {
 	// https://www.bilibili.com/video/BV
 	record.BvID = strings.Join([]string{"https://www.bilibili.com/video/BV", entry.Bvid}, "")
 	record.Original = string(file)
-	record.SetOne()
+	//record.SetOne()
 	fmt.Println("return id", record.ID)
 	slog.Info("return id", slog.Uint64("id", record.ID))
 	if err != nil {
@@ -203,12 +203,15 @@ func getName(jackson string) (name string, id uint64, err error) {
 		var b PlanB
 		json.Unmarshal(file, &b)
 		index_title := b.Ep.IndexTitle
-		name = strings.Join([]string{index_title, entry.Title}, "")
+		index := b.Ep.Index
+		name = strings.Join([]string{index, index_title, entry.Title}, " ")
+		record.PartName = index_title
 	} else {
-		name = strings.Join([]string{entry.PageData.Part, entry.Title}, "")
+		name = strings.Join([]string{entry.PageData.Part, entry.Title}, " ")
 	}
 	name = replace.ForFileName(name)
 	slog.Debug("解析之后拼接", slog.String("名称", name))
+	record.SetOne()
 	return name, record.ID, nil
 }
 
