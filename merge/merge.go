@@ -108,64 +108,80 @@ type PlanB struct {
 	SeasonId string `json:"season_id"`
 }
 
+// todo 添加视频属性的字段
+// todo 测试defer 会不会正确写入数据库
 func Merge(rootPath string) {
 	entrys := GetFileInfo.GetAllFilesInfo(rootPath, "json")
 	for i, entryFile := range entrys {
 		if entryFile.FullName == "entry.json" {
-			slog.Debug(fmt.Sprintf("正在处理第%d个文件%+v", i+1, entryFile))
-			content := getFolder(entryFile.PurgePath)
-			video := strings.Join([]string{content, "video.m4s"}, string(os.PathSeparator))
-			audio := strings.Join([]string{content, "audio.m4s"}, string(os.PathSeparator))
-			jname, sid, errJ := getName(entryFile.FullPath)
-			slog.Info(fmt.Sprintf("数据库写入后获取的id = %d", sid))
-			jname = replace.ForFileName(jname)
-			// 替换连续空格
-			jname = strings.Replace(jname, "  ", " ", -1)
-			slog.Debug("音视频所在文件夹", slog.String("json文件名", jname), slog.String("音频所在文件夹", audio), slog.String("视频所在文件夹", video))
-			vInfo := GetFileInfo.GetFileInfo(video)
-			mi, ok := vInfo.MediaInfo.(mediaInfo.VideoInfo)
-			if ok {
-				slog.Debug("断言视频mediainfo结构体成功", slog.Any("MediainfoVideo结构体", mi))
-			} else {
-				slog.Warn("断言视频mediainfo结构体失败")
-			}
-			slog.Info("WARNING", slog.String("vTAG", mi.VideoCodecID))
-			var (
-				vname string
-				aname string
-			)
-			switch constant.GetSecParam() {
-			case "bili", "global", "hd":
-				os.MkdirAll(constant.ANDROIDVIDEO, 0777)
-				os.MkdirAll(constant.ANDROIDAUDIO, 0777)
-				vname = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".mp4"}, "")
-				aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".ogg"}, "")
-			default:
-				vname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".mp4"}, "")
-				aname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".ogg"}, "")
-			}
-			cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", vname)
-
-			if mi.VideoCodecID == "avc1" {
-				cmd = exec.Command("ffmpeg", "-i", video, "-i", audio, "-c:v", "copy", "-c:a", "copy", "-ac", "1", vname)
-			}
-			ogg := exec.Command("ffmpeg", "-i", audio, "-c:a", "libvorbis", "-ac", "1", aname)
-			slog.Debug("音视频所在文件夹", slog.String("json文件名", jname), slog.String("音频所在文件夹", audio), slog.String("视频所在文件夹", video), slog.String("vname", vname), slog.String("cmd", fmt.Sprint(cmd)))
-			errV := util.ExecCommand(cmd)
-			errA := util.ExecCommand(ogg)
-			if errV != nil || errA != nil || errJ != nil {
-				slog.Error("最终命令执行出错", slog.String("视频错误", errV.Error()), slog.String("音频错误", errA.Error()), slog.String("json错误", errV.Error()))
-				continue
-			} else {
-				if err := os.RemoveAll(entryFile.PurgePath); err != nil {
-					slog.Warn("删除失败", slog.String("要删除的文件夹", entryFile.PurgePath), slog.String("错误原文", err.Error()))
-				} else {
-					slog.Warn("删除成功")
-				}
-			}
+			mergeOne(i, rootPath, entryFile)
 		}
 	}
 }
+func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
+	record := new(sql.Bili)
+	defer func() {
+		if err := recover(); err != nil {
+			record.Success = false
+			record.Reason = fmt.Sprint(err)
+		} else {
+			record.Success = true
+		}
+		record.SetOne()
+	}()
+	slog.Debug(fmt.Sprintf("正在处理第%d个文件%+v", index+1, entryFile))
+	content := getFolder(entryFile.PurgePath)
+	video := strings.Join([]string{content, "video.m4s"}, string(os.PathSeparator))
+	audio := strings.Join([]string{content, "audio.m4s"}, string(os.PathSeparator))
+	jname, errJ := getName(entryFile.FullPath, record)
+	jname = replace.ForFileName(jname)
+	// 替换连续空格
+	jname = strings.Replace(jname, "  ", " ", -1)
+	slog.Debug("音视频所在文件夹", slog.String("json文件名", jname), slog.String("音频所在文件夹", audio), slog.String("视频所在文件夹", video))
+	vInfo := GetFileInfo.GetFileInfo(video)
+	mi, ok := vInfo.MediaInfo.(mediaInfo.VideoInfo)
+	if ok {
+		slog.Debug("断言视频mediainfo结构体成功", slog.Any("MediainfoVideo结构体", mi))
+	} else {
+		slog.Warn("断言视频mediainfo结构体失败")
+	}
+	slog.Info("WARNING", slog.String("vTAG", mi.VideoCodecID))
+	var (
+		vname string
+		aname string
+	)
+	switch constant.GetSecParam() {
+	case "bili", "global", "hd":
+		os.MkdirAll(constant.ANDROIDVIDEO, 0777)
+		os.MkdirAll(constant.ANDROIDAUDIO, 0777)
+		vname = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".mp4"}, "")
+		aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".ogg"}, "")
+	default:
+		vname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".mp4"}, "")
+		aname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".ogg"}, "")
+	}
+	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", vname)
+	record.Format = "hevc"
+	if mi.VideoCodecID == "avc1" {
+		cmd = exec.Command("ffmpeg", "-i", video, "-i", audio, "-c:v", "copy", "-c:a", "copy", "-ac", "1", vname)
+		record.Format = "avc1"
+	}
+	ogg := exec.Command("ffmpeg", "-i", audio, "-c:a", "libvorbis", "-ac", "1", aname)
+	slog.Debug("音视频所在文件夹", slog.String("json文件名", jname), slog.String("音频所在文件夹", audio), slog.String("视频所在文件夹", video), slog.String("vname", vname), slog.String("cmd", fmt.Sprint(cmd)))
+	errV := util.ExecCommand(cmd)
+	errA := util.ExecCommand(ogg)
+	if errV != nil || errA != nil || errJ != nil {
+		slog.Error("最终命令执行出错", slog.String("视频错误", errV.Error()), slog.String("音频错误", errA.Error()), slog.String("json错误", errV.Error()))
+		return
+	} else {
+		if err := os.RemoveAll(entryFile.PurgePath); err != nil {
+			slog.Warn("删除失败", slog.String("要删除的文件夹", entryFile.PurgePath), slog.String("错误原文", err.Error()))
+		} else {
+			slog.Warn("删除成功")
+		}
+	}
+}
+
 func clean(dir string) {
 	delFile := exec.Command("find", dir, "-type", "f", "-exec", "rm", "{}", "\\;").Run()
 	fmt.Println("删除文件错误", delFile)
@@ -184,15 +200,15 @@ func isDir(path string) bool {
 /*
 解析并返回文件名和entry原始文件
 */
-func getName(jackson string) (name string, id uint64, err error) {
+func getName(jackson string, record *sql.Bili) (string, error) {
 	var entry Entry
 	file, err := os.ReadFile(jackson)
 	if err != nil {
-		return "", 0, err
+		return "", err
 	}
 	err = json.Unmarshal(file, &entry)
 
-	record := new(sql.Bili)
+	//record := new(sql.Bili)
 	record.Title = entry.Title
 	record.Cover = strings.Replace(entry.Cover, "\\/", "//", -1)
 	record.CreatedAt = sql.S2T(strconv.FormatInt(entry.TimeCreateStamp, 10))
@@ -205,11 +221,11 @@ func getName(jackson string) (name string, id uint64, err error) {
 	record.BvID = strings.Join([]string{"https://www.bilibili.com/video/BV", entry.Bvid}, "")
 	record.Original = string(file)
 	//record.SetOne()
-	fmt.Println("return id", record.ID)
-	slog.Info("return id", slog.Uint64("id", record.ID))
 	if err != nil {
-		return "", 0, err
+		return "", err
 	}
+
+	var name string
 	if entry.PageData.Part == entry.Title {
 		name = entry.Title
 	} else if entry.PageData.Part == "" || entry.Title == "" {
@@ -219,13 +235,15 @@ func getName(jackson string) (name string, id uint64, err error) {
 		index := b.Ep.Index
 		name = strings.Join([]string{index, index_title, entry.Title}, " ")
 		record.PartName = index_title
+		record.BvID = strings.Join([]string{"https://www.bilibili.com/video/", b.Ep.Bvid}, "")
+		record.AvID = strings.Join([]string{"https://www.bilibili.com/video/av", strconv.Itoa(b.Ep.AvId)}, "")
 	} else {
 		name = strings.Join([]string{entry.PageData.Part, entry.Title}, " ")
 	}
 	name = replace.ForFileName(name)
 	slog.Debug("解析之后拼接", slog.String("名称", name))
-	record.SetOne()
-	return name, record.ID, nil
+	//record.SetOne()
+	return name, nil
 }
 
 /*
@@ -284,7 +302,6 @@ func getFolder(dir string) string {
 	var fname string
 	for _, file := range files {
 		if file.IsDir() {
-			fmt.Println(file.Name())
 			fname = file.Name()
 		}
 	}
