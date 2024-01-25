@@ -3,6 +3,7 @@ package merge
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/zhangyiming748/AVmerger/constant"
 	"github.com/zhangyiming748/AVmerger/replace"
 	"github.com/zhangyiming748/AVmerger/sql"
 	"github.com/zhangyiming748/AVmerger/util"
@@ -129,8 +130,20 @@ func Merge(rootPath string) {
 				slog.Warn("断言视频mediainfo结构体失败")
 			}
 			slog.Info("WARNING", slog.String("vTAG", mi.VideoCodecID))
-			vname := strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".mp4"}, "")
-			aname := strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".ogg"}, "")
+			var (
+				vname string
+				aname string
+			)
+			switch constant.GetSecParam() {
+			case "bili", "global", "hd":
+				os.MkdirAll(constant.ANDROIDVIDEO, 0777)
+				os.MkdirAll(constant.ANDROIDAUDIO, 0777)
+				vname = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".mp4"}, "")
+				aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".ogg"}, "")
+			default:
+				vname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".mp4"}, "")
+				aname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".ogg"}, "")
+			}
 			cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", vname)
 
 			if mi.VideoCodecID == "avc1" {
