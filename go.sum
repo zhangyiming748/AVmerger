@@ -6,8 +6,8 @@ github.com/mattn/go-sqlite3 v1.14.19 h1:fhGleo2h1p8tVChob4I9HpmVFIAkKGpiukdrgQbW
 github.com/mattn/go-sqlite3 v1.14.19/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
 github.com/zhangyiming748/GetAllFolder v0.0.20 h1:1HR+wKCP6lYIUXXpxcmp4ba1U8n6uz5QSTgvVVqZkEE=
 github.com/zhangyiming748/GetAllFolder v0.0.20/go.mod h1:uhdqD8XPoOOVj9ywdbAh0CkGaM7kJpfQEiwPjk9NSD4=
-github.com/zhangyiming748/GetFileInfo v0.0.39 h1:8JN5QC7dJGJ9QQUiGri7eo5c5FiwTg1wShtrSVkSDQE=
-github.com/zhangyiming748/GetFileInfo v0.0.39/go.mod h1:D76EP151kuBY59SWz0nU3XdyDEPPUyFZxHq0cJCgvj8=
+github.com/zhangyiming748/GetFileInfo v0.0.40 h1:1uDayfWABDINIvUDWyi6TdMjOdOYnPTqrIKQ/MF+DnQ=
+github.com/zhangyiming748/GetFileInfo v0.0.40/go.mod h1:D76EP151kuBY59SWz0nU3XdyDEPPUyFZxHq0cJCgvj8=
 github.com/zhangyiming748/filetype v0.0.1 h1:C7a49LHKzqiYAiw/u2lTmPU6gP6Nwb6/sSDBmBMoJ/k=
 github.com/zhangyiming748/filetype v0.0.1/go.mod h1:DFFw06VgsQVSriUKe95IC+HKaY4u6hCCbXJE1L1HNUk=
 gorm.io/driver/sqlite v1.5.4 h1:IqXwXi8M/ZlPzH/947tn5uik3aYQslP9BVveoax0nV0=

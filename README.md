@@ -7,6 +7,25 @@
 Linux系统同一硬盘挂载到用户主目录的exfat分区不支持直接运行程序
 
 尝试添加指定输出目录
+# usage
+
+```bash
+# 转换bilibili安卓版
+go run main.go bili
+# 转换bilibilihd版
+go run main.go hd
+# 转换bilibili国际版
+go run main.go global
+# 转换当前目录下download文件夹
+go run main.go
+# 转换指定目录下的文件夹
+go run main.go <path/to/file>
+```
+
+# Todo
+- [ ] 找到entry的同级目录
+- [ ] 保持之前的逻辑
+- [ ] 同时支持main函数和包调用
 
 # single文件结构
 

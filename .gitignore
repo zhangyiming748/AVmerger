@@ -9,3 +9,4 @@ entry.json
 *.db
 *.aac
 *.ogg
+/download/

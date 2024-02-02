@@ -3,7 +3,7 @@ module github.com/zhangyiming748/AVmerger
 go 1.21
 
 require (
-	github.com/zhangyiming748/GetFileInfo v0.0.39
+	github.com/zhangyiming748/GetFileInfo v0.0.40
 	gorm.io/driver/sqlite v1.5.4
 	gorm.io/gorm v1.25.5
 )
