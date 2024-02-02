@@ -10,8 +10,8 @@ const (
 	BILI         = "/sdcard/Android/data/tv.danmaku.bili/download"
 	HD           = "/sdcard/Android/data/tv.danmaku.bilibilihd/download"
 	GLOBAL       = "/sdcard/Android/data/com.bilibili.app.in/download"
-	ANDROIDVIDEO = "/sdcard/Movies/bili/video"
-	ANDROIDAUDIO = "/sdcard/Movies/bili/audio"
+	ANDROIDVIDEO = "/sdcard/Movies/bili"
+	ANDROIDAUDIO = "/sdcard/Music/bili"
 )
 
 var LogLevel string
