@@ -15,6 +15,7 @@ func SetEngine() {
 	})
 	// 迁移 schema
 	err := db.AutoMigrate(Bili{})
+	err = db.AutoMigrate(Danmaku{})
 	if err != nil {
 		panic("创建数据库错误")
 		return
@@ -34,6 +35,7 @@ func SetEngine() {
 	//db.Delete(&product, 1)
 	fmt.Println(db)
 }
+
 func GetEngine() *gorm.DB {
 	return db
 }

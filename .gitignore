@@ -10,3 +10,4 @@ entry.json
 *.aac
 *.ogg
 /download/
+*.tar

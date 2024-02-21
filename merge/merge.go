@@ -2,6 +2,7 @@ package merge
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"github.com/zhangyiming748/AVmerger/constant"
 	"github.com/zhangyiming748/AVmerger/replace"
@@ -119,6 +120,9 @@ func Merge(rootPath string) {
 	}
 }
 func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
+	//dan:=new(sql.Danmaku)
+	d_xml := strings.Join([]string{entryFile.PurgePath, "danmaku.xml"}, "")
+	slog.Info("xml", slog.String("xml", d_xml))
 	record := new(sql.Bili)
 	defer func() {
 		if err := recover(); err != nil {
@@ -168,6 +172,8 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 	}
 	ogg := exec.Command("ffmpeg", "-i", audio, "-c:a", "libvorbis", "-ac", "1", aname)
 	slog.Debug("音视频所在文件夹", slog.String("json文件名", jname), slog.String("音频所在文件夹", audio), slog.String("视频所在文件夹", video), slog.String("vname", vname), slog.String("cmd", fmt.Sprint(cmd)))
+
+	go ReadDanmaku(d_xml, record)
 	errV := util.ExecCommand(cmd)
 	errA := util.ExecCommand(ogg)
 	if errV != nil || errA != nil || errJ != nil {
@@ -307,4 +313,40 @@ func getFolder(dir string) string {
 	}
 
 	return strings.Join([]string{dir, fname}, "")
+}
+
+type Danmaku struct {
+	Chatserver string `xml:"chatserver"`
+	Chatid     int64  `xml:"chatid"`
+	Mission    int    `xml:"mission"`
+	Maxlimit   int    `xml:"maxlimit"`
+	State      int    `xml:"state"`
+	RealName   int    `xml:"real_name"`
+	Source     string `xml:"source"`
+	D          []struct {
+		P string `xml:",innerxml"`
+	} `xml:"d"`
+}
+
+func ReadDanmaku(xmlFile string, record *sql.Bili) {
+	var d Danmaku
+
+	file, err := os.ReadFile(xmlFile)
+	if err != nil {
+		return
+	}
+	err = xml.Unmarshal(file, &d)
+	if err != nil {
+		return
+	}
+	//fmt.Printf("%+v", d.D)
+	for _, v := range d.D {
+		var dan sql.Danmaku
+		dan.AvID = record.AvID
+		dan.BvID = record.BvID
+		dan.Title = record.Title
+		dan.Content = v.P
+		fmt.Printf("%+v", d.D)
+		dan.SetOne()
+	}
 }
