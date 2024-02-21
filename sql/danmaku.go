@@ -17,3 +17,6 @@ type Danmaku struct {
 func (d *Danmaku) SetOne() *gorm.DB {
 	return GetEngine().Create(&d)
 }
+func (d *Danmaku) SetMany(list *[]Danmaku) *gorm.DB {
+	return GetEngine().CreateInBatches(&list, 100000)
+}

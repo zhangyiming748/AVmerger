@@ -120,9 +120,8 @@ func Merge(rootPath string) {
 	}
 }
 func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
-	//dan:=new(sql.Danmaku)
-	d_xml := strings.Join([]string{entryFile.PurgePath, "danmaku.xml"}, "")
-	slog.Info("xml", slog.String("xml", d_xml))
+	danmakuXml := strings.Join([]string{entryFile.PurgePath, "danmaku.xml"}, "")
+	slog.Info("xml", slog.String("xml", danmakuXml))
 	record := new(sql.Bili)
 	defer func() {
 		if err := recover(); err != nil {
@@ -172,10 +171,10 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 	}
 	ogg := exec.Command("ffmpeg", "-i", audio, "-c:a", "libvorbis", "-ac", "1", aname)
 	slog.Debug("音视频所在文件夹", slog.String("json文件名", jname), slog.String("音频所在文件夹", audio), slog.String("视频所在文件夹", video), slog.String("vname", vname), slog.String("cmd", fmt.Sprint(cmd)))
-
-	go ReadDanmaku(d_xml, record)
+	slog.Info("开始写入弹幕")
 	errV := util.ExecCommand(cmd)
 	errA := util.ExecCommand(ogg)
+	ReadDanmaku(danmakuXml, record)
 	if errV != nil || errA != nil || errJ != nil {
 		slog.Error("最终命令执行出错", slog.String("视频错误", errV.Error()), slog.String("音频错误", errA.Error()), slog.String("json错误", errV.Error()))
 		return
@@ -329,24 +328,21 @@ type Danmaku struct {
 }
 
 func ReadDanmaku(xmlFile string, record *sql.Bili) {
-	var d Danmaku
-
 	file, err := os.ReadFile(xmlFile)
 	if err != nil {
 		return
 	}
-	err = xml.Unmarshal(file, &d)
-	if err != nil {
-		return
-	}
-	//fmt.Printf("%+v", d.D)
+
+	var d Danmaku
+	var dans []sql.Danmaku
+	xml.Unmarshal(file, &d)
 	for _, v := range d.D {
 		var dan sql.Danmaku
 		dan.AvID = record.AvID
 		dan.BvID = record.BvID
 		dan.Title = record.Title
 		dan.Content = v.P
-		fmt.Printf("%+v", d.D)
-		dan.SetOne()
+		dans = append(dans, dan)
 	}
+	new(sql.Danmaku).SetMany(&dans)
 }
