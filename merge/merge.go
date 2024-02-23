@@ -172,6 +172,9 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 	ogg := exec.Command("ffmpeg", "-i", audio, "-c:a", "libvorbis", "-ac", "1", aname)
 	slog.Debug("音视频所在文件夹", slog.String("json文件名", jname), slog.String("音频所在文件夹", audio), slog.String("视频所在文件夹", video), slog.String("vname", vname), slog.String("cmd", fmt.Sprint(cmd)))
 	slog.Info("开始写入弹幕")
+	//ass文件名和视频一致
+	assName := strings.Replace(vname, ".mp4", ".ass", -1)
+	xml2ass(danmakuXml, assName)
 	errV := util.ExecCommand(cmd)
 	errA := util.ExecCommand(ogg)
 	ReadDanmaku(danmakuXml, record)
@@ -345,4 +348,14 @@ func ReadDanmaku(xmlFile string, record *sql.Bili) {
 		dans = append(dans, dan)
 	}
 	new(sql.Danmaku).SetMany(&dans)
+}
+
+func xml2ass(path, name string) {
+	//danmaku2ass danmaku.xml -s 1280x720  -dm 15 -o 1.ass
+	//assName := strings.Join([]string{name, ".ass"}, "")
+	cmd := exec.Command("/Users/zen/Github/AVmerger/danmaku2ass.py", path, "-s", "1280x720", "-dm", "15", "-o", name)
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		slog.Warn("字幕转换失败", slog.String("命令原文", fmt.Sprint(cmd)), slog.String("错误原文", fmt.Sprint(err)))
+	}
 }
