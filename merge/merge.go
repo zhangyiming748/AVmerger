@@ -159,16 +159,24 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 		os.MkdirAll(constant.ANDROIDAUDIO, 0777)
 		vname = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".mp4"}, "")
 		aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".ogg"}, "")
-		err := os.Rename(danmakuXml, strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".xml"}, ""))
+		mv := exec.Command("mv", danmakuXml, strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".xml"}, ""))
+		output, err := mv.CombinedOutput()
 		if err != nil {
-			slog.Warn("字幕文件移动失败")
+			slog.Warn("字幕文件移动失败", slog.String("命令原文", fmt.Sprint(mv)), slog.String("错误原文", fmt.Sprint(err)), slog.String("命令输出", fmt.Sprint(string(output))))
+		} else {
+			slog.Info("字幕文件移动成功", slog.String("命令原文", fmt.Sprint(mv)), slog.String("错误原文", fmt.Sprint(err)), slog.String("命令输出", fmt.Sprint(string(output))))
 		}
 	default:
 		vname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".mp4"}, "")
 		aname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".ogg"}, "")
-		err := os.Rename(danmakuXml, strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".xml"}, ""))
+
+		mv := exec.Command("mv", danmakuXml, strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".xml"}, ""))
+		output, err := mv.CombinedOutput()
 		if err != nil {
-			slog.Warn("字幕文件移动失败")
+			slog.Warn("字幕文件移动失败", slog.String("命令原文", fmt.Sprint(mv)), slog.String("错误原文", fmt.Sprint(err)), slog.String("命令输出", fmt.Sprint(string(output))))
+
+		} else {
+			slog.Info("字幕文件移动成功", slog.String("命令原文", fmt.Sprint(mv)), slog.String("错误原文", fmt.Sprint(err)), slog.String("命令输出", fmt.Sprint(string(output))))
 		}
 	}
 	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", vname)
