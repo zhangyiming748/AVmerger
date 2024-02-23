@@ -159,9 +159,11 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 		os.MkdirAll(constant.ANDROIDAUDIO, 0777)
 		vname = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".mp4"}, "")
 		aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".ogg"}, "")
+		os.Rename(danmakuXml, strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".xml"}, ""))
 	default:
 		vname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".mp4"}, "")
 		aname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".ogg"}, "")
+		os.Rename(danmakuXml, strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".xml"}, ""))
 	}
 	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", vname)
 	record.Format = "hevc"
@@ -173,8 +175,8 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 	slog.Debug("音视频所在文件夹", slog.String("json文件名", jname), slog.String("音频所在文件夹", audio), slog.String("视频所在文件夹", video), slog.String("vname", vname), slog.String("cmd", fmt.Sprint(cmd)))
 	slog.Info("开始写入弹幕")
 	//ass文件名和视频一致
-	assName := strings.Replace(vname, ".mp4", ".ass", -1)
-	xml2ass(danmakuXml, assName)
+	//assName := strings.Replace(vname, ".mp4", ".ass", -1)
+	//xml2ass(danmakuXml, assName)
 	errV := util.ExecCommand(cmd)
 	errA := util.ExecCommand(ogg)
 	ReadDanmaku(danmakuXml, record)
@@ -353,8 +355,8 @@ func ReadDanmaku(xmlFile string, record *sql.Bili) {
 func xml2ass(path, name string) {
 	//danmaku2ass danmaku.xml -s 1280x720  -dm 15 -o 1.ass
 	//assName := strings.Join([]string{name, ".ass"}, "")
-	py := strings.Join([]string{util.GetRoot(), "danmaku2ass.py"}, "")
-	cmd := exec.Command(py, path, "-s", "1280x720", "-dm", "15", "-o", name)
+	//py := strings.Join([]string{util.GetRoot(), "danmaku2ass.py"}, "")
+	cmd := exec.Command("danmaku2ass.py", path, "-s", "1280x720", "-dm", "15", "-o", name)
 	_, err := cmd.CombinedOutput()
 	if err != nil {
 		slog.Warn("字幕转换失败", slog.String("命令原文", fmt.Sprint(cmd)), slog.String("错误原文", fmt.Sprint(err)))
