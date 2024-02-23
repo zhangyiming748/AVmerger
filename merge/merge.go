@@ -159,11 +159,17 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 		os.MkdirAll(constant.ANDROIDAUDIO, 0777)
 		vname = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".mp4"}, "")
 		aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".ogg"}, "")
-		os.Rename(danmakuXml, strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".xml"}, ""))
+		err := os.Rename(danmakuXml, strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".xml"}, ""))
+		if err != nil {
+			slog.Warn("字幕文件移动失败")
+		}
 	default:
 		vname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".mp4"}, "")
 		aname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".ogg"}, "")
-		os.Rename(danmakuXml, strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".xml"}, ""))
+		err := os.Rename(danmakuXml, strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".xml"}, ""))
+		if err != nil {
+			slog.Warn("字幕文件移动失败")
+		}
 	}
 	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", vname)
 	record.Format = "hevc"
