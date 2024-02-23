@@ -353,7 +353,8 @@ func ReadDanmaku(xmlFile string, record *sql.Bili) {
 func xml2ass(path, name string) {
 	//danmaku2ass danmaku.xml -s 1280x720  -dm 15 -o 1.ass
 	//assName := strings.Join([]string{name, ".ass"}, "")
-	cmd := exec.Command("/Users/zen/Github/AVmerger/danmaku2ass.py", path, "-s", "1280x720", "-dm", "15", "-o", name)
+	py := strings.Join([]string{util.GetRoot(), "danmaku2ass.py"}, "")
+	cmd := exec.Command(py, path, "-s", "1280x720", "-dm", "15", "-o", name)
 	_, err := cmd.CombinedOutput()
 	if err != nil {
 		slog.Warn("字幕转换失败", slog.String("命令原文", fmt.Sprint(cmd)), slog.String("错误原文", fmt.Sprint(err)))
