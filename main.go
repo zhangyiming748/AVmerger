@@ -4,8 +4,6 @@ import (
 	"github.com/zhangyiming748/AVmerger/constant"
 	"github.com/zhangyiming748/AVmerger/merge"
 	"github.com/zhangyiming748/AVmerger/sql"
-	"github.com/zhangyiming748/AVmerger/xml2ass"
-	"github.com/zhangyiming748/GetFileInfo"
 	"log/slog"
 	"os"
 	"path"
@@ -46,10 +44,10 @@ func main() {
 		}
 	}
 	merge.Merge(src)
-	xmls := GetFileInfo.GetAllFileInfo(constant.ANDROIDDANMAKU, "xml")
-	for _, xml := range xmls {
-		xml2ass.Conv(xml)
-	}
+	//xmls := GetFileInfo.GetAllFileInfo(constant.ANDROIDDANMAKU, "xml")
+	//for _, xml := range xmls {
+	//	xml2ass.Conv(xml)
+	//}
 }
 
 func getRoot() string {

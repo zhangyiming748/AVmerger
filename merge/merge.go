@@ -8,6 +8,7 @@ import (
 	"github.com/zhangyiming748/AVmerger/replace"
 	"github.com/zhangyiming748/AVmerger/sql"
 	"github.com/zhangyiming748/AVmerger/util"
+	xml2ass2 "github.com/zhangyiming748/AVmerger/xml2ass"
 	"github.com/zhangyiming748/GetFileInfo"
 	"github.com/zhangyiming748/GetFileInfo/mediaInfo"
 	"log/slog"
@@ -160,17 +161,17 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 		os.MkdirAll(constant.ANDROIDDANMAKU, 0777)
 		vname = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".mp4"}, "")
 		aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".mp3"}, "")
-		mv := exec.Command("mv", danmakuXml, strings.Join([]string{constant.ANDROIDDANMAKU, string(os.PathSeparator), jname, ".xml"}, ""))
-		output, err := mv.CombinedOutput()
-		if err != nil {
-			slog.Warn("字幕文件移动失败", slog.String("命令原文", fmt.Sprint(mv)), slog.String("错误原文", fmt.Sprint(err)), slog.String("命令输出", fmt.Sprint(string(output))))
+
+		ass, danmakuerr := xml2ass2.Conv(danmakuXml)
+		if danmakuerr != nil {
+			slog.Warn("弹幕转换错误")
 		} else {
-			slog.Info("字幕文件移动成功", slog.String("命令原文", fmt.Sprint(mv)), slog.String("错误原文", fmt.Sprint(err)), slog.String("命令输出", fmt.Sprint(string(output))))
+			//ffmpeg -i input.mkv -i input.ass -c copy -c:s ass output.mkv
+			fmt.Println(ass)
 		}
 	default:
 		vname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".mp4"}, "")
 		aname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".mp3"}, "")
-
 		mv := exec.Command("mv", danmakuXml, strings.Join([]string{constant.ANDROIDDANMAKU, string(os.PathSeparator), jname, ".xml"}, ""))
 		output, err := mv.CombinedOutput()
 		if err != nil {
