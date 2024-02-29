@@ -4,6 +4,7 @@ import (
 	"github.com/zhangyiming748/AVmerger/constant"
 	"github.com/zhangyiming748/AVmerger/merge"
 	"github.com/zhangyiming748/AVmerger/sql"
+	"github.com/zhangyiming748/xml2ass/conv"
 	"log/slog"
 	"os"
 	"path"
@@ -14,6 +15,7 @@ import (
 func init() {
 	constant.SetLogLevel("Info")
 	sql.SetEngine()
+	conv.GetXmls()
 }
 
 func main() {

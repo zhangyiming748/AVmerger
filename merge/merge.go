@@ -120,9 +120,7 @@ func Merge(rootPath string) {
 	}
 }
 func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
-	danmakuXml := strings.Join([]string{entryFile.PurgePath, "danmaku.xml"}, "")
-	var ass string
-	slog.Info("xml", slog.String("xml", danmakuXml))
+	danmakuAss := strings.Join([]string{entryFile.PurgePath, "danmaku.ass"}, "")
 	record := new(sql.Bili)
 	defer func() {
 		if err := recover(); err != nil {
@@ -181,10 +179,10 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 		//}
 
 	}
-	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-i", ass, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", "-c:s", "ass", vname)
+	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-i", danmakuAss, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", "-c:s", "ass", vname)
 	record.Format = "hevc"
 	if mi.VideoCodecID == "avc1" {
-		cmd = exec.Command("ffmpeg", "-i", video, "-i", audio, "-i", ass, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-c:s", "ass", vname)
+		cmd = exec.Command("ffmpeg", "-i", video, "-i", audio, "-i", danmakuAss, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-c:s", "ass", vname)
 		record.Format = "avc1"
 	}
 	ogg := exec.Command("ffmpeg", "-i", audio, "-c:a", "libvorbis", "-ac", "1", aname)
@@ -195,7 +193,6 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 	//xml2ass(danmakuXml, assName)
 	errV := util.ExecCommand(cmd)
 	errA := util.ExecCommand(ogg)
-	ReadDanmaku(danmakuXml, record)
 	if errV != nil || errA != nil || errJ != nil {
 		slog.Error("最终命令执行出错", slog.String("视频错误", errV.Error()), slog.String("音频错误", errA.Error()), slog.String("json错误", errV.Error()))
 		return
