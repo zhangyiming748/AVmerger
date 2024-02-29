@@ -152,33 +152,11 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 		vname string
 		aname string
 	)
-	switch constant.GetSecParam() {
-	case "bili", "global", "hd":
-		os.MkdirAll(constant.ANDROIDVIDEO, 0777)
-		os.MkdirAll(constant.ANDROIDAUDIO, 0777)
-		os.MkdirAll(constant.ANDROIDDANMAKU, 0777)
-		vname = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".mkv"}, "")
-		aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".ogg"}, "")
-
-		//assPath, danmakuerr := xml2ass2.Conv(danmakuXml)
-		//if danmakuerr != nil {
-		//	slog.Warn("弹幕转换错误")
-		//} else {
-		//	//ffmpeg -i input.mkv -i input.ass -c copy -c:s ass output.mkv
-		//	ass = assPath
-		//}
-	default:
-		vname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".mkv"}, "")
-		aname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".ogg"}, "")
-		//assPath, danmakuerr := xml2ass2.Conv(danmakuXml)
-		//if danmakuerr != nil {
-		//	slog.Warn("弹幕转换错误")
-		//} else {
-		//	//ffmpeg -i input.mkv -i input.ass -c copy -c:s ass output.mkv
-		//	ass = assPath
-		//}
-
-	}
+	os.MkdirAll(constant.ANDROIDVIDEO, 0777)
+	os.MkdirAll(constant.ANDROIDAUDIO, 0777)
+	os.MkdirAll(constant.ANDROIDDANMAKU, 0777)
+	vname = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".mkv"}, "")
+	aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".ogg"}, "")
 	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-i", danmakuAss, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", "-c:s", "ass", vname)
 	record.Format = "hevc"
 	if mi.VideoCodecID == "avc1" {
