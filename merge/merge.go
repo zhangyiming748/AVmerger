@@ -157,9 +157,10 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 	case "bili", "global", "hd":
 		os.MkdirAll(constant.ANDROIDVIDEO, 0777)
 		os.MkdirAll(constant.ANDROIDAUDIO, 0777)
+		os.MkdirAll(constant.ANDROIDDANMAKU, 0777)
 		vname = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".mp4"}, "")
-		aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".ogg"}, "")
-		mv := exec.Command("mv", danmakuXml, strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".xml"}, ""))
+		aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".mp3"}, "")
+		mv := exec.Command("mv", danmakuXml, strings.Join([]string{constant.ANDROIDDANMAKU, string(os.PathSeparator), jname, ".xml"}, ""))
 		output, err := mv.CombinedOutput()
 		if err != nil {
 			slog.Warn("字幕文件移动失败", slog.String("命令原文", fmt.Sprint(mv)), slog.String("错误原文", fmt.Sprint(err)), slog.String("命令输出", fmt.Sprint(string(output))))
@@ -168,13 +169,12 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 		}
 	default:
 		vname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".mp4"}, "")
-		aname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".ogg"}, "")
+		aname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".mp3"}, "")
 
-		mv := exec.Command("mv", danmakuXml, strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".xml"}, ""))
+		mv := exec.Command("mv", danmakuXml, strings.Join([]string{constant.ANDROIDDANMAKU, string(os.PathSeparator), jname, ".xml"}, ""))
 		output, err := mv.CombinedOutput()
 		if err != nil {
 			slog.Warn("字幕文件移动失败", slog.String("命令原文", fmt.Sprint(mv)), slog.String("错误原文", fmt.Sprint(err)), slog.String("命令输出", fmt.Sprint(string(output))))
-
 		} else {
 			slog.Info("字幕文件移动成功", slog.String("命令原文", fmt.Sprint(mv)), slog.String("错误原文", fmt.Sprint(err)), slog.String("命令输出", fmt.Sprint(string(output))))
 		}
