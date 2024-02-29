@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-//go test -v -run TestConv
+// go test -v -run TestConv
 func TestConv(t *testing.T) {
 	xmls := GetFileInfo.GetAllFileInfo(constant.ANDROIDDANMAKU, "xml")
 	for _, xml := range xmls {

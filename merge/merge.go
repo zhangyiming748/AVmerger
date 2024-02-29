@@ -8,7 +8,6 @@ import (
 	"github.com/zhangyiming748/AVmerger/replace"
 	"github.com/zhangyiming748/AVmerger/sql"
 	"github.com/zhangyiming748/AVmerger/util"
-	xml2ass2 "github.com/zhangyiming748/AVmerger/xml2ass"
 	"github.com/zhangyiming748/GetFileInfo"
 	"github.com/zhangyiming748/GetFileInfo/mediaInfo"
 	"log/slog"
@@ -163,23 +162,23 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 		vname = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".mkv"}, "")
 		aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".ogg"}, "")
 
-		assPath, danmakuerr := xml2ass2.Conv(danmakuXml)
-		if danmakuerr != nil {
-			slog.Warn("弹幕转换错误")
-		} else {
-			//ffmpeg -i input.mkv -i input.ass -c copy -c:s ass output.mkv
-			ass = assPath
-		}
+		//assPath, danmakuerr := xml2ass2.Conv(danmakuXml)
+		//if danmakuerr != nil {
+		//	slog.Warn("弹幕转换错误")
+		//} else {
+		//	//ffmpeg -i input.mkv -i input.ass -c copy -c:s ass output.mkv
+		//	ass = assPath
+		//}
 	default:
 		vname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".mkv"}, "")
 		aname = strings.Join([]string{rootPath, string(os.PathSeparator), jname, ".ogg"}, "")
-		assPath, danmakuerr := xml2ass2.Conv(danmakuXml)
-		if danmakuerr != nil {
-			slog.Warn("弹幕转换错误")
-		} else {
-			//ffmpeg -i input.mkv -i input.ass -c copy -c:s ass output.mkv
-			ass = assPath
-		}
+		//assPath, danmakuerr := xml2ass2.Conv(danmakuXml)
+		//if danmakuerr != nil {
+		//	slog.Warn("弹幕转换错误")
+		//} else {
+		//	//ffmpeg -i input.mkv -i input.ass -c copy -c:s ass output.mkv
+		//	ass = assPath
+		//}
 
 	}
 	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-i", ass, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", "-c:s", "ass", vname)
