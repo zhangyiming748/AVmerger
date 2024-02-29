@@ -1,0 +1,13 @@
+downloads
+.idea
+.DS_Store
+vendor
+*.mp4
+*.m4s
+entry.json
+*.log
+*.db
+*.aac
+*.ogg
+/download/
+*.tar
