@@ -10,8 +10,8 @@ github.com/zhangyiming748/GetFileInfo v0.0.40 h1:1uDayfWABDINIvUDWyi6TdMjOdOYnPT
 github.com/zhangyiming748/GetFileInfo v0.0.40/go.mod h1:D76EP151kuBY59SWz0nU3XdyDEPPUyFZxHq0cJCgvj8=
 github.com/zhangyiming748/filetype v0.0.1 h1:C7a49LHKzqiYAiw/u2lTmPU6gP6Nwb6/sSDBmBMoJ/k=
 github.com/zhangyiming748/filetype v0.0.1/go.mod h1:DFFw06VgsQVSriUKe95IC+HKaY4u6hCCbXJE1L1HNUk=
-github.com/zhangyiming748/xml2ass v0.0.1 h1:/COkxn5NQ9aFr+sx14jqT+1meR9Ityt9Hv6ThXZ6JlI=
-github.com/zhangyiming748/xml2ass v0.0.1/go.mod h1:UytT24qZX7lI93IM93nPH3TUCkVpe3vIKVbcPxsGMLg=
+github.com/zhangyiming748/xml2ass v0.0.2 h1:aQYCR0gGAW50QhpfaG0IxSLcZ+y3+34t6Mtn2LzNORI=
+github.com/zhangyiming748/xml2ass v0.0.2/go.mod h1:UytT24qZX7lI93IM93nPH3TUCkVpe3vIKVbcPxsGMLg=
 gorm.io/driver/sqlite v1.5.5 h1:7MDMtUZhV065SilG62E0MquljeArQZNfJnjd9i9gx3E=
 gorm.io/driver/sqlite v1.5.5/go.mod h1:6NgQ7sQWAIFsPrJJl1lSNSu2TABh0ZZ/zm5fosATavE=
 gorm.io/gorm v1.25.7 h1:VsD6acwRjz2zFxGO50gPO6AkNs7KKnvfzUjHQhZDz/A=
