@@ -1,6 +1,14 @@
 # AVmerger
 
 合并哔哩哔哩手机版缓存的视频
+下载
+
+```shell
+wget https://github.com/m13253/danmaku2ass/blob/master/danmaku2ass.py
+git clone https://github.com/m13253/danmaku2ass.git
+chmod a+x /data/data/com.termux/files/home/danmaku2ass/danmaku2ass.py
+ln -s /data/data/com.termux/files/home/danmaku2ass/danmaku2ass.py /data/data/com.termux/files/usr/bin/danmaku2ass
+```
 
 # issue
 
