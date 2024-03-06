@@ -234,12 +234,12 @@ func getName(jackson string, record *sql.Bili) (string, error) {
 		json.Unmarshal(file, &b)
 		index_title := b.Ep.IndexTitle
 		index := b.Ep.Index
-		name = strings.Join([]string{index, index_title, entry.Title}, " ")
+		name = strings.Join([]string{index, entry.Title, index_title}, " ")
 		record.PartName = index_title
 		record.BvID = strings.Join([]string{"https://www.bilibili.com/video/", b.Ep.Bvid}, "")
 		record.AvID = strings.Join([]string{"https://www.bilibili.com/video/av", strconv.Itoa(b.Ep.AvId)}, "")
 	} else {
-		name = strings.Join([]string{entry.PageData.Part, entry.Title}, " ")
+		name = strings.Join([]string{entry.Title, entry.PageData.Part}, " ")
 	}
 	name = replace.ForFileName(name)
 	slog.Debug("解析之后拼接", slog.String("名称", name))
