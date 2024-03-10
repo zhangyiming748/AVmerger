@@ -160,17 +160,17 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-i", danmakuAss, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", "-c:s", "ass", vname)
 	record.Format = "hevc"
 	if mi.VideoCodecID == "avc1" {
-		cmd = exec.Command("ffmpeg", "-i", video, "-i", audio, "-i", danmakuAss, "-c:v", "libx265", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", "-c:s", "ass", vname)
+		cmd = exec.Command("ffmpeg", "-i", video, "-i", audio, "-i", danmakuAss, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", "-c:s", "ass", vname)
 		record.Format = "avc1 to hvc1"
 	}
-	ogg := exec.Command("ffmpeg", "-i", audio, "-c:a", "aac", "-ac", "1", aname)
+	aac := exec.Command("ffmpeg", "-i", audio, "-c:a", "aac", "-ac", "1", aname)
 	slog.Debug("音视频所在文件夹", slog.String("json文件名", jname), slog.String("音频所在文件夹", audio), slog.String("视频所在文件夹", video), slog.String("vname", vname), slog.String("cmd", fmt.Sprint(cmd)))
 	slog.Info("开始写入弹幕")
 	//ass文件名和视频一致
 	//assName := strings.Replace(vname, ".mp4", ".ass", -1)
 	//xml2ass(danmakuXml, assName)
 	errV := util.ExecCommand(cmd)
-	errA := util.ExecCommand(ogg)
+	errA := util.ExecCommand(aac)
 	if errV != nil || errA != nil || errJ != nil {
 		slog.Error("最终命令执行出错", slog.String("视频错误", errV.Error()), slog.String("音频错误", errA.Error()), slog.String("json错误", errV.Error()))
 		return
