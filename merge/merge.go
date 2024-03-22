@@ -128,6 +128,11 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 			record.Reason = fmt.Sprint(err)
 		} else {
 			record.Success = true
+			if err = os.RemoveAll(entryFile.PurgePath); err != nil {
+				slog.Warn("删除失败", slog.String("要删除的文件夹", entryFile.PurgePath), slog.Any("错误原文", err))
+			} else {
+				slog.Warn("删除成功")
+			}
 		}
 		record.SetOne()
 	}()
@@ -135,7 +140,7 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 	content := getFolder(entryFile.PurgePath)
 	video := strings.Join([]string{content, "video.m4s"}, string(os.PathSeparator))
 	audio := strings.Join([]string{content, "audio.m4s"}, string(os.PathSeparator))
-	jname, errJ := getName(entryFile.FullPath, record)
+	jname, _ := getName(entryFile.FullPath, record)
 	jname = replace.ForFileName(jname)
 	// 替换连续空格
 	jname = strings.Replace(jname, "  ", " ", -1)
@@ -166,24 +171,8 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 	aac := exec.Command("ffmpeg", "-i", audio, "-c:a", "aac", aname)
 	slog.Debug("音视频所在文件夹", slog.String("json文件名", jname), slog.String("音频所在文件夹", audio), slog.String("视频所在文件夹", video), slog.String("vname", vname), slog.String("cmd", fmt.Sprint(cmd)))
 	slog.Info("开始写入弹幕")
-	//ass文件名和视频一致
-	//assName := strings.Replace(vname, ".mp4", ".ass", -1)
-	//xml2ass(danmakuXml, assName)
-	errV := util.ExecCommand(cmd)
-	go func(e error) {
-		errV = util.ExecCommand(cmd)
-	}(errV)
-	errA := util.ExecCommand(aac)
-	if errV != nil || errA != nil || errJ != nil {
-		slog.Error("最终命令执行出错", slog.String("视频错误", errV.Error()), slog.String("音频错误", errA.Error()), slog.String("json错误", errV.Error()))
-		return
-	} else {
-		if err := os.RemoveAll(entryFile.PurgePath); err != nil {
-			slog.Warn("删除失败", slog.String("要删除的文件夹", entryFile.PurgePath), slog.String("错误原文", err.Error()))
-		} else {
-			slog.Warn("删除成功")
-		}
-	}
+	util.ExecCommand(cmd)
+	util.ExecCommand(aac)
 }
 
 func clean(dir string) {
