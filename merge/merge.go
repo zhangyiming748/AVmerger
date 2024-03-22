@@ -159,13 +159,12 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 		vname string
 		aname string
 	)
-	var nodir error
-	nodir = os.MkdirAll(constant.ANDROIDVIDEO, 0777)
-	nodir = os.MkdirAll(constant.ANDROIDAUDIO, 0777)
-	nodir = os.MkdirAll(constant.ANDROIDDANMAKU, 0777)
+	os.MkdirAll(constant.ANDROIDVIDEO, 0777)
+	os.MkdirAll(constant.ANDROIDAUDIO, 0777)
+	os.MkdirAll(constant.ANDROIDDANMAKU, 0777)
 	vname = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".mkv"}, "")
 	aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".aac"}, "")
-	if nodir != nil {
+	if IsExist(strings.Join([]string{util.GetRoot(), "download"}, string(os.PathSeparator))) {
 		vname = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), jname, ".mkv"}, "")
 		aname = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), jname, ".aac"}, "")
 		slog.Info("文件夹更改到本地", slog.Any("location", vname), slog.Any("location", aname))
@@ -180,8 +179,9 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 	aac := exec.Command("ffmpeg", "-i", audio, "-c:a", "aac", aname)
 	slog.Debug("音视频所在文件夹", slog.String("json文件名", jname), slog.String("音频所在文件夹", audio), slog.String("视频所在文件夹", video), slog.String("vname", vname), slog.String("cmd", fmt.Sprint(cmd)))
 	slog.Info("开始写入弹幕")
+	go util.ExecCommand(aac)
 	util.ExecCommand(cmd)
-	util.ExecCommand(aac)
+
 }
 
 func clean(dir string) {
