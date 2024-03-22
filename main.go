@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	constant.SetLogLevel("Info")
+	constant.SetLogLevel("Debug")
 	sql.SetEngine()
 	conv.GetXmls()
 }
