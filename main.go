@@ -4,7 +4,8 @@ import (
 	"github.com/zhangyiming748/AVmerger/constant"
 	"github.com/zhangyiming748/AVmerger/merge"
 	"github.com/zhangyiming748/AVmerger/sql"
-	"github.com/zhangyiming748/xml2ass/conv"
+	"github.com/zhangyiming748/AVmerger/util"
+	"log/slog"
 	"os"
 	"path"
 	"runtime"
@@ -14,7 +15,6 @@ import (
 func init() {
 	constant.SetLogLevel("Debug")
 	sql.SetEngine()
-	conv.GetXmls()
 }
 
 func main() {
@@ -41,5 +41,7 @@ func main() {
 
 func getRoot() string {
 	_, filename, _, _ := runtime.Caller(0)
-	return path.Dir(filename)
+	slog.Info("getRoot", slog.String("当前的工作目录", filename))
+	util.SetRoot(path.Dir(filename))
+	return util.GetRoot()
 }

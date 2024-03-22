@@ -120,7 +120,9 @@ func Merge(rootPath string) {
 	}
 }
 func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
+	danmakuXml := strings.Join([]string{entryFile.PurgePath, "danmaku.xml"}, "")
 	danmakuAss := strings.Join([]string{entryFile.PurgePath, "danmaku.ass"}, "")
+	util.Conv(danmakuXml, danmakuAss)
 	record := new(sql.Bili)
 	defer func() {
 		if err := recover(); err != nil {
@@ -157,15 +159,22 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 		vname string
 		aname string
 	)
-	os.MkdirAll(constant.ANDROIDVIDEO, 0777)
-	os.MkdirAll(constant.ANDROIDAUDIO, 0777)
-	os.MkdirAll(constant.ANDROIDDANMAKU, 0777)
+	var nodir error
+	nodir = os.MkdirAll(constant.ANDROIDVIDEO, 0777)
+	nodir = os.MkdirAll(constant.ANDROIDAUDIO, 0777)
+	nodir = os.MkdirAll(constant.ANDROIDDANMAKU, 0777)
 	vname = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".mkv"}, "")
 	aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".aac"}, "")
+	if nodir != nil {
+		vname = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), jname, ".mkv"}, "")
+		aname = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), jname, ".aac"}, "")
+		slog.Info("文件夹更改到本地", slog.Any("location", vname), slog.Any("location", aname))
+	}
+
 	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-i", danmakuAss, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", "-c:s", "ass", vname)
 	record.Format = "hevc"
 	if mi.VideoCodecID == "avc1" {
-		cmd = exec.Command("ffmpeg", "-i", video, "-i", audio, "-i", danmakuAss, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", "-c:s", "ass", vname)
+		cmd = exec.Command("ffmpeg", "-i", video, "-i", audio, "-i", danmakuAss, "-c:v", "libx265", "-c:a", "copy", "-tag:v", "hvc1", "-c:s", "ass", vname)
 		record.Format = "avc1 to hvc1"
 	}
 	aac := exec.Command("ffmpeg", "-i", audio, "-c:a", "aac", aname)
