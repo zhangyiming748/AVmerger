@@ -108,6 +108,15 @@ type PlanB struct {
 	} `json:"ep"`
 	SeasonId string `json:"season_id"`
 }
+type One struct {
+	VName       string // 最终视频文件名
+	AName       string // 最终音频文件名
+	JName       string // json 中获取的名称
+	VLocation   string // video.m4s 文件位置
+	ALocation   string // audio.m4s 文件位置
+	XmlLocation string // xml 文件位置
+	AssLocation string // ass 文件位置
+}
 
 // todo 添加视频属性的字段
 // todo 测试defer 会不会正确写入数据库
@@ -115,14 +124,15 @@ func Merge(rootPath string) {
 	entrys := GetFileInfo.GetAllFilesInfo(rootPath, "json")
 	for i, entryFile := range entrys {
 		if entryFile.FullName == "entry.json" {
-			mergeOne(i, rootPath, entryFile)
+			mergeOne(i, entryFile)
 		}
 	}
 }
-func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
-	danmakuXml := strings.Join([]string{entryFile.PurgePath, "danmaku.xml"}, "")
-	danmakuAss := strings.Join([]string{entryFile.PurgePath, "danmaku.ass"}, "")
-	util.Conv(danmakuXml, danmakuAss)
+func mergeOne(index int, entryFile GetFileInfo.BasicInfo) {
+	var o One
+	o.XmlLocation = strings.Join([]string{entryFile.PurgePath, "danmaku.xml"}, "")
+	o.AssLocation = strings.Join([]string{entryFile.PurgePath, "danmaku.ass"}, "")
+	util.Conv(o.XmlLocation, o.AssLocation)
 	record := new(sql.Bili)
 	defer func() {
 		if err := recover(); err != nil {
@@ -138,16 +148,16 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 		}
 		record.SetOne()
 	}()
-	slog.Debug(fmt.Sprintf("正在处理第%d个文件%+v", index+1, entryFile))
+	slog.Info(fmt.Sprintf("正在处理第%d个文件%+v", index+1, entryFile))
 	content := getFolder(entryFile.PurgePath)
-	video := strings.Join([]string{content, "video.m4s"}, string(os.PathSeparator))
-	audio := strings.Join([]string{content, "audio.m4s"}, string(os.PathSeparator))
-	jname, _ := getName(entryFile.FullPath, record)
-	jname = replace.ForFileName(jname)
+	o.VLocation = strings.Join([]string{content, "video.m4s"}, string(os.PathSeparator))
+	o.ALocation = strings.Join([]string{content, "audio.m4s"}, string(os.PathSeparator))
+	o.JName, _ = getName(entryFile.FullPath, record)
+	o.JName = replace.ForFileName(o.JName)
 	// 替换连续空格
-	jname = strings.Replace(jname, "  ", " ", -1)
-	slog.Debug("音视频所在文件夹", slog.String("json文件名", jname), slog.String("音频所在文件夹", audio), slog.String("视频所在文件夹", video))
-	vInfo := GetFileInfo.GetFileInfo(video)
+	o.JName = strings.Replace(o.JName, "  ", " ", -1)
+	slog.Debug("音视频所在文件夹", slog.String("json文件名", o.JName), slog.String("音频所在文件夹", o.ALocation), slog.String("视频所在文件夹", o.VLocation))
+	vInfo := GetFileInfo.GetFileInfo(o.VLocation)
 	mi, ok := vInfo.MediaInfo.(mediaInfo.VideoInfo)
 	if ok {
 		slog.Debug("断言视频mediainfo结构体成功", slog.Any("MediainfoVideo结构体", mi))
@@ -155,30 +165,25 @@ func mergeOne(index int, rootPath string, entryFile GetFileInfo.BasicInfo) {
 		slog.Warn("断言视频mediainfo结构体失败")
 	}
 	slog.Info("WARNING", slog.String("vTAG", mi.VideoCodecID))
-	var (
-		vname string
-		aname string
-	)
 	os.MkdirAll(constant.ANDROIDVIDEO, 0777)
 	os.MkdirAll(constant.ANDROIDAUDIO, 0777)
 	os.MkdirAll(constant.ANDROIDDANMAKU, 0777)
-	vname = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), jname, ".mkv"}, "")
-	aname = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), jname, ".aac"}, "")
+	o.VName = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), o.JName, ".mkv"}, "")
+	o.AName = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), o.JName, ".aac"}, "")
 	if IsExist(strings.Join([]string{util.GetRoot(), "download"}, string(os.PathSeparator))) {
-		vname = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), jname, ".mkv"}, "")
-		aname = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), jname, ".aac"}, "")
-		slog.Info("文件夹更改到本地", slog.Any("location", vname), slog.Any("location", aname))
+		o.VName = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), o.JName, ".mkv"}, "")
+		o.AName = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), o.JName, ".aac"}, "")
+		slog.Info("文件夹更改到本地", slog.Any("location", o.VLocation), slog.Any("location", o.AName))
 	}
 
-	cmd := exec.Command("ffmpeg", "-i", video, "-i", audio, "-i", danmakuAss, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", "-c:s", "ass", vname)
+	cmd := exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-i", o.AssLocation, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", "-c:s", "ass", o.VName)
 	record.Format = "hevc"
 	if mi.VideoCodecID == "avc1" {
-		cmd = exec.Command("ffmpeg", "-i", video, "-i", audio, "-i", danmakuAss, "-c:v", "libx265", "-c:a", "copy", "-tag:v", "hvc1", "-c:s", "ass", vname)
+		cmd = exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-i", o.AssLocation, "-c:v", "libx265", "-c:a", "copy", "-tag:v", "hvc1", "-c:s", "ass", o.VName)
 		record.Format = "avc1 to hvc1"
 	}
-	aac := exec.Command("ffmpeg", "-i", audio, "-c:a", "aac", aname)
-	slog.Debug("音视频所在文件夹", slog.String("json文件名", jname), slog.String("音频所在文件夹", audio), slog.String("视频所在文件夹", video), slog.String("vname", vname), slog.String("cmd", fmt.Sprint(cmd)))
-	slog.Info("开始写入弹幕")
+	aac := exec.Command("ffmpeg", "-i", o.ALocation, "-c:a", "aac", o.AName)
+	slog.Info("命令执行前的总结", slog.Any("全部信息", o))
 	go util.ExecCommand(aac)
 	util.ExecCommand(cmd)
 
