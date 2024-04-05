@@ -132,7 +132,7 @@ func mergeOne(index int, entryFile GetFileInfo.BasicInfo) {
 	var o One
 	o.XmlLocation = strings.Join([]string{entryFile.PurgePath, "danmaku.xml"}, "")
 	o.AssLocation = strings.Join([]string{entryFile.PurgePath, "danmaku.ass"}, "")
-	util.Conv(o.XmlLocation, o.AssLocation)
+	_, assErr := util.Conv(o.XmlLocation, o.AssLocation)
 	record := new(sql.Bili)
 	defer func() {
 		if err := recover(); err != nil {
@@ -177,6 +177,10 @@ func mergeOne(index int, entryFile GetFileInfo.BasicInfo) {
 	}
 
 	cmd := exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-i", o.AssLocation, "-c:v", "libvpx-vp9", "-c:a", "libvorbis", "-ac", "1", "-c:s", "ass", o.VName)
+	if assErr != nil {
+		cmd = exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-c:v", "libvpx-vp9", "-c:a", "libvorbis", "-ac", "1", o.VName)
+		slog.Error("弹幕转换错误 此次忽略")
+	}
 	record.Format = "hevc"
 	aac := exec.Command("ffmpeg", "-i", o.ALocation, "-c:a", "aac", o.AName)
 	slog.Info("命令执行前的总结", slog.Any("全部信息", o))
