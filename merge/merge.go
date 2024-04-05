@@ -176,10 +176,10 @@ func mergeOne(index int, entryFile GetFileInfo.BasicInfo) {
 		slog.Info("文件夹更改到本地", slog.Any("location", o.VLocation), slog.Any("location", o.AName))
 	}
 
-	cmd := exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-i", o.AssLocation, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-tag:v", "hvc1", "-c:s", "ass", o.VName)
+	cmd := exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-i", o.AssLocation, "-c:v", "copy", "-c:a", "libvorbis", "-ac", "1", "-tag:v", "hvc1", "-c:s", "ass", o.VName)
 	record.Format = "hevc"
 	if mi.VideoCodecID == "avc1" {
-		cmd = exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-i", o.AssLocation, "-c:v", "libx265", "-c:a", "copy", "-tag:v", "hvc1", "-c:s", "ass", o.VName)
+		cmd = exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-i", o.AssLocation, "-c:v", "libx265", "-crf", "22", "-c:a", "libvorbis", "-tag:v", "hvc1", "-c:s", "ass", o.VName)
 		record.Format = "avc1 to hvc1"
 	}
 	aac := exec.Command("ffmpeg", "-i", o.ALocation, "-c:a", "aac", o.AName)
