@@ -152,7 +152,8 @@ func mergeOne(index int, entryFile GetFileInfo.BasicInfo) {
 	content := getFolder(entryFile.PurgePath)
 	o.VLocation = strings.Join([]string{content, "video.m4s"}, string(os.PathSeparator))
 	o.ALocation = strings.Join([]string{content, "audio.m4s"}, string(os.PathSeparator))
-	o.JName, _ = getName(entryFile.FullPath, record)
+	owner := ""
+	o.JName, owner, _ = getName(entryFile.FullPath, record)
 	o.JName = replace.ForFileName(o.JName)
 	// 替换连续空格
 	o.JName = strings.Replace(o.JName, "  ", " ", -1)
@@ -164,12 +165,14 @@ func mergeOne(index int, entryFile GetFileInfo.BasicInfo) {
 	} else {
 		slog.Warn("断言视频mediainfo结构体失败")
 	}
-	slog.Info("WARNING", slog.String("vTAG", mi.VideoCodecID))
-	os.MkdirAll(constant.ANDROIDVIDEO, 0777)
-	os.MkdirAll(constant.ANDROIDAUDIO, 0777)
-	os.MkdirAll(constant.ANDROIDDANMAKU, 0777)
-	o.VName = strings.Join([]string{constant.ANDROIDVIDEO, string(os.PathSeparator), o.JName, ".mkv"}, "")
-	o.AName = strings.Join([]string{constant.ANDROIDAUDIO, string(os.PathSeparator), o.JName, ".aac"}, "")
+	androidVideo := strings.Join([]string{constant.ANDROIDVIDEO, owner}, string(os.PathSeparator))
+	androidAudio := strings.Join([]string{constant.ANDROIDAUDIO, owner}, string(os.PathSeparator))
+	androidDanmaku := strings.Join([]string{constant.ANDROIDDANMAKU, owner}, string(os.PathSeparator))
+	os.MkdirAll(androidVideo, 0777)
+	os.MkdirAll(androidAudio, 0777)
+	os.MkdirAll(androidDanmaku, 0777)
+	o.VName = strings.Join([]string{androidVideo, string(os.PathSeparator), o.JName, ".mkv"}, "")
+	o.AName = strings.Join([]string{androidAudio, string(os.PathSeparator), o.JName, ".aac"}, "")
 	if IsExist(strings.Join([]string{util.GetRoot(), "download"}, string(os.PathSeparator))) {
 		o.VName = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), o.JName, ".mkv"}, "")
 		o.AName = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), o.JName, ".aac"}, "")
@@ -204,13 +207,13 @@ func isDir(path string) bool {
 }
 
 /*
-解析并返回文件名和entry原始文件
+解析并返回文件名和owner_name
 */
-func getName(jackson string, record *sql.Bili) (string, error) {
+func getName(jackson string, record *sql.Bili) (string, string, error) {
 	var entry Entry
 	file, err := os.ReadFile(jackson)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	err = json.Unmarshal(file, &entry)
 
@@ -228,7 +231,7 @@ func getName(jackson string, record *sql.Bili) (string, error) {
 	record.Original = string(file)
 	//record.SetOne()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	var name string
@@ -249,7 +252,7 @@ func getName(jackson string, record *sql.Bili) (string, error) {
 	name = replace.ForFileName(name)
 	slog.Debug("解析之后拼接", slog.String("名称", name))
 	//record.SetOne()
-	return name, nil
+	return name, entry.OwnerName, nil
 }
 
 /*
