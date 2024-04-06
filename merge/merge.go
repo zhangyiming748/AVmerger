@@ -184,7 +184,7 @@ func mergeOne(index int, entryFile GetFileInfo.BasicInfo) {
 		cmd = exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-c:v", "copy", "-c:a", "copy", "-ac", "1", o.VName)
 		slog.Error("弹幕转换错误 此次忽略")
 	}
-	aac := exec.Command("ffmpeg", "-i", o.ALocation, "-c:a", "aac", o.AName)
+	aac := exec.Command("ffmpeg", "-i", o.ALocation, "-c:a", "copy", o.AName)
 	slog.Info("命令执行前的总结", slog.Any("全部信息", o))
 	util.ExecCommand(aac)
 	util.ExecCommand(cmd)
