@@ -137,11 +137,6 @@ func mergeOne(index int, entryFile util.BasicInfo) {
 			record.Reason = fmt.Sprint(err)
 		} else {
 			record.Success = true
-			//if err = os.RemoveAll(entryFile.PurgePath); err != nil {
-			//	slog.Warn("删除失败", slog.String("要删除的文件夹", entryFile.PurgePath), slog.Any("错误原文", err))
-			//} else {
-			//	slog.Warn("删除成功")
-			//}
 		}
 		record.SetOne()
 	}()
@@ -170,17 +165,25 @@ func mergeOne(index int, entryFile util.BasicInfo) {
 		slog.Info("文件夹更改到本地", slog.Any("location", o.VLocation), slog.Any("location", o.AName))
 	}
 
-	cmd := exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-i", o.AssLocation, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-c:s", "ass", o.VName)
+	cmd := exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-i", o.AssLocation, "-c:v", "copy", "-c:a", "copy", "-c:s", "ass", o.VName)
 	if assErr != nil {
-		cmd = exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-c:v", "copy", "-c:a", "copy", "-ac", "1", o.VName)
+		cmd = exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-c:v", "copy", "-c:a", "copy", o.VName)
 		slog.Error("弹幕转换错误 此次忽略")
 	}
 	aac := exec.Command("ffmpeg", "-i", o.ALocation, "-c:a", "copy", o.AName)
 	slog.Info("命令执行前的总结", slog.Any("全部信息", o), slog.String("命令原文", cmd.String()))
 	err := util.ExecCommand(aac)
+	if err != nil {
+		panic("命令执行发生严重错误")
+	}
 	err = util.ExecCommand(cmd)
 	if err != nil {
-		slog.Error("发生严重错误", slog.Any("skip", entryFile))
+		panic("命令执行发生严重错误")
+	}
+	if err = os.RemoveAll(entryFile.PurgePath); err != nil {
+		slog.Warn("删除失败", slog.String("要删除的文件夹", entryFile.PurgePath), slog.Any("错误原文", err))
+	} else {
+		slog.Warn("删除成功")
 	}
 
 }
@@ -299,15 +302,15 @@ func CutName(before string) (after string) {
 func getFolder(dir string) string {
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		slog.Error("获取视频所在二级文件夹失败", slog.String("dir", dir),slog.Any("err", err))
-		return ""
+		slog.Error("获取视频所在二级文件夹失败", slog.String("dir", dir), slog.Any("err", err))
+		os.Exit(-1)
 	}
 	for _, file := range files {
 		if file.IsDir() {
 			return strings.Join([]string{dir, file.Name()}, string(os.PathSeparator))
 		}
 	}
-	return ""
+	os.Exit(-1)
 }
 
 type Danmaku struct {
