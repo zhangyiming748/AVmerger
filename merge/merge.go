@@ -8,8 +8,6 @@ import (
 	"github.com/zhangyiming748/AVmerger/replace"
 	"github.com/zhangyiming748/AVmerger/sql"
 	"github.com/zhangyiming748/AVmerger/util"
-	"github.com/zhangyiming748/GetFileInfo"
-	"github.com/zhangyiming748/GetFileInfo/mediaInfo"
 	"log/slog"
 	"os"
 	"os/exec"
@@ -121,17 +119,16 @@ type One struct {
 // todo 添加视频属性的字段
 // todo 测试defer 会不会正确写入数据库
 func Merge(rootPath string) {
-	entrys := GetFileInfo.GetAllFilesInfo(rootPath, "json")
+	entrys, _ := util.GetEntryFilesWithExt(rootPath, ".json")
 	for i, entryFile := range entrys {
-		if entryFile.FullName == "entry.json" {
-			mergeOne(i, entryFile)
-		}
+		mergeOne(i, *entryFile)
+
 	}
 }
-func mergeOne(index int, entryFile GetFileInfo.BasicInfo) {
+func mergeOne(index int, entryFile util.BasicInfo) {
 	var o One
-	o.XmlLocation = strings.Join([]string{entryFile.PurgePath, "danmaku.xml"}, "")
-	o.AssLocation = strings.Join([]string{entryFile.PurgePath, "danmaku.ass"}, "")
+	o.XmlLocation = strings.Join([]string{entryFile.PurgePath, "danmaku.xml"}, string(os.PathSeparator))
+	o.AssLocation = strings.Join([]string{entryFile.PurgePath, "danmaku.ass"}, string(os.PathSeparator))
 	_, assErr := util.Conv(o.XmlLocation, o.AssLocation)
 	record := new(sql.Bili)
 	defer func() {
@@ -158,13 +155,7 @@ func mergeOne(index int, entryFile GetFileInfo.BasicInfo) {
 	// 替换连续空格
 	o.JName = strings.Replace(o.JName, "  ", " ", -1)
 	slog.Debug("音视频所在文件夹", slog.String("json文件名", o.JName), slog.String("音频所在文件夹", o.ALocation), slog.String("视频所在文件夹", o.VLocation))
-	vInfo := GetFileInfo.GetFileInfo(o.VLocation)
-	mi, ok := vInfo.MediaInfo.(mediaInfo.VideoInfo)
-	if ok {
-		slog.Debug("断言视频mediainfo结构体成功", slog.Any("MediainfoVideo结构体", mi))
-	} else {
-		slog.Warn("断言视频mediainfo结构体失败")
-	}
+
 	androidVideo := strings.Join([]string{constant.ANDROIDVIDEO, owner}, string(os.PathSeparator))
 	androidAudio := strings.Join([]string{constant.ANDROIDAUDIO, owner}, string(os.PathSeparator))
 	androidDanmaku := strings.Join([]string{constant.ANDROIDDANMAKU, owner}, string(os.PathSeparator))
@@ -186,8 +177,11 @@ func mergeOne(index int, entryFile GetFileInfo.BasicInfo) {
 	}
 	aac := exec.Command("ffmpeg", "-i", o.ALocation, "-c:a", "copy", o.AName)
 	slog.Info("命令执行前的总结", slog.Any("全部信息", o))
-	util.ExecCommand(aac)
-	util.ExecCommand(cmd)
+	err := util.ExecCommand(aac)
+	err = util.ExecCommand(cmd)
+	if err != nil {
+		slog.Error("发生严重错误", slog.Any("skip", entryFile))
+	}
 
 }
 

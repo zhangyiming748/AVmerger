@@ -6,10 +6,8 @@ import (
 	"github.com/zhangyiming748/AVmerger/sql"
 	"github.com/zhangyiming748/AVmerger/util"
 	"log/slog"
-	"os"
 	"path"
 	"runtime"
-	"strings"
 )
 
 func init() {
@@ -31,7 +29,8 @@ func main() {
 		merge.Merge(constant.GLOBAL)
 		found = true
 	}
-	src := strings.Join([]string{getRoot(), "download"}, string(os.PathSeparator))
+	src := "/mnt/e/video/download"
+	//src := strings.Join([]string{getRoot(), "download"}, string(os.PathSeparator))
 	if merge.IsExist(src) {
 		if !found {
 			merge.Merge(src)
