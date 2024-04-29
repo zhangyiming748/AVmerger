@@ -311,6 +311,7 @@ func getFolder(dir string) string {
 		}
 	}
 	os.Exit(-1)
+	return ""
 }
 
 type Danmaku struct {
