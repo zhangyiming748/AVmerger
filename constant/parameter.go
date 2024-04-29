@@ -26,7 +26,7 @@ func GetLogLevel() string {
 */
 func SetLogLevel(s string) {
 	file := "AVmerge.log"
-	logf, err := os.OpenFile(file, os.O_CREATE|os.O_WRONLY, 0770)
+	logf, err := os.OpenFile(file, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0777)
 	if err != nil {
 		panic(err)
 	}

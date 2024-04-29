@@ -137,11 +137,11 @@ func mergeOne(index int, entryFile util.BasicInfo) {
 			record.Reason = fmt.Sprint(err)
 		} else {
 			record.Success = true
-			if err = os.RemoveAll(entryFile.PurgePath); err != nil {
-				slog.Warn("删除失败", slog.String("要删除的文件夹", entryFile.PurgePath), slog.Any("错误原文", err))
-			} else {
-				slog.Warn("删除成功")
-			}
+			//if err = os.RemoveAll(entryFile.PurgePath); err != nil {
+			//	slog.Warn("删除失败", slog.String("要删除的文件夹", entryFile.PurgePath), slog.Any("错误原文", err))
+			//} else {
+			//	slog.Warn("删除成功")
+			//}
 		}
 		record.SetOne()
 	}()
@@ -176,7 +176,7 @@ func mergeOne(index int, entryFile util.BasicInfo) {
 		slog.Error("弹幕转换错误 此次忽略")
 	}
 	aac := exec.Command("ffmpeg", "-i", o.ALocation, "-c:a", "copy", o.AName)
-	slog.Info("命令执行前的总结", slog.Any("全部信息", o))
+	slog.Info("命令执行前的总结", slog.Any("全部信息", o), slog.String("命令原文", cmd.String()))
 	err := util.ExecCommand(aac)
 	err = util.ExecCommand(cmd)
 	if err != nil {
@@ -299,17 +299,15 @@ func CutName(before string) (after string) {
 func getFolder(dir string) string {
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		fmt.Println("Error:", err)
+		slog.Error("获取视频所在二级文件夹失败", slog.String("dir", dir),slog.Any("err", err))
 		return ""
 	}
-	var fname string
 	for _, file := range files {
 		if file.IsDir() {
-			fname = file.Name()
+			return strings.Join([]string{dir, file.Name()}, string(os.PathSeparator))
 		}
 	}
-
-	return strings.Join([]string{dir, fname}, "")
+	return ""
 }
 
 type Danmaku struct {
