@@ -22,6 +22,11 @@ func main() {
 			slog.Info("跳过已经是h265编码的视频", slog.String("视频名", file.FullPath))
 			continue
 		}
+		if codec == "VP9" {
+			slog.Info("跳过已经是VP9编码的视频", slog.String("视频名", file.FullPath))
+			continue
+		}
+
 		crf := GetCrfForVP9(width, height)
 
 		after := strings.Replace(file.FullPath, ".mkv", "vp9.mkv", 1)
@@ -228,6 +233,9 @@ func GetCodec(fp string) (codec, width, height string) {
 		if v.Type == "Video" {
 			if v.Format == "HEVC" {
 				codec = "HEVC"
+			}
+			if v.Format == "VP9" {
+				codec = "VP9"
 			}
 			width = v.Width
 			height = v.Height
