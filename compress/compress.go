@@ -14,7 +14,7 @@ import (
 
 func main() {
 	constant.SetLogLevel("Debug")
-	files, _ := util.GetMKVFilesWithExt("/mnt/f/alist/bilibili/zyl2012")
+	files, _ := util.GetMKVFilesWithExt("/mnt/f/alist/bilibili")
 	for _, file := range files {
 		slog.Debug(fmt.Sprintf("获取到的mkv%+v\n", file))
 		codec, width, height := GetCodec(file.FullPath)
@@ -46,7 +46,6 @@ func main() {
 			} else {
 				slog.Warn("转换后的文件比源文件更大", slog.String("源文件", file.FullPath), slog.String("目标文件", after), slog.String("命令原文", cmd.String()))
 			}
-
 		}
 		slog.Debug(fmt.Sprintln("命令输出", string(output)))
 	}
