@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"strings"
 )
 
 func init() {
@@ -19,8 +20,11 @@ func init() {
 
 func main() {
 	defer func() {
-		os.Chmod("merge.db", 0666)
-		os.Chmod("AVmerger.log", 0666)
+		err := os.Chmod("merge.db", 0666)
+		err = os.Chmod("AVmerger.log", 0666)
+		if err != nil {
+			slog.Error("修改权限错误")
+		}
 		sms.SendMessage()
 	}()
 	found := false
@@ -36,8 +40,7 @@ func main() {
 		merge.Merge(constant.GLOBAL)
 		found = true
 	}
-	src := "/mnt/e/video/download"
-	//src := strings.Join([]string{getRoot(), "download"}, string(os.PathSeparator))
+	src := strings.Join([]string{getRoot(), "download"}, string(os.PathSeparator))
 	if merge.IsExist(src) {
 		if !found {
 			merge.Merge(src)
