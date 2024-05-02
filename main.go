@@ -6,6 +6,7 @@ import (
 	"github.com/zhangyiming748/AVmerger/sql"
 	"github.com/zhangyiming748/AVmerger/util"
 	"log/slog"
+	"os"
 	"path"
 	"runtime"
 )
@@ -16,6 +17,10 @@ func init() {
 }
 
 func main() {
+	defer func() {
+		os.Chmod("merge.db", 0666)
+		os.Chmod("AVmerger.log", 0666)
+	}()
 	found := false
 	if merge.IsExist(constant.BILI) {
 		merge.Merge(constant.BILI)

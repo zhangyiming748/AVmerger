@@ -25,7 +25,7 @@ func GetLogLevel() string {
 设置程序运行的日志等级
 */
 func SetLogLevel(s string) {
-	file := "AVmerge.log"
+	file := "AVmerger.log"
 	logf, err := os.OpenFile(file, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0777)
 	if err != nil {
 		panic(err)
