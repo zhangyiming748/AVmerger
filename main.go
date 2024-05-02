@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/zhangyiming748/AVmerger/constant"
 	"github.com/zhangyiming748/AVmerger/merge"
+	"github.com/zhangyiming748/AVmerger/sms"
 	"github.com/zhangyiming748/AVmerger/sql"
 	"github.com/zhangyiming748/AVmerger/util"
 	"log/slog"
@@ -20,6 +21,7 @@ func main() {
 	defer func() {
 		os.Chmod("merge.db", 0666)
 		os.Chmod("AVmerger.log", 0666)
+		sms.SendMessage()
 	}()
 	found := false
 	if merge.IsExist(constant.BILI) {
