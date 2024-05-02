@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/zhangyiming748/AVmerger/constant"
 	"github.com/zhangyiming748/AVmerger/merge"
-	"github.com/zhangyiming748/AVmerger/sms"
 	"github.com/zhangyiming748/AVmerger/sql"
 	"github.com/zhangyiming748/AVmerger/util"
 	"log/slog"
@@ -25,7 +24,7 @@ func main() {
 		if err != nil {
 			slog.Error("修改权限错误")
 		}
-		sms.SendMessage()
+		//sms.SendMessage()
 	}()
 	found := false
 	if merge.IsExist(constant.BILI) {
