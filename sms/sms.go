@@ -1,7 +1,7 @@
 package sms
 
 import (
-	"log/slog"
+	"log"
 	"os/exec"
 	"runtime"
 )
@@ -16,8 +16,8 @@ func SendMessage() {
 		cmd := exec.Command("termux-sms-send", "-n", NUM, "AVmerger程序运行结束")
 		output, err := cmd.CombinedOutput()
 		if err != nil {
-			slog.Error("发短信命令执行出错 可能是未安装termux-api")
+			//slog.Error("发短信命令执行出错 可能是未安装termux-api")
 		}
-		slog.Info(string(output))
+		log.Println(string(output))
 	}
 }

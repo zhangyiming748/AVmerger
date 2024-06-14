@@ -3,9 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/zhangyiming748/AVmerger/constant"
 	"github.com/zhangyiming748/AVmerger/util"
-	"log/slog"
+	"log"
 	"os"
 	"os/exec"
 	"strconv"
@@ -13,17 +12,16 @@ import (
 )
 
 func main() {
-	constant.SetLogLevel("Debug")
 	files, _ := util.GetMKVFilesWithExt("/data/data/com.termux/files/home/storage/movies/bili")
 	for _, file := range files {
-		slog.Debug(fmt.Sprintf("获取到的mkv%+v\n", file))
+		//slog.Debug(fmt.Sprintf("获取到的mkv%+v\n", file))
 		codec, width, height := GetCodec(file.FullPath)
 		if codec == "HEVC" {
-			slog.Info("跳过已经是h265编码的视频", slog.String("视频名", file.FullPath))
+			log.Printf("跳过已经是h265编码的视频:%v\n", file.FullPath)
 			continue
 		}
 		if codec == "VP9" {
-			slog.Info("跳过已经是VP9编码的视频", slog.String("视频名", file.FullPath))
+			log.Printf("跳过已经是VP9编码的视频:%v\n", file.FullPath)
 			continue
 		}
 
@@ -31,7 +29,7 @@ func main() {
 
 		after := strings.Replace(file.FullPath, ".mkv", "vp9.mkv", 1)
 		cmd := exec.Command("ffmpeg", "-i", file.FullPath, "-map", "0:v:0", "-map", "0:a:0", "-map", "0:s:0", "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-b:a", "128k", "-vbr", "0", "-ac", "1", after)
-		slog.Debug(fmt.Sprintf("命令原文:%s", cmd.String()))
+		log.Printf("命令原文:%s\n", cmd.String())
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			return
@@ -41,13 +39,13 @@ func main() {
 				if err != nil {
 					return
 				} else {
-					slog.Warn(fmt.Sprintf("删除文件%v\n", file.FullPath))
+					log.Printf("删除文件%v\n", file.FullPath)
 				}
 			} else {
-				slog.Warn("转换后的文件比源文件更大", slog.String("源文件", file.FullPath), slog.String("目标文件", after), slog.String("命令原文", cmd.String()))
+				log.Println("转换后的文件比源文件更大")
 			}
 		}
-		slog.Debug(fmt.Sprintln("命令输出", string(output)))
+		log.Println("命令输出", string(output))
 	}
 }
 func compere(before, after string) (result string) {

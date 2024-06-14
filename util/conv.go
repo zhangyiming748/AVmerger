@@ -2,7 +2,7 @@ package util
 
 import (
 	"fmt"
-	"log/slog"
+	"log"
 	"os/exec"
 	"strings"
 )
@@ -13,12 +13,12 @@ func Conv(xml, ass string) (string, error) {
 	cmd := exec.Command("bash", "-c", bat)
 	//cmd := exec.Command("danmaku2ass", xml.FullPath, "-s", "1280x720", "-dm", "15", "-fs", "45", "-a", "50", "-r", "-o", ass)
 	output, err := cmd.CombinedOutput()
-	slog.Debug("生成命令", slog.String("命令原文", fmt.Sprint(cmd)))
+	log.Printf("生成命令:%v\n", fmt.Sprint(cmd))
 	if err != nil {
-		slog.Warn("当前弹幕文件转换错误", slog.Any("文件信息", xml), slog.Any("错误原文", err))
+		log.Printf("当前弹幕文件转换错误:%v\n", err)
 		return "", err
 	} else {
-		slog.Info("当前弹幕文件转换成功", slog.Any("命令输出", string(output)))
+		log.Printf("当前弹幕文件转换成功:%v\n", string(output))
 		return ass, nil
 	}
 }

@@ -3,7 +3,7 @@ package util
 import (
 	"encoding/json"
 	"fmt"
-	"log/slog"
+	"log"
 	"os/exec"
 	"strings"
 )
@@ -148,13 +148,13 @@ func GetParam(fp string) VideoInfo {
 	cmd := exec.Command("mediainfo", "--Output=JSON", "--Full", fp)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		slog.Warn("mediainfo命令执行失败,有可能没安装mediainfo,请安装mediainfo后再试", slog.String("错误原文", err.Error()))
+		log.Fatalln("mediainfo命令执行失败,有可能没安装mediainfo,请安装mediainfo后再试")
 		return VideoInfo{}
 	}
 	var mi MediaInfo
 	var vi VideoInfo
 	if err = json.Unmarshal(output, &mi); err != nil {
-		slog.Warn("mediainfo解析json失败", slog.String("错误原文", err.Error()))
+		log.Fatalf("mediainfo解析json失败:%v\n", err.Error())
 		return VideoInfo{}
 	}
 	for _, track := range mi.Media.Track {

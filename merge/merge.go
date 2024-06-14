@@ -8,7 +8,7 @@ import (
 	"github.com/zhangyiming748/AVmerger/replace"
 	"github.com/zhangyiming748/AVmerger/sql"
 	"github.com/zhangyiming748/AVmerger/util"
-	"log/slog"
+	"log"
 	"os"
 	"os/exec"
 	"strconv"
@@ -140,7 +140,7 @@ func mergeOne(index int, entryFile util.BasicInfo) {
 		}
 		record.SetOne()
 	}()
-	slog.Info(fmt.Sprintf("正在处理第%d个文件%+v", index+1, entryFile))
+	log.Printf("正在处理第%d个文件%+v", index+1, entryFile)
 	content := getFolder(entryFile.PurgePath)
 	o.VLocation = strings.Join([]string{content, "video.m4s"}, string(os.PathSeparator))
 	o.ALocation = strings.Join([]string{content, "audio.m4s"}, string(os.PathSeparator))
@@ -149,8 +149,6 @@ func mergeOne(index int, entryFile util.BasicInfo) {
 	o.JName = replace.ForFileName(o.JName)
 	// 替换连续空格
 	o.JName = strings.Replace(o.JName, "  ", " ", -1)
-	slog.Debug("音视频所在文件夹", slog.String("json文件名", o.JName), slog.String("音频所在文件夹", o.ALocation), slog.String("视频所在文件夹", o.VLocation))
-
 	androidVideo := strings.Join([]string{constant.ANDROIDVIDEO, owner}, string(os.PathSeparator))
 	androidAudio := strings.Join([]string{constant.ANDROIDAUDIO, owner}, string(os.PathSeparator))
 	androidDanmaku := strings.Join([]string{constant.ANDROIDDANMAKU, owner}, string(os.PathSeparator))
@@ -162,16 +160,15 @@ func mergeOne(index int, entryFile util.BasicInfo) {
 	if IsExist(strings.Join([]string{util.GetRoot(), "download"}, string(os.PathSeparator))) {
 		o.VName = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), o.JName, ".mkv"}, "")
 		o.AName = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), o.JName, ".aac"}, "")
-		slog.Info("文件夹更改到本地", slog.Any("location", o.VLocation), slog.Any("location", o.AName))
 	}
 
 	cmd := exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-i", o.AssLocation, "-c:v", "copy", "-c:a", "copy", "-c:s", "ass", o.VName)
 	if assErr != nil {
 		cmd = exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-c:v", "copy", "-c:a", "copy", o.VName)
-		slog.Error("弹幕转换错误 此次忽略")
+		log.Println("弹幕转换错误 此次忽略")
 	}
 	aac := exec.Command("ffmpeg", "-i", o.ALocation, "-c:a", "copy", o.AName)
-	slog.Info("命令执行前的总结", slog.Any("全部信息", o), slog.String("命令原文", cmd.String()))
+	log.Printf("命令执行前的总结\t全部信息%+v\t命令原文%v\n", o, cmd.String())
 	err := util.ExecCommand(aac)
 	if err != nil {
 		panic("命令执行发生严重错误")
@@ -181,9 +178,9 @@ func mergeOne(index int, entryFile util.BasicInfo) {
 		panic("命令执行发生严重错误")
 	}
 	if err = os.RemoveAll(entryFile.PurgePath); err != nil {
-		slog.Warn("删除失败", slog.String("要删除的文件夹", entryFile.PurgePath), slog.Any("错误原文", err))
+
 	} else {
-		slog.Warn("删除成功")
+
 	}
 
 }
@@ -247,8 +244,9 @@ func getName(jackson string, record *sql.Bili) (string, string, error) {
 		name = strings.Join([]string{entry.Title, entry.PageData.Part}, " ")
 	}
 	name = replace.ForFileName(name)
-	slog.Debug("解析之后拼接", slog.String("名称", name))
+	//slog.Debug("解析之后拼接", slog.String("名称", name))
 	//record.SetOne()
+	name = strings.TrimRight(name, " ")
 	return name, entry.OwnerName, nil
 }
 
@@ -284,15 +282,15 @@ func isFileExist(fp string) bool {
 */
 func CutName(before string) (after string) {
 	for i, char := range before {
-		slog.Debug(fmt.Sprintf("第%d个字符:%v", i+1, string(char)))
+		//slog.Debug(fmt.Sprintf("第%d个字符:%v", i+1, string(char)))
 		if i >= 124 {
-			slog.Debug("截取124之前的完整字符")
+			//slog.Debug("截取124之前的完整字符")
 			break
 		} else {
 			after = strings.Join([]string{after, string(char)}, "")
 		}
 	}
-	slog.Debug("截取后", slog.String("before", before), slog.String("after", after))
+	//slog.Debug("截取后", slog.String("before", before), slog.String("after", after))
 	return after
 }
 
@@ -302,7 +300,7 @@ func CutName(before string) (after string) {
 func getFolder(dir string) string {
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		slog.Error("获取视频所在二级文件夹失败", slog.String("dir", dir), slog.Any("err", err))
+		//slog.Error("获取视频所在二级文件夹失败", slog.String("dir", dir), slog.Any("err", err))
 		os.Exit(-1)
 	}
 	for _, file := range files {
@@ -354,6 +352,6 @@ func xml2ass(path, name string) {
 	cmd := exec.Command("danmaku2ass.py", path, "-s", "1280x720", "-dm", "15", "-o", name)
 	_, err := cmd.CombinedOutput()
 	if err != nil {
-		slog.Warn("字幕转换失败", slog.String("命令原文", fmt.Sprint(cmd)), slog.String("错误原文", fmt.Sprint(err)))
+		//slog.Warn("字幕转换失败", slog.String("命令原文", fmt.Sprint(cmd)), slog.String("错误原文", fmt.Sprint(err)))
 	}
 }

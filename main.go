@@ -5,7 +5,7 @@ import (
 	"github.com/zhangyiming748/AVmerger/merge"
 	"github.com/zhangyiming748/AVmerger/sql"
 	"github.com/zhangyiming748/AVmerger/util"
-	"log/slog"
+	"log"
 	"os"
 	"path"
 	"runtime"
@@ -13,7 +13,6 @@ import (
 )
 
 func init() {
-	constant.SetLogLevel("Debug")
 	sql.SetEngine()
 }
 
@@ -22,7 +21,7 @@ func main() {
 		err := os.Chmod("merge.db", 0666)
 		err = os.Chmod("AVmerger.log", 0666)
 		if err != nil {
-			slog.Error("修改权限错误")
+			log.Fatalln("修改权限错误")
 		}
 		//sms.SendMessage()
 	}()
@@ -49,7 +48,7 @@ func main() {
 
 func getRoot() string {
 	_, filename, _, _ := runtime.Caller(0)
-	slog.Info("getRoot", slog.String("当前的工作目录", filename))
+	log.Printf("当前的工作目录:%v\n", filename)
 	util.SetRoot(path.Dir(filename))
 	return util.GetRoot()
 }

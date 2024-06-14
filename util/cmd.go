@@ -2,28 +2,21 @@ package util
 
 import (
 	"fmt"
-	"log/slog"
-	"os"
+	"log"
 	"os/exec"
 	"strings"
 )
 
 func ExecCommand(c *exec.Cmd) (e error) {
-	defer func() {
-		if err := recover(); err != nil {
-			slog.Warn("命令运行出现错误", slog.String("命令原文", fmt.Sprint(c)), slog.Any("错误原文", err))
-			os.Exit(-1)
-		}
-	}()
-	slog.Info("开始执行命令", slog.String("命令原文", fmt.Sprint(c)))
+	log.Printf("开始执行命令:%v\n", c.String())
 	stdout, err := c.StdoutPipe()
 	c.Stderr = c.Stdout
 	if err != nil {
-		slog.Warn("连接Stdout产生错误", slog.String("命令原文", fmt.Sprint(c)), slog.String("错误原文", fmt.Sprint(err)))
+		log.Fatalf("连接Stdout产生错误:%v\n", err)
 		return err
 	}
 	if err = c.Start(); err != nil {
-		slog.Warn("启动cmd命令产生错误", slog.String("命令原文", fmt.Sprint(c)), slog.String("错误原文", fmt.Sprint(err)))
+		log.Fatalf("启动cmd命令产生错误:%v\n", err)
 		return err
 	}
 	for {
@@ -37,7 +30,7 @@ func ExecCommand(c *exec.Cmd) (e error) {
 		}
 	}
 	if err = c.Wait(); err != nil {
-		slog.Warn("命令执行中产生错误", slog.String("命令原文", fmt.Sprint(c)), slog.String("错误原文", fmt.Sprint(err)))
+		log.Fatalf("命令执行中产生错误:%v\n", err)
 		return err
 	}
 	return nil
