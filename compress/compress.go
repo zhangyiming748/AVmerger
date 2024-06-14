@@ -14,7 +14,7 @@ import (
 
 func main() {
 	constant.SetLogLevel("Debug")
-	files, _ := util.GetMKVFilesWithExt("/mnt/f/alist/bilibili")
+	files, _ := util.GetMKVFilesWithExt("/data/data/com.termux/files/home/storage/movies/bili")
 	for _, file := range files {
 		slog.Debug(fmt.Sprintf("获取到的mkv%+v\n", file))
 		codec, width, height := GetCodec(file.FullPath)
@@ -30,7 +30,7 @@ func main() {
 		crf := GetCrfForVP9(width, height)
 
 		after := strings.Replace(file.FullPath, ".mkv", "vp9.mkv", 1)
-		cmd := exec.Command("ffmpeg", "-i", file.FullPath, "-map", "0:v:0", "-map", "0:a:0", "-map", "0:s:0", "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libvorbis", after)
+		cmd := exec.Command("ffmpeg", "-i", file.FullPath, "-map", "0:v:0", "-map", "0:a:0", "-map", "0:s:0", "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libopus", "-b:a", "128k", "-vbr", "0", "-ac", "1", after)
 		slog.Debug(fmt.Sprintf("命令原文:%s", cmd.String()))
 		output, err := cmd.CombinedOutput()
 		if err != nil {
