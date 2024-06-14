@@ -2,16 +2,13 @@ package merge
 
 import (
 	"encoding/json"
-	"encoding/xml"
 	"fmt"
 	"github.com/zhangyiming748/AVmerger/constant"
 	"github.com/zhangyiming748/AVmerger/replace"
-	"github.com/zhangyiming748/AVmerger/sql"
 	"github.com/zhangyiming748/AVmerger/util"
 	"log"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 )
 
@@ -130,22 +127,12 @@ func mergeOne(index int, entryFile util.BasicInfo) {
 	o.XmlLocation = strings.Join([]string{entryFile.PurgePath, "danmaku.xml"}, string(os.PathSeparator))
 	o.AssLocation = strings.Join([]string{entryFile.PurgePath, "danmaku.ass"}, string(os.PathSeparator))
 	_, assErr := util.Conv(o.XmlLocation, o.AssLocation)
-	record := new(sql.Bili)
-	defer func() {
-		if err := recover(); err != nil {
-			record.Success = false
-			record.Reason = fmt.Sprint(err)
-		} else {
-			record.Success = true
-		}
-		record.SetOne()
-	}()
 	log.Printf("正在处理第%d个文件%+v", index+1, entryFile)
 	content := getFolder(entryFile.PurgePath)
 	o.VLocation = strings.Join([]string{content, "video.m4s"}, string(os.PathSeparator))
 	o.ALocation = strings.Join([]string{content, "audio.m4s"}, string(os.PathSeparator))
 	owner := ""
-	o.JName, owner, _ = getName(entryFile.FullPath, record)
+	o.JName, owner, _ = getName(entryFile.FullPath)
 	o.JName = replace.ForFileName(o.JName)
 	// 替换连续空格
 	o.JName = strings.Replace(o.JName, "  ", " ", -1)
@@ -203,7 +190,7 @@ func isDir(path string) bool {
 /*
 解析并返回文件名和owner_name
 */
-func getName(jackson string, record *sql.Bili) (string, string, error) {
+func getName(jackson string) (string, string, error) {
 	var entry Entry
 	file, err := os.ReadFile(jackson)
 	if err != nil {
@@ -211,19 +198,6 @@ func getName(jackson string, record *sql.Bili) (string, string, error) {
 	}
 	err = json.Unmarshal(file, &entry)
 
-	//record := new(sql.Bili)
-	record.Title = entry.Title
-	record.Cover = strings.Replace(entry.Cover, "\\/", "//", -1)
-	record.CreatedAt = sql.S2T(strconv.FormatInt(entry.TimeCreateStamp, 10))
-	record.UpdatedAt = sql.S2T(strconv.FormatInt(entry.TimeUpdateStamp, 10))
-	record.Owner = entry.OwnerName
-	record.PartName = entry.PageData.Part
-	// https://www.bilibili.com/video/av229337132
-	record.AvID = strings.Join([]string{"https://www.bilibili.com/video/av", strconv.Itoa(entry.Avid)}, "")
-	// https://www.bilibili.com/video/BV
-	record.BvID = strings.Join([]string{"https://www.bilibili.com/video/BV", entry.Bvid}, "")
-	record.Original = string(file)
-	//record.SetOne()
 	if err != nil {
 		return "", "", err
 	}
@@ -237,9 +211,6 @@ func getName(jackson string, record *sql.Bili) (string, string, error) {
 		index_title := b.Ep.IndexTitle
 		index := b.Ep.Index
 		name = strings.Join([]string{index, entry.Title, index_title}, " ")
-		record.PartName = index_title
-		record.BvID = strings.Join([]string{"https://www.bilibili.com/video/", b.Ep.Bvid}, "")
-		record.AvID = strings.Join([]string{"https://www.bilibili.com/video/av", strconv.Itoa(b.Ep.AvId)}, "")
 	} else {
 		name = strings.Join([]string{entry.Title, entry.PageData.Part}, " ")
 	}
@@ -323,26 +294,6 @@ type Danmaku struct {
 	D          []struct {
 		P string `xml:",innerxml"`
 	} `xml:"d"`
-}
-
-func ReadDanmaku(xmlFile string, record *sql.Bili) {
-	file, err := os.ReadFile(xmlFile)
-	if err != nil {
-		return
-	}
-
-	var d Danmaku
-	var dans []sql.Danmaku
-	xml.Unmarshal(file, &d)
-	for _, v := range d.D {
-		var dan sql.Danmaku
-		dan.AvID = record.AvID
-		dan.BvID = record.BvID
-		dan.Title = record.Title
-		dan.Content = v.P
-		dans = append(dans, dan)
-	}
-	new(sql.Danmaku).SetMany(&dans)
 }
 
 func xml2ass(path, name string) {
