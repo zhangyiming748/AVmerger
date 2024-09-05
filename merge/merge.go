@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 type Entry struct {
@@ -148,28 +149,27 @@ func mergeOne(index int, entryFile util.BasicInfo) {
 		o.VName = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), o.JName, ".mkv"}, "")
 		o.AName = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), o.JName, ".aac"}, "")
 	}
+	title := strings.Join([]string{"title", "弹幕"}, "=")
+	language := strings.Join([]string{"language", "zh_cn"}, "=")
+	handler_name := strings.Join([]string{"handler_name", "danmaku2ass"}, "=")
+	comment := strings.Join([]string{"comment", "https://github.com/m13253/danmaku2ass"}, "=")
+	now := time.Now().Format("2006-01-02 15:04:05")
+	creation_time := strings.Join([]string{"creation_time", now}, "=")
 
-	cmd := exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-i", o.AssLocation, "-c:v", "copy", "-c:a", "copy", "-c:s", "ass", o.VName)
+	cmd := exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-i", o.AssLocation, "-c:v", "copy", "-c:a", "copy", "-c:s", "ass", "-metadata:s:s:0", title, "-metadata:s:s:0", language, "-metadata:s:s:0", handler_name, "-metadata:s:s:0", comment, "-metadata:s:s:0", creation_time, o.VName)
 	if assErr != nil {
 		cmd = exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-c:v", "copy", "-c:a", "copy", o.VName)
 		log.Println("弹幕转换错误 此次忽略")
 	}
 	aac := exec.Command("ffmpeg", "-i", o.ALocation, "-c:a", "copy", o.AName)
 	log.Printf("命令执行前的总结\t全部信息%+v\t命令原文%v\n", o, cmd.String())
-	err := util.ExecCommand(aac)
+	go util.ExecCommand(aac)
+	err := util.ExecCommand(cmd)
 	if err != nil {
-		panic("命令执行发生严重错误")
-	}
-	err = util.ExecCommand(cmd)
-	if err != nil {
-		panic("命令执行发生严重错误")
-	}
-	if err = os.RemoveAll(entryFile.PurgePath); err != nil {
-
+		log.Fatalf("命令执行发生严重错误:%v\n", err)
 	} else {
-
+		os.RemoveAll(entryFile.PurgePath)
 	}
-
 }
 
 func clean(dir string) {
