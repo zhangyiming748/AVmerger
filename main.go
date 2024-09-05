@@ -23,7 +23,7 @@ func main() {
 		err := os.Chmod("merge.db", 0666)
 		err = os.Chmod("AVmerger.log", 0666)
 		if err != nil {
-			log.Fatalln("修改权限错误")
+			log.Println("修改权限错误")
 		}
 		//sms.SendMessage()
 	}()

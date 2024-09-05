@@ -72,3 +72,18 @@ func Effective(s string) bool {
 	}
 	return false
 }
+func RemoveLeadingSpace(s string) string {
+	// 检查字符串是否为空
+	if len(s) == 0 {
+		return s
+	}
+
+	// 检查第一个字符是否为空格
+	if s[0] == ' ' {
+		// 返回去掉第一个字符的字符串
+		return s[1:]
+	}
+
+	// 如果第一个字符不是空格，返回原字符串
+	return s
+}

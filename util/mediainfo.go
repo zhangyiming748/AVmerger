@@ -154,7 +154,7 @@ func GetParam(fp string) VideoInfo {
 	var mi MediaInfo
 	var vi VideoInfo
 	if err = json.Unmarshal(output, &mi); err != nil {
-		log.Fatalf("mediainfo解析json失败:%v\n", err.Error())
+		log.Fatalln("mediainfo解析json失败", err)
 		return VideoInfo{}
 	}
 	for _, track := range mi.Media.Track {

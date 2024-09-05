@@ -218,6 +218,7 @@ func getName(jackson string) (string, string, error) {
 	//slog.Debug("解析之后拼接", slog.String("名称", name))
 	//record.SetOne()
 	name = strings.TrimRight(name, " ")
+	name = replace.RemoveLeadingSpace(name)
 	return name, entry.OwnerName, nil
 }
 
