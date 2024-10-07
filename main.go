@@ -40,6 +40,10 @@ func main() {
 		merge.Merge(constant.GLOBAL)
 		found = true
 	}
+	if merge.IsExist(constant.BLUE) {
+		merge.Merge(constant.BLUE)
+		found = true
+	}
 	src := strings.Join([]string{getRoot(), "download"}, string(os.PathSeparator))
 	if merge.IsExist(src) {
 		if !found {
