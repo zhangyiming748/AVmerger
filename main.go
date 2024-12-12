@@ -29,21 +29,19 @@ func main() {
 		//sms.SendMessage()
 	}()
 	defer func() {
-		passwd := ""
 		if len(os.Args) > 1 {
-			passwd = os.Args[1]
+			passwd := os.Args[1]
+			videos := "/data/data/com.termux/files/home/storage/movies/bili"
+			audios := "/data/data/com.termux/files/home/storage/music/bili"
+			targetV := "/home/zen/ugreen/alist/bili/videos"
+			targetA := "/home/zen/ugreen/alist/bili/audios"
+			if err := util.RsyncDir(videos, targetV, "zen", "192.168.1.9", passwd); err != nil {
+				log.Printf("Rsync failed:%v\n", err)
+			}
+			if err := util.RsyncDir(audios, targetA, "zen", "192.168.1.9", passwd); err != nil {
+				log.Printf("Rsync failed:%v\n", err)
+			}
 		}
-		videos := "/data/data/com.termux/files/home/storage/movies/bili"
-		audios := "/data/data/com.termux/files/home/storage/music/bili"
-		targetV := "/home/zen/ugreen/alist/bili/videos"
-		targetA := "/home/zen/ugreen/alist/bili/audios"
-		if err := util.RsyncDir(videos, targetV, "zen", "192.168.1.9", passwd); err != nil {
-			log.Panicln("Rsync failed:", err)
-		}
-		if err := util.RsyncDir(audios, targetA, "zen", "192.168.1.9", passwd); err != nil {
-			log.Panicln("Rsync failed:", err)
-		}
-
 	}()
 	found := false
 	if merge.IsExist(constant.BILI) {
