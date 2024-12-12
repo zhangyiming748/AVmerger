@@ -24,3 +24,10 @@ func SetSecParam(s string) {
 func GetSecParam() string {
 	return SecondParameter
 }
+
+/*
+find /sdcard/Android/data/tv.danmaku.bili/download -type d
+find /sdcard/Android/data/tv.danmaku.bilibilihd/download -type d
+find /sdcard/Android/data/com.bilibili.app.in/download -type d
+find /sdcard/Android/data/com.bilibili.app.blue/download -type d
+*/
