@@ -5,28 +5,22 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/zhangyiming748/pretty"
 )
 
 type BasicInfo struct {
-	FullPath  string `json:"full_path,omitempty"`  // 文件的绝对路径
-	FullName  string `json:"full_name,omitempty"`  // 文件名
-	PurgeName string `json:"purge_name,omitempty"` // 单纯文件名
-	PurgeExt  string `json:"purge_ext,omitempty"`  // 单纯扩展名
-	PurgePath string `json:"purge_path,omitempty"` // 文件所在路径 不包含最后一个路径分隔符
+	EntryFullPath  string // entry文件所在的绝对路径 /Users/zen/gitea/AVmerge/AVmerger/download/1656385690/c_1624397638/entry.json
+	EntryPurgePath string // 文件所在路径 不包含最后一个路径分隔符 /Users/zen/gitea/AVmerge/AVmerger/download/1656385690/c_1624397638
+	Video          string // 视频路径
+	Audio          string // 音频路径
+	Effect         bool   // 判断是否是一个有效目录
+
 }
 
 /*
-/mnt/e/video/download/1051383511/c_1456495552/80/index.json
-/mnt/e/video/download/1051383511/c_1456495552/entry.json
-/mnt/e/video/download/1103999468/c_1523388910/80/index.json
-/mnt/e/video/download/1103999468/c_1523388910/entry.json
-/mnt/e/video/download/1352273496/c_1487186880/80/index.json
-/mnt/e/video/download/1352273496/c_1487186880/entry.json
-/mnt/e/video/download/1403301913/c_1512244733/80/index.json
-/mnt/e/video/download/1403301913/c_1512244733/entry.json
-/mnt/e/video/download/1502538820/c_1494026446/80/index.json
-*/
-func GetEntryFilesWithExt(dir, ext string) (bs []*BasicInfo, err error) {
+ */
+func GetEntryFilesWithExt(dir, ext string) (bs []BasicInfo, err error) {
 	var files []string
 	err = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -35,13 +29,30 @@ func GetEntryFilesWithExt(dir, ext string) (bs []*BasicInfo, err error) {
 		if !info.IsDir() && filepath.Ext(path) == ext {
 			files = append(files, path)
 			if strings.Contains(path, "entry.json") {
-				b := new(BasicInfo)
-				b.FullPath = path
-				b.FullName = filepath.Base(path)
-				b.PurgeName = "entry"
-				b.PurgeExt = "json"
-				b.PurgePath = filepath.Dir(path)
-				fmt.Printf("%+v\n", b)
+				var b BasicInfo
+				b.EntryFullPath = path
+				b.EntryPurgePath = filepath.Dir(path)
+				source, err := findSingleDirectory(b.EntryPurgePath)
+				if err != nil {
+					fmt.Println(err)
+					b.Effect = false
+				} else {
+					fmt.Printf("资源文件夹:%v\n", source)
+					b.Video = filepath.Join(source, "video.m4s")
+					if !isExist(b.Video) || b.Video == "" {
+						b.Effect = false
+					} else {
+						b.Effect = true
+					}
+					b.Audio = filepath.Join(source, "audio.m4s")
+					if !isExist(b.Audio) || b.Audio == "" {
+						b.Effect = false
+					} else {
+						b.Effect = true
+					}
+				}
+				pretty.P(b)
+				fmt.Println(b)
 				bs = append(bs, b)
 			}
 		}
@@ -53,28 +64,49 @@ func GetEntryFilesWithExt(dir, ext string) (bs []*BasicInfo, err error) {
 	return bs, nil
 }
 
-func GetMKVFilesWithExt(dir string) (bs []*BasicInfo, err error) {
-	var files []string
-	err = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+/*
+查询给定目录下唯一的文件夹
+*/
+// findSingleDirectory returns the absolute path of the single directory in the given root directory.
+func findSingleDirectory(root string) (string, error) {
+	var singleDir string
+	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() && filepath.Ext(path) == ".mkv" {
-			files = append(files, path)
-			b := new(BasicInfo)
-			b.FullPath = path
-			b.FullName = filepath.Base(path)
-			lastIndex := strings.LastIndex(b.FullName, ".")
-			b.PurgeName = b.FullName[:lastIndex]
-			b.PurgeExt = b.FullName[lastIndex+1:]
-			b.PurgePath = filepath.Dir(path)
-			fmt.Printf("%+v\n", b)
-			bs = append(bs, b)
+		if info.IsDir() && path != root {
+			if singleDir != "" {
+				return fmt.Errorf("more than one directory found")
+			}
+			singleDir = path
 		}
 		return nil
 	})
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return bs, nil
+	if singleDir == "" {
+		return "", fmt.Errorf("no directory found")
+	}
+	absPath, err := filepath.Abs(singleDir)
+	if err != nil {
+		return "", err
+	}
+	return absPath, nil
+}
+
+/*
+判断路径是否存在
+*/
+func isExist(path string) bool {
+	if _, err := os.Stat(path); err == nil {
+		fmt.Println("路径存在")
+		return true
+	} else if os.IsNotExist(err) {
+		fmt.Println("路径不存在")
+		return false
+	} else {
+		fmt.Println("发生错误：", err)
+		return false
+	}
 }

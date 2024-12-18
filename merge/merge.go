@@ -2,15 +2,17 @@ package merge
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/zhangyiming748/AVmerger/constant"
-	"github.com/zhangyiming748/AVmerger/replace"
-	"github.com/zhangyiming748/AVmerger/util"
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
-	"time"
+
+	"github.com/zhangyiming748/AVmerger/constant"
+
+	"github.com/zhangyiming748/AVmerger/replace"
+	"github.com/zhangyiming748/AVmerger/util"
+	"github.com/zhangyiming748/FastMediaInfo"
 )
 
 type Entry struct {
@@ -104,87 +106,80 @@ type PlanB struct {
 	} `json:"ep"`
 	SeasonId string `json:"season_id"`
 }
-type One struct {
-	VName       string // 最终视频文件名
-	AName       string // 最终音频文件名
-	JName       string // json 中获取的名称
-	VLocation   string // video.m4s 文件位置
-	ALocation   string // audio.m4s 文件位置
-	XmlLocation string // xml 文件位置
-	AssLocation string // ass 文件位置
-}
 
 // todo 添加视频属性的字段
 // todo 测试defer 会不会正确写入数据库
-func Merge(rootPath string) {
+func Merge(bs []util.BasicInfo) {
+	for _, b := range bs {
+		fname, subFolder, err := getName(b.EntryFullPath)
+		if err != nil {
+			log.Printf("文件%v在最终处理文件名的过程中出错%v跳过\n", b.EntryPurgePath, err)
+			continue
+		}
+
+		dir := filepath.Join(constant.ANDROIDVIDEO, subFolder)
+		os.Mkdir(dir, 0777)
+		fname = strings.Join([]string{fname, "mp4"}, ".")
+		fullName := filepath.Join(dir, fname)
+
+		aacDir := filepath.Join(constant.ANDROIDAUDIO, subFolder)
+		os.Mkdir(aacDir, 0777)
+		aacName := strings.Replace(fname, "mp4", "aac", 1)
+		aacName = filepath.Join(aacDir, aacName)
+
+		mp4 := exec.Command("ffmpeg", "-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-c:a", "copy", "-map_chapters", "0", fullName)
+		aac := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "copy", aacName)
+		log.Printf("aac产生的命令:%s\n", aac.String())
+		if out, warning := aac.CombinedOutput(); warning != nil {
+			log.Printf("aac命令执行输出%s出错:%v\n", out, err)
+		}
+		log.Printf("mp4产生的命令:%s\n", mp4.String())
+		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
+		if err := util.ExecCommandWithBar(mp4, frame); err != nil {
+			if err := os.RemoveAll(b.EntryPurgePath); err != nil {
+				log.Printf("目录%s删除失败\n", b.EntryPurgePath)
+			} else {
+				log.Printf("目录%s删除成功\n", b.EntryPurgePath)
+			}
+		}
+	}
+}
+
+func MergeLocal(bs []util.BasicInfo) {
+	for _, b := range bs {
+		fname, subFolder, err := getName(b.EntryFullPath)
+		if err != nil {
+			log.Printf("文件%v在最终处理文件名的过程中出错%v跳过\n", b.EntryPurgePath, err)
+			continue
+		}
+		dir := subFolder
+		os.Mkdir(dir, 0777)
+		fname = strings.Join([]string{fname, "mp4"}, ".")
+		fullName := filepath.Join(dir, fname)
+		aacName := strings.Replace(fullName, ".mp4", ".aac", 1)
+		mp4 := exec.Command("ffmpeg", "-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-c:a", "copy", "-map_chapters", "0", fullName)
+		aac := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "copy", aacName)
+		go aac.CombinedOutput()
+		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
+		if err := util.ExecCommandWithBar(mp4, frame); err != nil {
+			os.RemoveAll(b.EntryPurgePath)
+		}
+	}
+}
+
+/*
+获取文件结构基础信息
+*/
+func GetBasicInfo(rootPath string) []util.BasicInfo {
 	entrys, _ := util.GetEntryFilesWithExt(rootPath, ".json")
-	for i, entryFile := range entrys {
-		mergeOne(i, *entryFile)
-
+	var bs []util.BasicInfo
+	for _, entryFile := range entrys {
+		if entryFile.Effect {
+			bs = append(bs, entryFile)
+		}
+		log.Printf("开始处理包含entry的文件%+v\n", entryFile)
 	}
-}
-func mergeOne(index int, entryFile util.BasicInfo) {
-	var o One
-	o.XmlLocation = strings.Join([]string{entryFile.PurgePath, "danmaku.xml"}, string(os.PathSeparator))
-	o.AssLocation = strings.Join([]string{entryFile.PurgePath, "danmaku.ass"}, string(os.PathSeparator))
-	_, assErr := util.Conv(o.XmlLocation, o.AssLocation)
-	log.Printf("正在处理第%d个文件%+v", index+1, entryFile)
-	content := getFolder(entryFile.PurgePath)
-	o.VLocation = strings.Join([]string{content, "video.m4s"}, string(os.PathSeparator))
-	o.ALocation = strings.Join([]string{content, "audio.m4s"}, string(os.PathSeparator))
-	owner := ""
-	o.JName, owner, _ = getName(entryFile.FullPath)
-	o.JName = replace.ForFileName(o.JName)
-	// 替换连续空格
-	o.JName = strings.Replace(o.JName, "  ", " ", -1)
-	androidVideo := strings.Join([]string{constant.ANDROIDVIDEO, owner}, string(os.PathSeparator))
-	androidAudio := strings.Join([]string{constant.ANDROIDAUDIO, owner}, string(os.PathSeparator))
-	androidDanmaku := strings.Join([]string{constant.ANDROIDDANMAKU, owner}, string(os.PathSeparator))
-	os.MkdirAll(androidVideo, 0777)
-	os.MkdirAll(androidAudio, 0777)
-	os.MkdirAll(androidDanmaku, 0777)
-	o.VName = strings.Join([]string{androidVideo, string(os.PathSeparator), o.JName, ".mkv"}, "")
-	o.AName = strings.Join([]string{androidAudio, string(os.PathSeparator), o.JName, ".aac"}, "")
-	if IsExist(strings.Join([]string{util.GetRoot(), "download"}, string(os.PathSeparator))) {
-		o.VName = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), o.JName, ".mkv"}, "")
-		o.AName = strings.Join([]string{util.GetRoot(), string(os.PathSeparator), o.JName, ".aac"}, "")
-	}
-	title := strings.Join([]string{"title", "弹幕"}, "=")
-	language := strings.Join([]string{"language", "zh_cn"}, "=")
-	handler_name := strings.Join([]string{"handler_name", "danmaku2ass"}, "=")
-	comment := strings.Join([]string{"comment", "https://github.com/m13253/danmaku2ass"}, "=")
-	now := time.Now().Format("2006-01-02 15:04:05")
-	creation_time := strings.Join([]string{"creation_time", now}, "=")
-
-	cmd := exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-i", o.AssLocation, "-c:v", "copy", "-c:a", "copy", "-c:s", "ass", "-metadata:s:s:0", title, "-metadata:s:s:0", language, "-metadata:s:s:0", handler_name, "-metadata:s:s:0", comment, "-metadata:s:s:0", creation_time, o.VName)
-	if assErr != nil {
-		cmd = exec.Command("ffmpeg", "-i", o.VLocation, "-i", o.ALocation, "-c:v", "copy", "-c:a", "copy", o.VName)
-		log.Println("弹幕转换错误 此次忽略")
-	}
-	aac := exec.Command("ffmpeg", "-i", o.ALocation, "-c:a", "copy", o.AName)
-	log.Printf("命令执行前的总结\t全部信息%+v\t命令原文%v\n", o, cmd.String())
-	go util.ExecCommand(aac)
-	err := util.ExecCommand(cmd)
-	if err != nil {
-		log.Fatalf("命令执行发生严重错误:%v\n", err)
-	} else {
-		os.RemoveAll(entryFile.PurgePath)
-	}
-}
-
-func clean(dir string) {
-	delFile := exec.Command("find", dir, "-type", "f", "-exec", "rm", "{}", "\\;").Run()
-	fmt.Println("删除文件错误", delFile)
-	delFolders := exec.Command("find", dir, "-type", "d", "-exec", "rmdir", "{}", "\\;").Run()
-	fmt.Println("删除文件夹错误", delFolders)
-}
-func isDir(path string) bool {
-	fileInfo, _ := os.Stat(path)
-	if fileInfo.IsDir() {
-		return true
-	} else {
-		return false
-	}
+	return bs
 }
 
 /*
@@ -223,33 +218,6 @@ func getName(jackson string) (string, string, error) {
 }
 
 /*
-判断路径是否存在
-*/
-func IsExist(path string) bool {
-	if _, err := os.Stat(path); err == nil {
-		fmt.Println("路径存在")
-		return true
-	} else if os.IsNotExist(err) {
-		fmt.Println("路径不存在")
-		return false
-	} else {
-		fmt.Println("发生错误：", err)
-		return false
-	}
-}
-
-/*
-判断文件是否存在
-*/
-func isFileExist(fp string) bool {
-	if _, err := os.Stat(fp); os.IsNotExist(err) {
-		return false
-	} else {
-		return true
-	}
-}
-
-/*
 截取合理长度的标题
 */
 func CutName(before string) (after string) {
@@ -264,46 +232,4 @@ func CutName(before string) (after string) {
 	}
 	//slog.Debug("截取后", slog.String("before", before), slog.String("after", after))
 	return after
-}
-
-/*
-获取指定文件夹下唯一一个文件夹
-*/
-func getFolder(dir string) string {
-	files, err := os.ReadDir(dir)
-	if err != nil {
-		//slog.Error("获取视频所在二级文件夹失败", slog.String("dir", dir), slog.Any("err", err))
-		os.Exit(-1)
-	}
-	for _, file := range files {
-		if file.IsDir() {
-			return strings.Join([]string{dir, file.Name()}, string(os.PathSeparator))
-		}
-	}
-	os.Exit(-1)
-	return ""
-}
-
-type Danmaku struct {
-	Chatserver string `xml:"chatserver"`
-	Chatid     int64  `xml:"chatid"`
-	Mission    int    `xml:"mission"`
-	Maxlimit   int    `xml:"maxlimit"`
-	State      int    `xml:"state"`
-	RealName   int    `xml:"real_name"`
-	Source     string `xml:"source"`
-	D          []struct {
-		P string `xml:",innerxml"`
-	} `xml:"d"`
-}
-
-func xml2ass(path, name string) {
-	//danmaku2ass danmaku.xml -s 1280x720  -dm 15 -o 1.ass
-	//assName := strings.Join([]string{name, ".ass"}, "")
-	//py := strings.Join([]string{util.GetRoot(), "danmaku2ass.py"}, "")
-	cmd := exec.Command("danmaku2ass.py", path, "-s", "1280x720", "-dm", "15", "-o", name)
-	_, err := cmd.CombinedOutput()
-	if err != nil {
-		//slog.Warn("字幕转换失败", slog.String("命令原文", fmt.Sprint(cmd)), slog.String("错误原文", fmt.Sprint(err)))
-	}
 }

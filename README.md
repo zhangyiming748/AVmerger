@@ -1,34 +1,19 @@
 # AVmerger
 
 合并哔哩哔哩手机版缓存的视频
-下载
+
+# 在安卓termux上编译
 
 ```shell
-wget https://github.com/m13253/danmaku2ass/blob/master/danmaku2ass.py
-git clone https://github.com/m13253/danmaku2ass.git
-chmod a+x /data/data/com.termux/files/home/danmaku2ass/danmaku2ass.py
-ln -s /data/data/com.termux/files/home/danmaku2ass/danmaku2ass.py /data/data/com.termux/files/usr/bin/danmaku2ass
+go build -o ../../../usr/bin/merge main.go 
+```
+其中`.shortcuts/bili.sh`文件内容
+
+```shell
+#!/data/data/com.termux/files/usr/bin/bash
+sudo merge 
 ```
 
-# issue
-
-Linux系统同一硬盘挂载到用户主目录的exfat分区不支持直接运行程序
-
-尝试添加指定输出目录
-# usage
-
-```bash
-# 转换bilibili安卓版
-go run main.go bili
-# 转换bilibilihd版
-go run main.go hd
-# 转换bilibili国际版
-go run main.go global
-# 转换当前目录下download文件夹
-go run main.go
-# 转换指定目录下的文件夹
-go run main.go <path/to/file>
-```
 
 # Todo
 - [ ] 找到entry的同级目录

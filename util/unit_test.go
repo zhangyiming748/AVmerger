@@ -20,3 +20,10 @@ func TestMaster(t *testing.T) {
 		os.Exit(1)
 	}
 }
+
+// go test -v -run TestGetEntryFilesWithExt
+func TestGetEntryFilesWithExt(t *testing.T) {
+	root := "/Users/zen/gitea/AVmerge/download"
+	t.Log("he")
+	GetEntryFilesWithExt(root, "json")
+}
