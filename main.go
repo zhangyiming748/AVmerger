@@ -22,7 +22,8 @@ func init() {
 
 func main() {
 	defer func() {
-		if runtime.GOOS == "android" {
+		//if runtime.GOOS == "android" || runtime.GOOS == "linux" {
+		if runtime.GOARCH == "arm64" {
 			if videoErr := util.RsyncDir(constant.ANDROIDVIDEO, constant.REMOTEVIDEO, "zen", "127.0.0.1", "163453"); videoErr != nil {
 				log.Printf("rsync上传视频失败:%v\n", videoErr)
 			}
