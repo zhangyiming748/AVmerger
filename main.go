@@ -5,9 +5,11 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/user"
 	"path"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"time"
 
 	"github.com/zhangyiming748/AVmerger/constant"
@@ -125,6 +127,9 @@ func setLog() {
 	} else {
 		local = filepath.Join(local, "AVmerge.log")
 		log.Printf("找到家目录,日志保存到%s\n", local)
+		defer func() {
+			revange(local)
+		}()
 	}
 	fileLogger := &lumberjack.Logger{
 		Filename:   local,
@@ -170,4 +175,42 @@ func isExist(path string) bool {
 		fmt.Println("发生错误：", err)
 		return false
 	}
+}
+func revange(dir string) {
+	// 要更改权限和所有者的文件路径
+	filePath := dir
+
+	// 设置新的用户和组
+	userName := "u0_a276"
+	groupName := "media_rw"
+
+	// 获取用户信息
+	usr, err := user.Lookup(userName)
+	if err != nil {
+		fmt.Printf("Error looking up user: %v\n", err)
+		return
+	}
+
+	// 获取组信息
+	group, err := user.LookupGroup(groupName)
+	if err != nil {
+		fmt.Printf("Error looking up group: %v\n", err)
+		return
+	}
+
+	// 更改文件的拥有者
+	uid, _ := strconv.Atoi(usr.Uid)
+	gid, _ := strconv.Atoi(group.Gid)
+	if err := os.Chown(filePath, uid, gid); err != nil {
+		fmt.Printf("Error changing owner: %v\n", err)
+		return
+	}
+
+	// 更改文件的权限
+	if err := os.Chmod(filePath, 0777); err != nil {
+		fmt.Printf("Error changing permissions: %v\n", err)
+		return
+	}
+
+	fmt.Println("Successfully changed owner and permissions.")
 }
