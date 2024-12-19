@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"runtime"
-	"strings"
 	"time"
 
 	"github.com/zhangyiming748/AVmerger/constant"
@@ -22,42 +22,89 @@ func init() {
 
 func main() {
 	defer func() {
-		//if runtime.GOOS == "android" || runtime.GOOS == "linux" {
-		if runtime.GOARCH == "arm64" {
-			if videoErr := util.RsyncDir(constant.ANDROIDVIDEO, constant.REMOTEVIDEO, "zen", "127.0.0.1", "163453"); videoErr != nil {
+		if runtime.GOOS == "android" {
+			if videoErr := util.RsyncDir(constant.ANDROIDVIDEO, constant.REMOTEVIDEO, "zen", "192.168.1.9", "163453"); videoErr != nil {
 				log.Printf("rsync上传视频失败:%v\n", videoErr)
 			}
-			if audioErr := util.RsyncDir(constant.ANDROIDAUDIO, constant.REMOTEAUDIO, "zen", "127.0.0.1", "163453"); audioErr != nil {
+			if audioErr := util.RsyncDir(constant.ANDROIDAUDIO, constant.REMOTEAUDIO, "zen", "192.168.1.9", "163453"); audioErr != nil {
 				log.Printf("rsync上传音频失败:%v\n", audioErr)
 			}
 		}
 	}()
-	found := false
+	var (
+		found bool
+	)
+
 	if isExist(constant.BILI) {
 		bs := merge.GetBasicInfo(constant.BILI)
-		merge.Merge(bs)
+		if merge.Merge(bs) {
+			log.Printf("程序有错误,%s目录不会被删除\n", constant.BILI)
+		} else {
+			err := os.RemoveAll(constant.BILI)
+			if err != nil {
+				log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
+			} else {
+				log.Printf("程序正确执行,删除文件夹:%v\n", constant.BILI)
+			}
+		}
 		found = true
 	}
 	if isExist(constant.HD) {
 		bs := merge.GetBasicInfo(constant.HD)
-		merge.Merge(bs)
+		if merge.Merge(bs) {
+			log.Printf("程序有错误,%s目录不会被删除\n", constant.HD)
+		} else {
+			err := os.RemoveAll(constant.HD)
+			if err != nil {
+				log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
+			} else {
+				log.Printf("程序正确执行,删除文件夹:%v\n", constant.HD)
+			}
+		}
 		found = true
 	}
 	if isExist(constant.GLOBAL) {
 		bs := merge.GetBasicInfo(constant.GLOBAL)
-		merge.Merge(bs)
+		if merge.Merge(bs) {
+			log.Printf("程序有错误,%s目录不会被删除\n", constant.GLOBAL)
+		} else {
+			err := os.RemoveAll(constant.GLOBAL)
+			if err != nil {
+				log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
+			} else {
+				log.Printf("程序正确执行,删除文件夹:%v\n", constant.GLOBAL)
+			}
+		}
 		found = true
 	}
 	if isExist(constant.BLUE) {
 		bs := merge.GetBasicInfo(constant.BLUE)
-		merge.Merge(bs)
+		if merge.Merge(bs) {
+			log.Printf("程序有错误,%s目录不会被删除\n", constant.BLUE)
+		} else {
+			err := os.RemoveAll(constant.BLUE)
+			if err != nil {
+				log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
+			} else {
+				log.Printf("程序正确执行,删除文件夹:%v\n", constant.BLUE)
+			}
+		}
 		found = true
 	}
-	src := strings.Join([]string{getRoot(), "download"}, string(os.PathSeparator))
+	src := filepath.Join(getRoot(), "download")
 	if isExist(src) {
 		if !found {
 			bs := merge.GetBasicInfo(src)
-			merge.MergeLocal(bs)
+			if merge.MergeLocal(bs) {
+				log.Printf("程序有错误,%s目录不会被删除\n", src)
+			} else {
+				err := os.RemoveAll(src)
+				if err != nil {
+					log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
+				} else {
+					log.Printf("程序正确执行,删除文件夹:%v\n", src)
+				}
+			}
 		}
 	}
 }
@@ -71,8 +118,16 @@ func getRoot() string {
 
 func setLog() {
 	// 创建一个用于写入文件的Logger实例
+	local, err := os.UserHomeDir()
+	if err != nil {
+		local = "AVmerge.log"
+		log.Printf("未找到家目录,日志保存到%s\n", local)
+	} else {
+		local = filepath.Join(local, "AVmerge.log")
+		log.Printf("找到家目录,日志保存到%s\n", local)
+	}
 	fileLogger := &lumberjack.Logger{
-		Filename:   "AVmerge.log",
+		Filename:   local,
 		MaxSize:    1, // MB
 		MaxBackups: 3,
 		MaxAge:     28, // days

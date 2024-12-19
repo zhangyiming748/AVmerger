@@ -109,11 +109,12 @@ type PlanB struct {
 
 // todo 添加视频属性的字段
 // todo 测试defer 会不会正确写入数据库
-func Merge(bs []util.BasicInfo) {
+func Merge(bs []util.BasicInfo) (warning bool) {
 	for _, b := range bs {
 		fname, subFolder, err := getName(b.EntryFullPath)
 		if err != nil {
 			log.Printf("文件%v在最终处理文件名的过程中出错%v跳过\n", b.EntryPurgePath, err)
+			warning = true
 			continue
 		}
 
@@ -137,6 +138,7 @@ func Merge(bs []util.BasicInfo) {
 		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
 		if err := util.ExecCommandWithBar(mp4, frame); err != nil {
 			log.Printf("命令执行失败\n")
+			warning = true
 		} else {
 			if err := os.RemoveAll(b.EntryPurgePath); err != nil {
 				log.Printf("目录%s删除失败\n", b.EntryPurgePath)
@@ -145,13 +147,15 @@ func Merge(bs []util.BasicInfo) {
 			}
 		}
 	}
+	return warning
 }
 
-func MergeLocal(bs []util.BasicInfo) {
+func MergeLocal(bs []util.BasicInfo) (warning bool) {
 	for _, b := range bs {
 		fname, subFolder, err := getName(b.EntryFullPath)
 		if err != nil {
 			log.Printf("文件%v在最终处理文件名的过程中出错%v跳过\n", b.EntryPurgePath, err)
+			warning = true
 			continue
 		}
 		dir := subFolder
@@ -165,6 +169,7 @@ func MergeLocal(bs []util.BasicInfo) {
 		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
 		if err := util.ExecCommandWithBar(mp4, frame); err != nil {
 			log.Printf("命令执行失败\n")
+			warning = true
 		} else {
 			if err := os.RemoveAll(b.EntryPurgePath); err != nil {
 				log.Printf("目录%s删除失败\n", b.EntryPurgePath)
@@ -173,6 +178,7 @@ func MergeLocal(bs []util.BasicInfo) {
 			}
 		}
 	}
+	return warning
 }
 
 /*

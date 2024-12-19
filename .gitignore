@@ -8,6 +8,7 @@
 *.mp4
 *.aac
 *.tar
-vendor
 downloads
 
+*.log
+vendor
