@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Checkout code
@@ -24,7 +24,7 @@ jobs:
       run: |
         mkdir ${{ github.workspace }}/bin
         CGO_ENABLED=0 GOOS=android GOARCH=arm64 go build -o ${{ github.workspace }}/bin/merge_android main.go
-        CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ${{ github.workspace }}/bin/merge main.go
+        CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ${{ github.workspace }}/bin/merge_linux main.go
     - name: isExist
       run: |
         pwd 
@@ -35,7 +35,7 @@ jobs:
       with:
         tag_name: ${{ github.event.inputs.release_name }}  # 使用手动输入的版本名称
         files: |
-          ${{ github.workspace }}/bin/merge # 指定要发布的文件
+          ${{ github.workspace }}/bin/merge_linux
           ${{ github.workspace }}/bin/merge_android
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub 提供的自动生成的 token
