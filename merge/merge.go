@@ -136,6 +136,8 @@ func Merge(bs []util.BasicInfo) {
 		log.Printf("mp4产生的命令:%s\n", mp4.String())
 		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
 		if err := util.ExecCommandWithBar(mp4, frame); err != nil {
+			log.Printf("命令执行失败\n")
+		} else {
 			if err := os.RemoveAll(b.EntryPurgePath); err != nil {
 				log.Printf("目录%s删除失败\n", b.EntryPurgePath)
 			} else {
@@ -162,7 +164,13 @@ func MergeLocal(bs []util.BasicInfo) {
 		go aac.CombinedOutput()
 		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
 		if err := util.ExecCommandWithBar(mp4, frame); err != nil {
-			os.RemoveAll(b.EntryPurgePath)
+			log.Printf("命令执行失败\n")
+		} else {
+			if err := os.RemoveAll(b.EntryPurgePath); err != nil {
+				log.Printf("目录%s删除失败\n", b.EntryPurgePath)
+			} else {
+				log.Printf("目录%s删除成功\n", b.EntryPurgePath)
+			}
 		}
 	}
 }
