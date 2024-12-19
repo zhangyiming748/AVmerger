@@ -31,6 +31,6 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ github.event.inputs.release_name }}  # 使用手动输入的版本名称
-        files: merge  # 指定要发布的文件
+        files: ${{ github.workspace }}/merge  # 指定要发布的文件
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub 提供的自动生成的 token
