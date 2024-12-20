@@ -37,10 +37,10 @@ jobs:
         ls -al ${{ github.workspace }}/bin
     - name: Get current date and time
       id: get_date
-
       run: |
+        export TZ="Asia/Shanghai"  # 设置时区为东八
         echo "release_name=$(date +'%Y-%m-%d %H:%M:%S')"
-        echo "release_name=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+        echo "release_name=$(date +'%Y年%m月%d日%H时%M分%S秒')" >> $GITHUB_ENV
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v2
