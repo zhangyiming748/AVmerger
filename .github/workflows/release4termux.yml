@@ -1,12 +1,17 @@
 name: Go Build and Release
 
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       release_name:
+#         description: 'Release version name (e.g., v1.0.0)'
+#         required: true
+#         default: 'latest'  # 默认值
+
 on:
-  workflow_dispatch:
-    inputs:
-      release_name:
-        description: 'Release version name (e.g., v1.0.0)'
-        required: true
-        default: 'latest'  # 默认值
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -30,11 +35,17 @@ jobs:
       run: |
         pwd 
         ls -al ${{ github.workspace }}/bin
+    - name: Get current date and time
+      id: get_date
+
+      run: |
+        echo "release_name=$(date +'%Y-%m-%d %H:%M:%S')"
+        echo "release_name=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ github.event.inputs.release_name }}  # 使用手动输入的版本名称
+        tag_name: ${{ env.release_name }} # 使用手动输入的版本名称
         files: |
           # ${{ github.workspace }}/bin/merge_linux
           # ${{ github.workspace }}/bin/merge_android
