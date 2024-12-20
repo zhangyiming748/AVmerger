@@ -120,17 +120,42 @@ func getRoot() string {
 
 func setLog() {
 	// 创建一个用于写入文件的Logger实例
-	local, err := os.UserHomeDir()
-	if err != nil {
+	//local, err := os.UserHomeDir()
+	//if err != nil {
+	//	local = "AVmerge.log"
+	//	log.Printf("未找到家目录,日志保存到%s\n", local)
+	//} else {
+	//	local = filepath.Join(local, "AVmerge.log")
+	//	log.Printf("找到家目录,日志保存到%s\n", local)
+	//	defer func() {
+	//		revange(local)
+	//	}()
+	//}
+	var local string
+
+	// 获取当前操作系统和架构
+	goos := runtime.GOOS
+	arch := runtime.GOARCH
+
+	switch goos {
+	case "windows", "darwin": // "darwin" 是 macOS 的标识
 		local = "AVmerge.log"
-		log.Printf("未找到家目录,日志保存到%s\n", local)
-	} else {
-		local = filepath.Join(local, "AVmerge.log")
-		log.Printf("找到家目录,日志保存到%s\n", local)
-		defer func() {
-			revange(local)
-		}()
+	case "linux":
+		switch arch {
+		case "amd64":
+			local = "AVmerge.log"
+		case "arm64":
+			local = "/sdcard/AVmerge.log"
+		default:
+			local = "AVmerge.log"
+		}
+	case "android":
+		local = "/sdcard/AVmerge.log"
+	default:
+		local = "AVmerge.log"
 	}
+
+	fmt.Println("Local path:", local)
 	fileLogger := &lumberjack.Logger{
 		Filename:   local,
 		MaxSize:    1, // MB
