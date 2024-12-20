@@ -24,7 +24,7 @@ func init() {
 
 func main() {
 	defer func() {
-		if runtime.GOOS == "android" {
+		if runtime.GOOS != "windows" {
 			if videoErr := util.RsyncDir(constant.ANDROIDVIDEO, constant.REMOTEVIDEO, "zen", "192.168.1.9", "163453"); videoErr != nil {
 				log.Printf("rsync上传视频失败:%v\n", videoErr)
 			}
@@ -134,10 +134,10 @@ func setLog() {
 	fileLogger := &lumberjack.Logger{
 		Filename:   local,
 		MaxSize:    1, // MB
-		MaxBackups: 3,
+		MaxBackups: 30,
 		MaxAge:     28, // days
 	}
-
+	fileLogger.Rotate()
 	// 创建一个用于输出到控制台的Logger实例
 	consoleLogger := log.New(os.Stdout, "CONSOLE: ", log.LstdFlags)
 
@@ -181,7 +181,7 @@ func revange(dir string) {
 	filePath := dir
 
 	// 设置新的用户和组
-	userName := "u0_a276"
+	userName := "u0_a331"
 	groupName := "media_rw"
 
 	// 获取用户信息
