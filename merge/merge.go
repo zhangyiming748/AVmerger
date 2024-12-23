@@ -163,7 +163,12 @@ func MergeLocal(bs []util.BasicInfo) (warning bool) {
 		fname = strings.Join([]string{fname, "mp4"}, ".")
 		fullName := filepath.Join(dir, fname)
 		aacName := strings.Replace(fullName, ".mp4", ".aac", 1)
+
 		mp4 := exec.Command("ffmpeg", "-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-c:a", "copy", "-map_chapters", "0", fullName)
+		if format := FastMediaInfo.GetStandMediaInfo(b.Video).Video.Format; format == "hvc1" || format == "hevc" {
+			log.Printf("视频格式为%s\n", format)
+			mp4 = exec.Command("ffmpeg", "-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-tag:v", "hvc1", "-c:a", "copy", "-map_chapters", "0", fullName)
+		}
 		aac := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "copy", aacName)
 		go aac.CombinedOutput()
 		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
