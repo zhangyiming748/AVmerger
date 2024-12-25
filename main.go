@@ -24,13 +24,8 @@ func init() {
 
 func main() {
 	defer func() {
-		if runtime.GOOS != "windows" {
-			if videoErr := util.RsyncDir(constant.ANDROIDVIDEO, constant.REMOTEVIDEO, "zen", "192.168.1.9", "163453"); videoErr != nil {
-				log.Printf("rsync上传视频失败:%v\n", videoErr)
-			}
-			if audioErr := util.RsyncDir(constant.ANDROIDAUDIO, constant.REMOTEAUDIO, "zen", "192.168.1.9", "163453"); audioErr != nil {
-				log.Printf("rsync上传音频失败:%v\n", audioErr)
-			}
+		if err := recover(); err != nil {
+			log.Printf("程序运行最终收集的panic:%v\n", err)
 		}
 	}()
 	var (
