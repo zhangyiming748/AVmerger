@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/zhangyiming748/AVmerger/constant"
 
@@ -151,6 +152,8 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 }
 
 func MergeLocal(bs []util.BasicInfo) (warning bool) {
+	var wg sync.WaitGroup
+	wg.Add(len(bs))
 	for _, b := range bs {
 		fname, subFolder, err := getName(b.EntryFullPath)
 		if err != nil {
@@ -170,7 +173,10 @@ func MergeLocal(bs []util.BasicInfo) (warning bool) {
 			mp4 = exec.Command("ffmpeg", "-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-tag:v", "hvc1", "-c:a", "copy", "-map_chapters", "0", fullName)
 		}
 		mp3 := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "copy", mp3Name)
-		go mp3.CombinedOutput()
+		go func() {
+			defer wg.Done()
+			mp3.CombinedOutput()
+		}()
 		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
 		if err := util.ExecCommandWithBar(mp4, frame); err != nil {
 			log.Printf("命令执行失败\n")
@@ -183,6 +189,7 @@ func MergeLocal(bs []util.BasicInfo) (warning bool) {
 			}
 		}
 	}
+	wg.Wait()
 	return warning
 }
 
