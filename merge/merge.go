@@ -120,20 +120,20 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 		}
 
 		dir := filepath.Join(constant.ANDROIDVIDEO, subFolder)
-		os.Mkdir(dir, 0777)
+		os.MkdirAll(dir, 0777)
 		fname = strings.Join([]string{fname, "mp4"}, ".")
 		fullName := filepath.Join(dir, fname)
 
-		aacDir := filepath.Join(constant.ANDROIDAUDIO, subFolder)
-		os.Mkdir(aacDir, 0777)
-		aacName := strings.Replace(fname, "mp4", "aac", 1)
-		aacName = filepath.Join(aacDir, aacName)
+		mp3Dir := filepath.Join(constant.ANDROIDAUDIO, subFolder)
+		os.MkdirAll(mp3Dir, 0777)
+		mp3Name := strings.Replace(fname, "mp4", "mp3", 1)
+		mp3Name = filepath.Join(mp3Dir, mp3Name)
 
 		mp4 := exec.Command("ffmpeg", "-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-c:a", "copy", "-map_chapters", "0", fullName)
-		aac := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "copy", aacName)
-		log.Printf("aac产生的命令:%s\n", aac.String())
-		if out, warning := aac.CombinedOutput(); warning != nil {
-			log.Printf("aac命令执行输出%s出错:%v\n", out, err)
+		mp3 := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "libmp3lame", mp3Name)
+		log.Printf("mp3产生的命令:%s\n", mp3.String())
+		if out, warning := mp3.CombinedOutput(); warning != nil {
+			log.Panicf("mp3命令执行输出%s出错:%v\n", out, err)
 		}
 		log.Printf("mp4产生的命令:%s\n", mp4.String())
 		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
@@ -162,7 +162,7 @@ func MergeLocal(bs []util.BasicInfo) (warning bool) {
 			continue
 		}
 		dir := subFolder
-		os.Mkdir(dir, 0777)
+		os.MkdirAll(dir, 0777)
 		fname = strings.Join([]string{fname, "mp4"}, ".")
 		fullName := filepath.Join(dir, fname)
 		mp3Name := strings.Replace(fullName, ".mp4", ".mp3", 1)
