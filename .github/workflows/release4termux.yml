@@ -1,12 +1,4 @@
-name: Go Build and Release
-
-# on:
-#   workflow_dispatch:
-#     inputs:
-#       release_name:
-#         description: 'Release version name (e.g., v1.0.0)'
-#         required: true
-#         default: 'latest'  # 默认值
+name: Go Build for Android
 
 on:
   push:

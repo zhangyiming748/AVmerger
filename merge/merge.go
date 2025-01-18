@@ -111,14 +111,15 @@ type PlanB struct {
 // todo 添加视频属性的字段
 // todo 测试defer 会不会正确写入数据库
 func Merge(bs []util.BasicInfo) (warning bool) {
+	var wg sync.WaitGroup
 	for _, b := range bs {
+		wg.Add(1)
 		fname, subFolder, err := getName(b.EntryFullPath)
 		if err != nil {
 			log.Printf("文件%v在最终处理文件名的过程中出错%v跳过\n", b.EntryPurgePath, err)
 			warning = true
 			continue
 		}
-
 		dir := filepath.Join(constant.ANDROIDVIDEO, subFolder)
 		os.MkdirAll(dir, 0777)
 		fname = strings.Join([]string{fname, "mp4"}, ".")
@@ -132,22 +133,21 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 		mp4 := exec.Command("ffmpeg", "-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-c:a", "copy", "-map_chapters", "0", fullName)
 		mp3 := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "libmp3lame", mp3Name)
 		log.Printf("mp3产生的命令:%s\n", mp3.String())
-		if out, warning := mp3.CombinedOutput(); warning != nil {
-			log.Panicf("mp3命令执行输出%s出错:%v\n", out, err)
-		}
+		go func() {
+			defer wg.Done()
+			if out, warning := mp3.CombinedOutput(); warning != nil {
+				log.Panicf("mp3命令执行输出%s出错:%v\n", out, err)
+			}
+		}()
+
 		log.Printf("mp4产生的命令:%s\n", mp4.String())
 		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
 		if err := util.ExecCommandWithBar(mp4, frame); err != nil {
 			log.Printf("命令执行失败\n")
 			warning = true
-		} else {
-			if err := os.RemoveAll(b.EntryPurgePath); err != nil {
-				log.Printf("目录%s删除失败\n", b.EntryPurgePath)
-			} else {
-				log.Printf("目录%s删除成功\n", b.EntryPurgePath)
-			}
 		}
 	}
+	wg.Wait()
 	return warning
 }
 
