@@ -147,6 +147,7 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 			warning = true
 		}
 	}
+	log.Println("等待mp3合并完成")
 	wg.Wait()
 	return warning
 }
