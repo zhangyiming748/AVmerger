@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"path"
@@ -13,11 +12,10 @@ import (
 	"github.com/zhangyiming748/AVmerger/constant"
 	"github.com/zhangyiming748/AVmerger/merge"
 	"github.com/zhangyiming748/AVmerger/util"
-	"github.com/zhangyiming748/lumberjack"
 )
 
 func init() {
-	setLog()
+	util.SetLog()
 }
 
 func main() {
@@ -143,52 +141,6 @@ func getRoot() string {
 	return util.GetRoot()
 }
 
-func setLog() {
-	var local string
-	goos := runtime.GOOS
-	arch := runtime.GOARCH
-	switch goos {
-	case "windows", "darwin": // "darwin" 是 macOS 的标识
-		local = "AVmerge.log"
-	case "linux":
-		switch arch {
-		case "amd64":
-			local = "AVmerge.log"
-		case "arm64":
-			local = "/sdcard/AVmerge.log"
-		default:
-			local = "AVmerge.log"
-		}
-	case "android":
-		local = "/sdcard/AVmerge.log"
-	default:
-		local = "AVmerge.log"
-	}
-
-	fmt.Println("Local path:", local)
-	fileLogger := &lumberjack.Logger{
-		Filename:   local,
-		MaxSize:    1, // MB
-		MaxBackups: 30,
-		MaxAge:     28, // days
-	}
-	fileLogger.Rotate()
-	// 创建一个用于输出到控制台的Logger实例
-	consoleLogger := log.New(os.Stdout, "CONSOLE: ", log.LstdFlags)
-
-	// 设置文件Logger
-	//log.SetOutput(fileLogger)
-
-	// 同时输出到文件和控制台
-	log.SetOutput(io.MultiWriter(fileLogger, consoleLogger.Writer()))
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	// 在这里开始记录日志
-
-	// 记录更多日志...
-
-	// 关闭日志文件
-	//defer fileLogger.Close()
-}
 func NumsOfGoroutine() {
 	for {
 		fmt.Printf("当前程序运行时协程个数:%d\n", runtime.NumGoroutine())
