@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/zhangyiming748/AVmerger/constant"
 
@@ -117,6 +118,7 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 		fname, subFolder, err := getName(b.EntryFullPath)
 		if err != nil {
 			log.Printf("文件%v在最终处理文件名的过程中出错%v跳过\n", b.EntryPurgePath, err)
+			time.Sleep(10 * time.Second)
 			warning = true
 			continue
 		}
@@ -124,7 +126,6 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 		os.MkdirAll(dir, 0777)
 		fname = strings.Join([]string{fname, "mp4"}, ".")
 		fullName := filepath.Join(dir, fname)
-
 		mp3Dir := filepath.Join(constant.ANDROIDAUDIO, subFolder)
 		os.MkdirAll(mp3Dir, 0777)
 		mp3Name := strings.Replace(fname, "mp4", "mp3", 1)
@@ -133,7 +134,6 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 		var mp4 *exec.Cmd
 		if mi.Video.Format == "HEVC" {
 			mp4 = exec.Command("ffmpeg", "-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-tag:v", "hvc1", "-c:a", "copy", "-map_chapters", "0", fullName)
-
 		} else {
 			mp4 = exec.Command("ffmpeg", "-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-c:a", "copy", "-map_chapters", "0", fullName)
 		}
@@ -143,14 +143,20 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 			defer wg.Done()
 			if out, warning := mp3.CombinedOutput(); warning != nil {
 				log.Panicf("mp3命令执行输出%s出错:%v\n", out, err)
+				time.Sleep(10 * time.Second)
 			}
 		}()
-
 		log.Printf("mp4产生的命令:%s\n", mp4.String())
 		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
 		if err := util.ExecCommandWithBar(mp4, frame); err != nil {
 			log.Printf("命令执行失败\n")
+			time.Sleep(10 * time.Second)
 			warning = true
+		}
+		if !warning {
+			os.RemoveAll(b.Audio)
+			os.RemoveAll(b.Video)
+			os.RemoveAll(b.EntryFullPath)
 		}
 	}
 	log.Println("等待mp3合并完成")
