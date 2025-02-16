@@ -1,11 +1,14 @@
 package merge
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -160,7 +163,11 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 		}
 	}
 	log.Println("等待mp3合并完成")
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel() // 确保程序退出时取消上下文，防止资源泄露
+	go NumsOfGoroutine(ctx)
 	wg.Wait()
+	ctx.Done()
 	return warning
 }
 
@@ -202,7 +209,11 @@ func MergeLocal(bs []util.BasicInfo) (warning bool) {
 			}
 		}
 	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel() // 确保程序退出时取消上下文，防止资源泄露
+	go NumsOfGoroutine(ctx)
 	wg.Wait()
+	ctx.Done()
 	return warning
 }
 
@@ -271,4 +282,17 @@ func CutName(before string) (after string) {
 	}
 	//slog.Debug("截取后", slog.String("before", before), slog.String("after", after))
 	return after
+}
+
+func NumsOfGoroutine(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			fmt.Println("NumsOfGoroutine exiting...")
+			return
+		default:
+			fmt.Printf("当前程序运行时协程个数:%d\n", runtime.NumGoroutine())
+			time.Sleep(1 * time.Second)
+		}
+	}
 }
