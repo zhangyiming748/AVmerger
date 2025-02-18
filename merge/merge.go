@@ -164,10 +164,10 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 	}
 	log.Println("等待mp3合并完成")
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel() // 确保程序退出时取消上下文，防止资源泄露
 	go NumsOfGoroutine(ctx)
 	wg.Wait()
 	ctx.Done()
+	cancel() // 确保程序退出时取消上下文，防止资源泄露
 	return warning
 }
 
@@ -210,10 +210,10 @@ func MergeLocal(bs []util.BasicInfo) (warning bool) {
 		}
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel() // 确保程序退出时取消上下文，防止资源泄露
 	go NumsOfGoroutine(ctx)
 	wg.Wait()
 	ctx.Done()
+	cancel() // 确保程序退出时取消上下文，防止资源泄露
 	return warning
 }
 
