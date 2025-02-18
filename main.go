@@ -2,19 +2,31 @@ package main
 
 import (
 	"fmt"
+	"github.com/zhangyiming748/AVmerger/constant"
+	"github.com/zhangyiming748/AVmerger/merge"
+	"github.com/zhangyiming748/AVmerger/util"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"runtime"
 	"time"
-
-	"github.com/zhangyiming748/AVmerger/constant"
-	"github.com/zhangyiming748/AVmerger/merge"
-	"github.com/zhangyiming748/AVmerger/util"
 )
 
 func init() {
+	// 检查 mediainfo 命令
+	if _, err := exec.LookPath("mediainfo"); err != nil {
+		log.Fatal("未找到 mediainfo 命令，请先安装 mediainfo")
+	}
+
+	// 检查 ffmpeg 命令
+	if _, err := exec.LookPath("ffmpeg"); err != nil {
+		log.Fatal("未找到 ffmpeg 命令，请先安装 ffmpeg")
+	}
+
+	log.Println("系统环境检查通过：mediainfo 和 ffmpeg 命令可用")
+
 	util.SetLog()
 }
 
