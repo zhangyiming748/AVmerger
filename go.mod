@@ -1,14 +1,14 @@
 module github.com/zhangyiming748/AVmerger
 
-go 1.22
-
-toolchain go1.22.4
+go 1.24.0
 
 require (
 	github.com/schollz/progressbar/v3 v3.17.1
 	github.com/zhangyiming748/lumberjack v0.0.1
 	github.com/zhangyiming748/pretty v0.0.3
 )
+
+require golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 
 require (
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
