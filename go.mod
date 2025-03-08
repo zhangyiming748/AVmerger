@@ -19,9 +19,3 @@ require (
 	golang.org/x/term v0.30.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 )
-
-// 添加 replace 指令
-replace (
-	golang.org/x/sys => golang.org/x/sys v0.18.0
-	golang.org/x/term => golang.org/x/term v0.18.0
-)
