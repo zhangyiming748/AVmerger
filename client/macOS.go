@@ -81,11 +81,22 @@ func Convert(root string) {
 		out, err := cmd.CombinedOutput()
 		if err != nil {
 			log.Fatal(err)
-
 		}
 		log.Printf("out is %s", out)
+		if audio,err:=GetMusicFile(media[0],media[1]);err!=nil{
+			log.Printf("音频转换失败%v\n",err)
+		}else{
+			mp3:=strings.Replace(target,".mp4",".mp3",1)
+			cmd := exec.Command("ffmpeg", "-i", audio, mp3)
+			out, err := cmd.CombinedOutput()
+		if err != nil {
+			log.Fatal(err)
+		}
+			log.Printf("out is %s", out)
+		}
 	}
 }
+
 func FindVideoInfoFiles(rootDir string) ([]string, error) {
 	var results []string
 
@@ -187,4 +198,21 @@ func RemoveEncryptionHeader(filePath string) error {
 
 	// 写回文件
 	return os.WriteFile(filePath, cleanContent, 0644)
+}
+
+func GetMusicFile(file1, file2 string) (string, error) {
+    stat1, err := os.Stat(file1)
+    if err != nil {
+        return "", err
+    }
+    
+    stat2, err := os.Stat(file2)
+    if err != nil {
+        return "", err
+    }
+    
+    if stat1.Size() <= stat2.Size() {
+        return file1, nil
+    }
+    return file2, nil
 }
