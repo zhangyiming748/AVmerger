@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
+	"os/exec"
 )
 
 type VideoInfo struct {
@@ -48,6 +50,40 @@ type VideoInfo struct {
 	ReportedSize   int    `json:"reportedSize"`
 }
 
+func Convert(root string) {
+	files, err := FindVideoInfoFiles(root)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, file := range files {
+		log.Printf("json file is %s\n", file)
+		dir := filepath.Dir(file)
+		log.Printf("dir is %s\n", dir)
+		media, err := FindM4sFiles(dir)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if len(media) != 2 {
+			log.Fatal("no media file")
+		}
+		log.Printf("media file is %s\n", media)
+		RemoveEncryptionHeader(media[0])
+		RemoveEncryptionHeader(media[1])
+		vi, _ := ReadVideoInfo(file)
+		home, _ := os.UserHomeDir()
+		baseDir := filepath.Join(home, "Movies", vi.Uname)
+		os.MkdirAll(baseDir, 0755)
+		title := strings.Join([]string{vi.Title, "mp4"}, ".")
+		target := filepath.Join(baseDir, title)
+		cmd := exec.Command("ffmpeg", "-i", media[0], "-i", media[1], "-c:v", "libx265", "-tag:v", "hvc1", target)
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			log.Fatal(err)
+
+		}
+		log.Printf("out is %s", out)
+	}
+}
 func FindVideoInfoFiles(rootDir string) ([]string, error) {
 	var results []string
 
