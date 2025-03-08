@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-// go test -v -run TestMacOS
+// go test -v -timeout 10h -run TestMacOS
 func TestMacOS(t *testing.T) {
 	Convert("/Users/zen/Movies")
 }

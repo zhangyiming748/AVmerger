@@ -70,12 +70,14 @@ func Convert(root string) {
 		RemoveEncryptionHeader(media[0])
 		RemoveEncryptionHeader(media[1])
 		vi, _ := ReadVideoInfo(file)
+		log.Printf("videoInfo = %+v\n",vi)
 		home, _ := os.UserHomeDir()
 		baseDir := filepath.Join(home, "Movies", vi.Uname)
 		os.MkdirAll(baseDir, 0755)
 		title := strings.Join([]string{vi.Title, "mp4"}, ".")
 		target := filepath.Join(baseDir, title)
 		cmd := exec.Command("ffmpeg", "-i", media[0], "-i", media[1], "-c:v", "libx265", "-tag:v", "hvc1", target)
+		log.Printf("开始转换 %s\n", cmd.String())
 		out, err := cmd.CombinedOutput()
 		if err != nil {
 			log.Fatal(err)
@@ -134,20 +136,20 @@ func ReadVideoInfo(jsonPath string) (*VideoInfo, error) {
 	// 打开 JSON 文件
 	file, err := os.Open(jsonPath)
 	if err != nil {
-		return nil, err
+		log.Fatalf("无法打开文件: %v", err)
 	}
 	defer file.Close()
 
 	// 读取文件内容
 	content, err := io.ReadAll(file)
 	if err != nil {
-		return nil, err
+		log.Fatalf("无法读取文件: %v", err)
 	}
 
 	// 解析 JSON 到 VideoInfo 结构体
 	var videoInfo VideoInfo
 	if err := json.Unmarshal(content, &videoInfo); err != nil {
-		return nil, err
+		log.Fatalf("无法解析 JSON: %v", err)
 	}
 
 	return &videoInfo, nil
