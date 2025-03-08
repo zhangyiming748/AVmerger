@@ -4,7 +4,6 @@
 .vscode
 *.m4s
 *.xml
-*.json
 *.mp4
 *.aac
 *.tar
