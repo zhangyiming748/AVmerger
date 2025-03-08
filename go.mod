@@ -3,7 +3,7 @@ module github.com/zhangyiming748/AVmerger
 go 1.24.0
 
 require (
-	github.com/schollz/progressbar/v3 v3.17.1
+	github.com/schollz/progressbar/v3 v3.18.0
 	github.com/zhangyiming748/lumberjack v0.0.1
 	github.com/zhangyiming748/pretty v0.0.3
 )
@@ -15,7 +15,13 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/zhangyiming748/FastMediaInfo v0.0.7
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/term v0.27.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/term v0.30.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
+)
+
+// 添加 replace 指令
+replace (
+	golang.org/x/sys => golang.org/x/sys v0.18.0
+	golang.org/x/term => golang.org/x/term v0.18.0
 )
