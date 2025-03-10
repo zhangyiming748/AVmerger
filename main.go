@@ -145,7 +145,7 @@ func main() {
 			}
 		}
 	}
-	//ToDo
+
 	if runtime.GOOS == "darwin" {
 		log.Printf("检测到 macOS 系统，开始处理 macOS 相关任务")
 		home, _ := os.UserHomeDir()

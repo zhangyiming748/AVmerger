@@ -112,8 +112,6 @@ type PlanB struct {
 	SeasonId string `json:"season_id"`
 }
 
-// todo 添加视频属性的字段
-// todo 测试defer 会不会正确写入数据库
 func Merge(bs []util.BasicInfo) (warning bool) {
 	var wg sync.WaitGroup
 	for _, b := range bs {
@@ -146,7 +144,7 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 			defer wg.Done()
 			if out, warning := mp3.CombinedOutput(); warning != nil {
 				log.Panicf("mp3命令执行输出%s出错:%v\n", out, err)
-				time.Sleep(10 * time.Second)
+
 			}
 		}()
 		log.Printf("mp4产生的命令:%s\n", mp4.String())
