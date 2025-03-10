@@ -13,7 +13,7 @@ import (
 type VideoInfo struct {
 	Type           string `json:"type"`
 	Codecid        int    `json:"codecid"`
-	GroupId        string `json:"groupId"`
+	GroupId        interface{} `json:"groupId"`
 	ItemId         int64  `json:"itemId"`
 	Aid            int64  `json:"aid"`
 	Cid            int64  `json:"cid"`
