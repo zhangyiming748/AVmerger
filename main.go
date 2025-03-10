@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/zhangyiming748/AVmerger/client"
 	"github.com/zhangyiming748/AVmerger/constant"
 	"github.com/zhangyiming748/AVmerger/merge"
 	"github.com/zhangyiming748/AVmerger/util"
@@ -141,6 +142,21 @@ func main() {
 				} else {
 					log.Printf("程序正确执行,删除文件夹:%v\n", src)
 				}
+			}
+		}
+	}
+	//ToDo
+	if runtime.GOOS == "darwin" {
+		log.Printf("检测到 macOS 系统，开始处理 macOS 相关任务")
+		home, _ := os.UserHomeDir()
+		root := filepath.Join(home, "Movies", "bilibili")
+		if err := client.Convert(root); err != nil {
+			log.Println(err)
+		} else {
+			if err := os.RemoveAll(root); err != nil {
+				log.Printf("删除失败%s\n", root)
+			} else {
+				log.Printf("删除成功%s\n", root)
 			}
 		}
 	}

@@ -5,55 +5,55 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
-	"os/exec"
 )
 
 type VideoInfo struct {
-	Type           string `json:"type"`
-	Codecid        int    `json:"codecid"`
+	Type           string      `json:"type"`
+	Codecid        int         `json:"codecid"`
 	GroupId        interface{} `json:"groupId"`
-	ItemId         int64  `json:"itemId"`
-	Aid            int64  `json:"aid"`
-	Cid            int64  `json:"cid"`
-	Bvid           string `json:"bvid"`
-	P              int    `json:"p"`
-	TabP           int    `json:"tabP"`
-	TabName        string `json:"tabName"`
-	Uid            string `json:"uid"`
-	Uname          string `json:"uname"`
-	Avatar         string `json:"avatar"`
-	CoverUrl       string `json:"coverUrl"`
-	Title          string `json:"title"`
-	Duration       int    `json:"duration"`
-	GroupTitle     string `json:"groupTitle"`
-	GroupCoverUrl  string `json:"groupCoverUrl"`
-	Danmaku        int    `json:"danmaku"`
-	View           int    `json:"view"`
-	Pubdate        int    `json:"pubdate"`
-	Vt             int    `json:"vt"`
-	Status         string `json:"status"`
-	Active         bool   `json:"active"`
-	Loaded         bool   `json:"loaded"`
-	Qn             int    `json:"qn"`
-	AllowHEVC      bool   `json:"allowHEVC"`
-	CreateTime     int64  `json:"createTime"`
-	CoverPath      string `json:"coverPath"`
-	GroupCoverPath string `json:"groupCoverPath"`
-	UpdateTime     int64  `json:"updateTime"`
-	TotalSize      int    `json:"totalSize"`
-	LoadedSize     int    `json:"loadedSize"`
-	Progress       int    `json:"progress"`
-	Speed          int    `json:"speed"`
-	CompletionTime int64  `json:"completionTime"`
-	ReportedSize   int    `json:"reportedSize"`
+	ItemId         int64       `json:"itemId"`
+	Aid            int64       `json:"aid"`
+	Cid            int64       `json:"cid"`
+	Bvid           string      `json:"bvid"`
+	P              int         `json:"p"`
+	TabP           int         `json:"tabP"`
+	TabName        string      `json:"tabName"`
+	Uid            string      `json:"uid"`
+	Uname          string      `json:"uname"`
+	Avatar         string      `json:"avatar"`
+	CoverUrl       string      `json:"coverUrl"`
+	Title          string      `json:"title"`
+	Duration       int         `json:"duration"`
+	GroupTitle     string      `json:"groupTitle"`
+	GroupCoverUrl  string      `json:"groupCoverUrl"`
+	Danmaku        int         `json:"danmaku"`
+	View           int         `json:"view"`
+	Pubdate        int         `json:"pubdate"`
+	Vt             int         `json:"vt"`
+	Status         string      `json:"status"`
+	Active         bool        `json:"active"`
+	Loaded         bool        `json:"loaded"`
+	Qn             int         `json:"qn"`
+	AllowHEVC      bool        `json:"allowHEVC"`
+	CreateTime     int64       `json:"createTime"`
+	CoverPath      string      `json:"coverPath"`
+	GroupCoverPath string      `json:"groupCoverPath"`
+	UpdateTime     int64       `json:"updateTime"`
+	TotalSize      int         `json:"totalSize"`
+	LoadedSize     int         `json:"loadedSize"`
+	Progress       int         `json:"progress"`
+	Speed          int         `json:"speed"`
+	CompletionTime int64       `json:"completionTime"`
+	ReportedSize   int         `json:"reportedSize"`
 }
 
-func Convert(root string) {
+func Convert(root string) (err error) {
 	files, err := FindVideoInfoFiles(root)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	for _, file := range files {
 		log.Printf("json file is %s\n", file)
@@ -64,13 +64,19 @@ func Convert(root string) {
 			log.Fatal(err)
 		}
 		if len(media) != 2 {
-			log.Fatal("no media file")
+			return err
 		}
 		log.Printf("media file is %s\n", media)
-		RemoveEncryptionHeader(media[0])
-		RemoveEncryptionHeader(media[1])
+		err = RemoveEncryptionHeader(media[0])
+		if err != nil {
+			return err
+		}
+		err = RemoveEncryptionHeader(media[1])
+		if err != nil {
+			return err
+		}
 		vi, _ := ReadVideoInfo(file)
-		log.Printf("videoInfo = %+v\n",vi)
+		log.Printf("videoInfo = %+v\n", vi)
 		home, _ := os.UserHomeDir()
 		baseDir := filepath.Join(home, "Movies", vi.Uname)
 		os.MkdirAll(baseDir, 0755)
@@ -80,21 +86,22 @@ func Convert(root string) {
 		log.Printf("开始转换 %s\n", cmd.String())
 		out, err := cmd.CombinedOutput()
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		log.Printf("out is %s", out)
-		if audio,err:=GetMusicFile(media[0],media[1]);err!=nil{
-			log.Printf("音频转换失败%v\n",err)
-		}else{
-			mp3:=strings.Replace(target,".mp4",".mp3",1)
+		if audio, err := GetMusicFile(media[0], media[1]); err != nil {
+			log.Printf("音频转换失败%v\n", err)
+		} else {
+			mp3 := strings.Replace(target, ".mp4", ".mp3", 1)
 			cmd := exec.Command("ffmpeg", "-i", audio, mp3)
 			out, err := cmd.CombinedOutput()
-		if err != nil {
-			log.Fatal(err)
-		}
+			if err != nil {
+				return err
+			}
 			log.Printf("out is %s", out)
 		}
 	}
+	return nil
 }
 
 func FindVideoInfoFiles(rootDir string) ([]string, error) {
@@ -201,18 +208,18 @@ func RemoveEncryptionHeader(filePath string) error {
 }
 
 func GetMusicFile(file1, file2 string) (string, error) {
-    stat1, err := os.Stat(file1)
-    if err != nil {
-        return "", err
-    }
-    
-    stat2, err := os.Stat(file2)
-    if err != nil {
-        return "", err
-    }
-    
-    if stat1.Size() <= stat2.Size() {
-        return file1, nil
-    }
-    return file2, nil
+	stat1, err := os.Stat(file1)
+	if err != nil {
+		return "", err
+	}
+
+	stat2, err := os.Stat(file2)
+	if err != nil {
+		return "", err
+	}
+
+	if stat1.Size() <= stat2.Size() {
+		return file1, nil
+	}
+	return file2, nil
 }
