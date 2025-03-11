@@ -82,7 +82,7 @@ func Convert(root string) (err error) {
 		os.MkdirAll(baseDir, 0755)
 		title := strings.Join([]string{vi.Title, "mp4"}, ".")
 		target := filepath.Join(baseDir, title)
-		cmd := exec.Command("ffmpeg", "-i", media[0], "-i", media[1], "-c:v", "libx265", "-tag:v", "hvc1", target)
+		cmd := exec.Command("ffmpeg", "-i", media[0], "-i", media[1], "-c:v", "libx265", "-tag:v", "hvc1","-c:a","aac", target)
 		log.Printf("开始转换 %s\n", cmd.String())
 		out, err := cmd.CombinedOutput()
 		if err != nil {
@@ -93,7 +93,7 @@ func Convert(root string) (err error) {
 			log.Printf("音频转换失败%v\n", err)
 		} else {
 			mp3 := strings.Replace(target, ".mp4", ".mp3", 1)
-			cmd := exec.Command("ffmpeg", "-i", audio, mp3)
+			cmd := exec.Command("ffmpeg", "-i", audio, "-c:a","libmp3lame",mp3)
 			out, err := cmd.CombinedOutput()
 			if err != nil {
 				return err

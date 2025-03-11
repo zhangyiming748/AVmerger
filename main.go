@@ -129,7 +129,7 @@ func main() {
 		}
 		found = true
 	}
-	src := filepath.Join(getRoot(), "download")
+	src := filepath.Join(getRoot(), "downloads")
 	if isExist(src) {
 		if !found {
 			bs := merge.GetBasicInfo(src)
