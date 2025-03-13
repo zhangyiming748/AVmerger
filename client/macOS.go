@@ -85,11 +85,13 @@ func Convert(root string) (err error) {
 		target := filepath.Join(baseDir, title)
 		mi1 := FastMediaInfo.GetStandMediaInfo(media[0])
 		mi2 := FastMediaInfo.GetStandMediaInfo(media[1])
-		cmd := exec.Command("ffmpeg", "-i", media[0], "-i", media[1], "-c:v", "copy", "-c:a", "aac", target)
+		args := []string{"-i", media[0], "-i", media[1], "-c:v", "copy", "-c:a", "aac"}
 		if mi1.Video.Format == "HEVC" || mi2.Video.Format == "HEVC" {
 			log.Printf("视频格式为hevc,需要转码")
-			cmd = exec.Command("ffmpeg", "-i", media[0], "-i", media[1], "-c:v", "copy", "-tag:v", "hvc1", "-c:a", "aac", target)
+			args = append(args, "-tag:v", "hvc1")
 		}
+		args = append(args, target)
+		cmd := exec.Command("ffmpeg", args...)
 		log.Printf("开始转换 %s\n", cmd.String())
 		out, err := cmd.CombinedOutput()
 		if err != nil {
