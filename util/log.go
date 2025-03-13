@@ -15,6 +15,7 @@ var logLocation string
 func GetLog() string {
 	return logLocation
 }
+
 func SetLog() {
 	var local string
 	goos := runtime.GOOS
@@ -42,7 +43,7 @@ func SetLog() {
 	fileLogger := &lumberjack.Logger{
 		Filename:   local,
 		MaxSize:    1, // MB
-		MaxBackups: 30,
+		MaxBackups: 1,
 		MaxAge:     28, // days
 	}
 	fileLogger.Rotate()

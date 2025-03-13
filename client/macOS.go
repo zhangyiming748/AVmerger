@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type VideoInfo struct {
@@ -90,6 +91,19 @@ func Convert(root string) (err error) {
 			log.Printf("视频格式为hevc,需要转码")
 			args = append(args, "-tag:v", "hvc1")
 		}
+		{
+			title := strings.Join([]string{"title", vi.Title}, "=")
+			args = append(args, "-metadata", title)
+
+			artist := strings.Join([]string{"artist", vi.Uname}, "=")
+			args = append(args, "-metadata", artist)
+
+			timeStamp := int64(vi.CompletionTime)
+			t := time.Unix(timeStamp/1000, 0)
+			formattedTime := t.Format("2006-01-02 15:04:05")
+			comment:= strings.Join([]string{"comment", formattedTime}, "=")
+			args = append(args, "-metadata", comment)
+		}
 		args = append(args, target)
 		cmd := exec.Command("ffmpeg", args...)
 		log.Printf("开始转换 %s\n", cmd.String())
@@ -102,7 +116,22 @@ func Convert(root string) (err error) {
 			log.Printf("音频转换失败%v\n", err)
 		} else {
 			mp3 := strings.Replace(target, ".mp4", ".mp3", 1)
-			cmd := exec.Command("ffmpeg", "-i", audio, "-c:a", "libmp3lame", mp3)
+			args := []string{"-i", audio, "-c:a", "libmp3lame"}
+			{
+				title := strings.Join([]string{"title", vi.Title}, "=")
+				args = append(args, "-metadata", title)
+
+				artist := strings.Join([]string{"artist", vi.Uname}, "=")
+				args = append(args, "-metadata", artist)
+
+				timeStamp := int64(vi.CompletionTime)
+				t := time.Unix(timeStamp/1000, 0)
+				formattedTime := t.Format("2006-01-02 15:04:05")
+				comment := strings.Join([]string{"comment", formattedTime}, "=")
+				args = append(args, "-metadata", comment)
+			}
+			args = append(args, mp3)
+			cmd := exec.Command("ffmpeg", args...)
 			out, err := cmd.CombinedOutput()
 			if err != nil {
 				return err
