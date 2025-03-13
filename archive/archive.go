@@ -68,8 +68,7 @@ func Convert(file string) error {
 	dir := filepath.Dir(file)
 	tmp := strings.Join([]string{strconv.Itoa(seed.Intn(2000)), "mp4"}, ".")
 	newPath := filepath.Join(dir, tmp)
-	
-	cmd := exec.Command("ffmpeg", "-i", file, "-c:v", "libx264", "-tag:v", "hvc1", "-c:a", "aac", newPath)
+	cmd := exec.Command("ffmpeg", "-i", file, "-c:v", "libx265", "-tag:v", "hvc1", "-c:a", "aac", newPath)
 	log.Printf("base is %v\tdir is %v\ttmp is %v\tnewPath is %v\n", base, dir, tmp, newPath)
 	log.Printf("cmd is %v\n", cmd.String())
 	
