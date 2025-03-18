@@ -87,6 +87,7 @@ func Convert(root string) (err error) {
 		mi1 := FastMediaInfo.GetStandMediaInfo(media[0])
 		mi2 := FastMediaInfo.GetStandMediaInfo(media[1])
 		args := []string{"-i", media[0], "-i", media[1], "-c:v", "copy", "-c:a", "aac"}
+		// args = append(args, "-vf", "minterpolate=fps=60:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1")
 		if mi1.Video.Format == "HEVC" || mi2.Video.Format == "HEVC" {
 				log.Printf("视频格式为hevc,添加hvc1")
 				args = append(args, "-tag:v", "hvc1")

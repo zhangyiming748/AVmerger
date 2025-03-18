@@ -66,23 +66,32 @@ func isVideo(fp string) bool {
 }
 
 func Convert(file string) error {
-	mi:=FastMediaInfo.GetStandMediaInfo(file)
+	mi := FastMediaInfo.GetStandMediaInfo(file)
 	base := filepath.Base(file)
 	dir := filepath.Dir(file)
 	tmp := strings.Join([]string{strconv.Itoa(seed.Intn(2000)), "mp4"}, ".")
 	newPath := filepath.Join(dir, tmp)
-	cmd:=new(exec.Cmd)
-	if mi.Video.Format=="HEVC"{
-		if mi.Video.CodecID=="hevc"{
+	
+	args := []string{"-i", file}
+	if mi.Video.Format == "HEVC" {
+		if mi.Video.CodecID == "hevc" {
 			log.Printf("已经是hevc格式不需要转换")
 			return nil
-		}else{
+		} else {
 			log.Printf("文件已经是hevc格式但没有正确的标签:%s\n", file)
-			cmd = exec.Command("ffmpeg", "-i", file, "-c:v", "copy", "-tag:v", "hvc1", "-c:a", "copy", newPath)
+			args = append(args, "-c:v", "copy", "-tag:v", "hvc1", "-c:a", "copy")
 		}
-	}else{
-		cmd = exec.Command("ffmpeg", "-i", file, "-c:v", "libx265", "-tag:v", "hvc1", "-c:a", "aac", newPath)
+	} else {
+		args = append(args, 
+			"-c:v", "libx265",
+			"-vf", "minterpolate=fps=60:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1",
+			"-tag:v", "hvc1",
+			"-c:a", "aac",
+		)
 	}
+	args = append(args, newPath)
+	cmd := exec.Command("ffmpeg", args...)
+	
 	log.Printf("base is %v\tdir is %v\ttmp is %v\tnewPath is %v\n", base, dir, tmp, newPath)
 	log.Printf("cmd is %v\n", cmd.String())
 	
