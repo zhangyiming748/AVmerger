@@ -152,13 +152,14 @@ func main() {
 		root := filepath.Join(home, "Movies", "bilibili")
 		if err := client.Convert(root); err != nil {
 			log.Println(err)
-		} else {
-			if err := os.RemoveAll(root); err != nil {
-				log.Printf("删除失败%s\n", root)
-			} else {
-				log.Printf("删除成功%s\n", root)
-			}
 		}
+		// } else {
+		// 	if err := os.RemoveAll(root); err != nil {
+		// 		log.Printf("删除失败%s\n", root)
+		// 	} else {
+		// 		log.Printf("删除成功%s\n", root)
+		// 	}
+		// }
 	}
 }
 

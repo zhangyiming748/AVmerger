@@ -1,7 +1,6 @@
 package archive
 
 import (
-	"github.com/h2non/filetype"
 	"log"
 	"math/rand"
 	"os"
@@ -10,6 +9,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/h2non/filetype"
+	"github.com/zhangyiming748/FastMediaInfo"
 )
 
 var seed = rand.New(rand.NewSource(time.Now().Unix()))
@@ -64,11 +66,23 @@ func isVideo(fp string) bool {
 }
 
 func Convert(file string) error {
+	mi:=FastMediaInfo.GetStandMediaInfo(file)
 	base := filepath.Base(file)
 	dir := filepath.Dir(file)
 	tmp := strings.Join([]string{strconv.Itoa(seed.Intn(2000)), "mp4"}, ".")
 	newPath := filepath.Join(dir, tmp)
-	cmd := exec.Command("ffmpeg", "-i", file, "-c:v", "libx265", "-tag:v", "hvc1", "-c:a", "aac", newPath)
+	cmd:=new(exec.Cmd)
+	if mi.Video.Format=="HEVC"{
+		if mi.Video.CodecID=="hevc"{
+			log.Printf("已经是hevc格式不需要转换")
+			return nil
+		}else{
+			log.Printf("文件已经是hevc格式但没有正确的标签:%s\n", file)
+			cmd = exec.Command("ffmpeg", "-i", file, "-c:v", "copy", "-tag:v", "hvc1", "-c:a", "copy", newPath)
+		}
+	}else{
+		cmd = exec.Command("ffmpeg", "-i", file, "-c:v", "libx265", "-tag:v", "hvc1", "-c:a", "aac", newPath)
+	}
 	log.Printf("base is %v\tdir is %v\ttmp is %v\tnewPath is %v\n", base, dir, tmp, newPath)
 	log.Printf("cmd is %v\n", cmd.String())
 	

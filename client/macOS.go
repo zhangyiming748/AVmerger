@@ -88,8 +88,8 @@ func Convert(root string) (err error) {
 		mi2 := FastMediaInfo.GetStandMediaInfo(media[1])
 		args := []string{"-i", media[0], "-i", media[1], "-c:v", "copy", "-c:a", "aac"}
 		if mi1.Video.Format == "HEVC" || mi2.Video.Format == "HEVC" {
-			log.Printf("视频格式为hevc,需要转码")
-			args = append(args, "-tag:v", "hvc1")
+				log.Printf("视频格式为hevc,添加hvc1")
+				args = append(args, "-tag:v", "hvc1")
 		}
 		{
 			title := strings.Join([]string{"title", vi.Title}, "=")
@@ -101,7 +101,7 @@ func Convert(root string) (err error) {
 			timeStamp := int64(vi.CompletionTime)
 			t := time.Unix(timeStamp/1000, 0)
 			formattedTime := t.Format("2006-01-02 15:04:05")
-			comment:= strings.Join([]string{"comment", formattedTime}, "=")
+			comment := strings.Join([]string{"comment", formattedTime}, "=")
 			args = append(args, "-metadata", comment)
 		}
 		args = append(args, target)
