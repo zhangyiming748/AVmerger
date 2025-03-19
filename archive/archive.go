@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"fmt"
 )
 
 var seed = rand.New(rand.NewSource(time.Now().Unix()))
@@ -121,7 +122,7 @@ func Convert(file string) error {
 		newMB := float64(newSize) / 1024 / 1024
 		ratio := float64(newSize) / float64(originalSize) * 100
 		log.Printf("转换后文件大小: %.2f MB (%.1f%% of original)\n", newMB, ratio)
-		log.Printf("转换输出: %s\n", out)
+		fmt.Printf("转换输出: %s\n", out)
 
 		// 直接用新文件替换旧文件
 		if err := os.Rename(newPath, file); err != nil {
