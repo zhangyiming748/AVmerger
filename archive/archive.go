@@ -122,6 +122,8 @@ func Convert(file string) error {
 		newMB := float64(newSize) / 1024 / 1024
 		ratio := float64(newSize) / float64(originalSize) * 100
 		log.Printf("转换后文件大小: %.2f MB (%.1f%% of original)\n", newMB, ratio)
+		savedSize := float64(originalSize-newSize) / 1024 / 1024
+		log.Printf("节省空间: %.2f MB\n", savedSize)
 		fmt.Printf("转换输出: %s\n", out)
 
 		// 直接用新文件替换旧文件
