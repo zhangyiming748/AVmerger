@@ -73,7 +73,7 @@ func Convert(file string) error {
 	}
 	originalSize := uint64(originalStat.Size())
 	originalMB := float64(originalSize) / 1024 / 1024
-	log.Printf("原始文件大小: %.2f MB\n", originalMB)
+	log.Printf("原始文件%s大小: %.2f MB\n",file, originalMB)
 
 	mi := FastMediaInfo.GetStandMediaInfo(file)
 	base := filepath.Base(file)
