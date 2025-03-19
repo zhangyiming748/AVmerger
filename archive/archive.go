@@ -1,6 +1,7 @@
 package archive
 
 import (
+	"fmt"
 	"github.com/h2non/filetype"
 	"github.com/zhangyiming748/FastMediaInfo"
 	"io"
@@ -12,7 +13,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"fmt"
 )
 
 var seed = rand.New(rand.NewSource(time.Now().Unix()))
@@ -74,7 +74,7 @@ func Convert(file string) error {
 	}
 	originalSize := uint64(originalStat.Size())
 	originalMB := float64(originalSize) / 1024 / 1024
-	log.Printf("原始文件%s大小: %.2f MB\n",file, originalMB)
+	log.Printf("原始文件%s大小: %.2f MB\n", file, originalMB)
 
 	mi := FastMediaInfo.GetStandMediaInfo(file)
 	base := filepath.Base(file)
@@ -95,10 +95,16 @@ func Convert(file string) error {
 		log.Printf("文件%v不是hevc格式,开始转换\n", file)
 		args = append(args,
 			"-c:v", "libx265",
-			"-vf", "minterpolate=fps=60:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1",
 			"-tag:v", "hvc1",
 			"-c:a", "aac",
 		)
+		if fps, err := strconv.ParseFloat(mi.Video.FrameCount, 64); err == nil {
+			if fps >= 50.0 {
+				args = append(args, "-vf", "minterpolate=fps=60:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1")
+			}
+		} else {
+			log.Printf("帧率解析失败: %v\n", err)
+		}
 	}
 	args = append(args, newPath)
 	cmd := exec.Command("ffmpeg", args...)
