@@ -132,19 +132,18 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 		mp3Name := strings.Replace(fname, "mp4", "mp3", 1)
 		mp3Name = filepath.Join(mp3Dir, mp3Name)
 		mi := FastMediaInfo.GetStandMediaInfo(b.Video)
-		var mp4 *exec.Cmd
+		args:=[]string{"-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-c:a", "copy", "-map_chapters", "0"}
 		if mi.Video.Format == "HEVC" {
-			mp4 = exec.Command("ffmpeg", "-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-tag:v", "hvc1", "-c:a", "copy", "-map_chapters", "0", fullName)
-		} else {
-			mp4 = exec.Command("ffmpeg", "-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-c:a", "copy", "-map_chapters", "0", fullName)
-		}
+			args=append(args, "-tag:v", "hvc1")
+		} 
+		args=append(args, fullName)
+		mp4:=exec.Command("ffmpeg", args...)
 		mp3 := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "libmp3lame", mp3Name)
 		log.Printf("mp3产生的命令:%s\n", mp3.String())
 		go func() {
 			defer wg.Done()
-			if out, warning := mp3.CombinedOutput(); warning != nil {
-				log.Panicf("mp3命令执行输出%s出错:%v\n", out, err)
-
+			if out, err := mp3.CombinedOutput(); err != nil {
+				log.Printf("mp3命令执行输出%s出错:%v\n", out, err) // 使用 Printf 而不是 Panic
 			}
 		}()
 		log.Printf("mp4产生的命令:%s\n", mp4.String())
@@ -164,8 +163,7 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 	ctx, cancel := context.WithCancel(context.Background())
 	go NumsOfGoroutine(ctx)
 	wg.Wait()
-	ctx.Done()
-	cancel() // 确保程序退出时取消上下文，防止资源泄露
+	cancel() // 直接取消上下文
 	return warning
 }
 
@@ -210,8 +208,7 @@ func MergeLocal(bs []util.BasicInfo) (warning bool) {
 	ctx, cancel := context.WithCancel(context.Background())
 	go NumsOfGoroutine(ctx)
 	wg.Wait()
-	ctx.Done()
-	cancel() // 确保程序退出时取消上下文，防止资源泄露
+	cancel() // 直接取消上下文
 	return warning
 }
 
