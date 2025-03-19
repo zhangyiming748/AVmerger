@@ -66,6 +66,15 @@ func isVideo(fp string) bool {
 }
 
 func Convert(file string) error {
+	// 获取原始文件大小
+	originalStat, err := os.Stat(file)
+	if err != nil {
+		return err
+	}
+	originalSize := uint64(originalStat.Size())
+	originalMB := float64(originalSize) / 1024 / 1024
+	log.Printf("原始文件大小: %.2f MB\n", originalMB)
+
 	mi := FastMediaInfo.GetStandMediaInfo(file)
 	base := filepath.Base(file)
 	dir := filepath.Dir(file)
@@ -82,6 +91,7 @@ func Convert(file string) error {
 			args = append(args, "-c:v", "copy", "-tag:v", "hvc1", "-c:a", "copy")
 		}
 	} else {
+		log.Printf("文件%v不是hevc格式,开始转换\n", file)
 		args = append(args, 
 			"-c:v", "libx265",
 			"-vf", "minterpolate=fps=60:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1",
@@ -97,10 +107,20 @@ func Convert(file string) error {
 	
 	if out, err := cmd.CombinedOutput(); err != nil {
 		log.Printf("转换失败: %s\n", err)
-		// 清理可能存在的临时文件
 		os.Remove(newPath)
 		return err
 	} else {
+		// 获取转换后的文件大小
+		newStat, err := os.Stat(newPath)
+		if err != nil {
+			log.Printf("获取新文件大小失败: %s\n", err)
+			os.Remove(newPath)
+			return err
+		}
+		newSize := uint64(newStat.Size())
+		newMB := float64(newSize) / 1024 / 1024
+		ratio := float64(newSize) / float64(originalSize) * 100
+		log.Printf("转换后文件大小: %.2f MB (%.1f%% of original)\n", newMB, ratio)
 		log.Printf("转换输出: %s\n", out)
 		// 创建备份
 		backupPath := file + ".bak"
