@@ -1,6 +1,9 @@
 package archive
 
 import (
+	"github.com/h2non/filetype"
+	"github.com/zhangyiming748/FastMediaInfo"
+	"io"
 	"log"
 	"math/rand"
 	"os"
@@ -9,9 +12,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/h2non/filetype"
-	"github.com/zhangyiming748/FastMediaInfo"
 )
 
 var seed = rand.New(rand.NewSource(time.Now().Unix()))
@@ -54,14 +54,14 @@ func isVideo(fp string) bool {
 		return false
 	}
 	defer file.Close()
-	
+
 	head := make([]byte, 261)
 	_, err = file.Read(head)
 	if err != nil {
 		log.Printf("读取文件头失败: %v\n", err)
 		return false
 	}
-	
+
 	return filetype.IsVideo(head)
 }
 
@@ -80,7 +80,7 @@ func Convert(file string) error {
 	dir := filepath.Dir(file)
 	tmp := strings.Join([]string{strconv.Itoa(seed.Intn(2000)), "mp4"}, ".")
 	newPath := filepath.Join(dir, tmp)
-	
+
 	args := []string{"-i", file}
 	if mi.Video.Format == "HEVC" {
 		if mi.Video.CodecID == "hevc" {
@@ -92,7 +92,7 @@ func Convert(file string) error {
 		}
 	} else {
 		log.Printf("文件%v不是hevc格式,开始转换\n", file)
-		args = append(args, 
+		args = append(args,
 			"-c:v", "libx265",
 			"-vf", "minterpolate=fps=60:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1",
 			"-tag:v", "hvc1",
@@ -101,10 +101,10 @@ func Convert(file string) error {
 	}
 	args = append(args, newPath)
 	cmd := exec.Command("ffmpeg", args...)
-	
+
 	log.Printf("base is %v\tdir is %v\ttmp is %v\tnewPath is %v\n", base, dir, tmp, newPath)
 	log.Printf("cmd is %v\n", cmd.String())
-	
+
 	if out, err := cmd.CombinedOutput(); err != nil {
 		log.Printf("转换失败: %s\n", err)
 		os.Remove(newPath)
@@ -122,26 +122,46 @@ func Convert(file string) error {
 		ratio := float64(newSize) / float64(originalSize) * 100
 		log.Printf("转换后文件大小: %.2f MB (%.1f%% of original)\n", newMB, ratio)
 		log.Printf("转换输出: %s\n", out)
-		// 创建备份
-		backupPath := file + ".bak"
-		if err := os.Rename(file, backupPath); err != nil {
-			log.Printf("创建备份失败: %s\n", err)
-			os.Remove(newPath)
-			return err
-		}
-		
-		// 移动新文件到原位置
+
+		// 直接用新文件替换旧文件
 		if err := os.Rename(newPath, file); err != nil {
-			log.Printf("重命名失败: %s\n", err)
-			// 恢复原文件
-			os.Rename(backupPath, file)
+			// 如果简单重命名失败，尝试复制+删除的方式
+			if err := copyFile(newPath, file); err != nil {
+				log.Printf("复制文件失败: %s\n", err)
+				os.Remove(newPath)
+				return err
+			}
+			// 复制成功后删除临时文件
 			os.Remove(newPath)
-			return err
 		}
-		
-		// 删除备份
-		os.Remove(backupPath)
 		log.Printf("转换完成: %s\n", file)
 	}
 	return nil
+}
+
+// 添加一个辅助函数用于复制文件
+func copyFile(src, dst string) error {
+	sourceFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer sourceFile.Close()
+
+	// 先删除目标文件（如果存在）
+	os.Remove(dst)
+
+	destFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer destFile.Close()
+
+	_, err = io.Copy(destFile, sourceFile)
+	if err != nil {
+		return err
+	}
+
+	// 确保写入磁盘
+	err = destFile.Sync()
+	return err
 }
