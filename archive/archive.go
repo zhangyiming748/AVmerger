@@ -98,10 +98,15 @@ func Convert(file string) error {
 			"-tag:v", "hvc1",
 			"-c:a", "aac",
 		)
-		if fps, err := strconv.ParseFloat(mi.Video.FrameCount, 64); err == nil {
-			if fps >= 50.0 {
-				args = append(args, "-vf", "minterpolate=fps=60:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1")
+		if fps, err := strconv.ParseFloat(mi.Video.FrameRate, 64); err == nil {
+			log.Printf("帧率=%v,尝试插值", fps)
+			if fps >= 29.97 {
+				log.Printf("帧率大于等于30,不需要插值")
+			} else {
+				log.Printf("帧率小于30,需要插值")
+				args = append(args, "-vf", "minterpolate=fps=30:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1")
 			}
+			//args = append(args, "-vf", "minterpolate=fps=60:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1")
 		} else {
 			log.Printf("帧率解析失败: %v\n", err)
 		}
