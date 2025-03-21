@@ -66,6 +66,13 @@ func Convert(root string) (err error) {
 			log.Fatal(err)
 		}
 		if len(media) != 2 {
+			if len(media)>2{
+				log.Printf("m4s文件多于两个,判断真正需要的两个文件")
+				for i:=range media{
+					info:=RemoveEncryptionHeader(media[i])
+					log.Printf("m4s真实的媒体文件信息为%+v\n", info)
+				}
+			}
 			return err
 		}
 		log.Printf("media file is %s\n", media)
