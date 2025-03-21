@@ -68,7 +68,7 @@ func Convert(root string) (err error) {
 		}
 		if len(media) != 2 {
 			if len(media) > 2 {
-				log.Printf("m4s文件多于两个,判断真正需要的两个文件")
+				log.Printf("m4s文件多于两个,判断真正需要的两个文件\n")
 				for i := len(media) - 1; i >= 0; i-- {  // 从后向前遍历
 					RemoveEncryptionHeader(media[i])
 					mi := FastMediaInfo.GetStandMediaInfo(media[i])
