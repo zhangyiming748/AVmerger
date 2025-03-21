@@ -86,8 +86,10 @@ func Convert(root string) (err error) {
 						}
 					}
 				}
+			}else {
+				log.Printf("m4s文件少于两个,跳过\n")
+				continue
 			}
-			return err
 		}
 		log.Printf("media file is %s\n", media)
 		err = RemoveEncryptionHeader(media[0])
