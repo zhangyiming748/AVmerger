@@ -2,7 +2,6 @@ package client
 
 import (
 	"encoding/json"
-	"github.com/zhangyiming748/FastMediaInfo"
 	"io"
 	"log"
 	"os"
@@ -10,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/zhangyiming748/FastMediaInfo"
 )
 
 type VideoInfo struct {
@@ -66,11 +67,24 @@ func Convert(root string) (err error) {
 			log.Fatal(err)
 		}
 		if len(media) != 2 {
-			if len(media)>2{
+			if len(media) > 2 {
 				log.Printf("m4s文件多于两个,判断真正需要的两个文件")
-				for i:=range media{
-					info:=RemoveEncryptionHeader(media[i])
-					log.Printf("m4s真实的媒体文件信息为%+v\n", info)
+				for i := len(media) - 1; i >= 0; i-- {  // 从后向前遍历
+					RemoveEncryptionHeader(media[i])
+					mi := FastMediaInfo.GetStandMediaInfo(media[i])
+					log.Printf("m4s真实的媒体文件信息为%+v\n", mi)
+					if mi.Audio.Format == "" {
+						if mi.Video.Format != "HEVC" && mi.Video.Format != "AVC" {
+							log.Printf("跳过非 HEVC/AVC 格式的文件: %s", media[i])
+							if i == 0 {
+								media = media[1:]
+							} else if i == len(media)-1 {
+								media = media[:len(media)-1]
+							} else {
+								media = append(media[:i], media[i+1:]...)
+							}
+						}
+					}
 				}
 			}
 			return err
@@ -96,8 +110,8 @@ func Convert(root string) (err error) {
 		args := []string{"-i", media[0], "-i", media[1], "-c:v", "copy", "-c:a", "copy"}
 		// args = append(args, "-vf", "minterpolate=fps=60:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1")
 		if mi1.Video.Format == "HEVC" || mi2.Video.Format == "HEVC" {
-				log.Printf("视频格式为hevc,添加hvc1")
-				args = append(args, "-tag:v", "hvc1")
+			log.Printf("视频格式为hevc,添加hvc1")
+			args = append(args, "-tag:v", "hvc1")
 		}
 		{
 			title := strings.Join([]string{"title", vi.Title}, "=")

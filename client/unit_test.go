@@ -13,9 +13,9 @@ func TestMacOS(t *testing.T) {
 	Convert("/Users/zen/Movies")
 }
 func TestRemove(t *testing.T){
-	RemoveEncryptionHeader("/Users/zen/github/AVmerger/101391217/101391217-1-30112.m4s")
-	RemoveEncryptionHeader("/Users/zen/github/AVmerger/101391217/101391217-1-30280.m4s")
-	RemoveEncryptionHeader("/Users/zen/github/AVmerger/101391217/101391217-1-100027.m4s")
+	RemoveEncryptionHeader("/Users/zen/Movies/bilibili/28914616704/28914616704-1-30016.m4s")
+	RemoveEncryptionHeader("/Users/zen/Movies/bilibili/28914616704/28914616704-1-30280.m4s")
+//	RemoveEncryptionHeader("/Users/zen/github/AVmerger/101391217/101391217-1-100027.m4s")
 }
 func TestFindJson(t *testing.T) {
 
