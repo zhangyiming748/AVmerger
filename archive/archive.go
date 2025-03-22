@@ -84,7 +84,7 @@ func Convert(file string) error {
 
 	args := []string{"-i", file}
 	if mi.Video.Format == "HEVC" {
-		if mi.Video.CodecID == "hevc" {
+		if mi.Video.CodecID == "hvc1" {
 			log.Printf("已经是hevc格式不需要转换")
 			return nil
 		} else {
