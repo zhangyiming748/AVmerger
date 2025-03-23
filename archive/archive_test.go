@@ -10,7 +10,7 @@ func init() {
 }
 //go test -timeout 1000h -v -run TestAll
 func TestAll(t *testing.T) {
-	files, _ := GetAllFiles("/Users/zen/Movies/Music")
+	files, _ := GetAllFiles("/Users/zen/Movies")
 	for _, file := range files {
 		// 清空终端屏幕
 		print("\033[H\033[2J")
