@@ -70,7 +70,7 @@ func Convert(root string) (err error) {
 		if len(media) != 2 {
 			if len(media) > 2 {
 				log.Printf("m4s文件多于两个,判断真正需要的两个文件\n")
-				for i := len(media) - 1; i >= 0; i-- {  // 从后向前遍历
+				for i := len(media) - 1; i >= 0; i-- { // 从后向前遍历
 					RemoveEncryptionHeader(media[i])
 					mi := FastMediaInfo.GetStandMediaInfo(media[i])
 					log.Printf("m4s真实的媒体文件信息为%+v\n", mi)
@@ -87,7 +87,7 @@ func Convert(root string) (err error) {
 						}
 					}
 				}
-			}else {
+			} else {
 				log.Printf("m4s文件少于两个,跳过\n")
 				continue
 			}
@@ -105,8 +105,8 @@ func Convert(root string) (err error) {
 		log.Printf("videoInfo = %+v\n", vi)
 		home, _ := os.UserHomeDir()
 		baseDir := filepath.Join(home, "Movies", vi.Uname)
-		if runtime.GOOS=="windows" {
-			baseDir = filepath.Join(home,"Videos",  vi.Uname)
+		if runtime.GOOS == "windows" {
+			baseDir = filepath.Join(home, "Videos", vi.Uname)
 		}
 		os.MkdirAll(baseDir, 0755)
 		title := strings.Join([]string{vi.Title, "mp4"}, ".")

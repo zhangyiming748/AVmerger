@@ -182,7 +182,7 @@ func main() {
 				log.Printf("删除成功%s\n", root)
 			}
 		}
-}
+	}
 }
 
 func getRoot() string {
