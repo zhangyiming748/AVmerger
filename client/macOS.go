@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -104,6 +105,9 @@ func Convert(root string) (err error) {
 		log.Printf("videoInfo = %+v\n", vi)
 		home, _ := os.UserHomeDir()
 		baseDir := filepath.Join(home, "Movies", vi.Uname)
+		if runtime.GOOS=="windows" {
+			baseDir = filepath.Join(home,"Videos",  vi.Uname)
+		}
 		os.MkdirAll(baseDir, 0755)
 		title := strings.Join([]string{vi.Title, "mp4"}, ".")
 		target := filepath.Join(baseDir, title)
