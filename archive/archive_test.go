@@ -13,7 +13,7 @@ func init() {
 	util.SetLog()
 }
 
-//go test -timeout 1000h -v -run TestAll
+// go test -timeout 1000h -v -run TestAll
 func TestAll(t *testing.T) {
 	home, _ := os.UserHomeDir()
 	switch runtime.GOOS {

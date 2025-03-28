@@ -2,6 +2,8 @@ package client
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/zhangyiming748/FastMediaInfo"
 	"io"
 	"log"
 	"os"
@@ -10,8 +12,6 @@ import (
 	"runtime"
 	"strings"
 	"time"
-
-	"github.com/zhangyiming748/FastMediaInfo"
 )
 
 type VideoInfo struct {
@@ -139,7 +139,7 @@ func Convert(root string) (err error) {
 		if err != nil {
 			return err
 		}
-		log.Printf("out is %s", out)
+		fmt.Printf("out is %s", out)
 		if audio, err := GetMusicFile(media[0], media[1]); err != nil {
 			log.Printf("音频转换失败%v\n", err)
 		} else {
