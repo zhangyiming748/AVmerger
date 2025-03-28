@@ -157,11 +157,11 @@ func main() {
 		if err := client.Convert(root); err != nil {
 			log.Println(err)
 		} else {
-			// if err := os.RemoveAll(root); err != nil {
-			// 	log.Printf("删除失败%s\n", root)
-			// } else {
-			// 	log.Printf("删除成功%s\n", root)
-			// }
+			if err := os.RemoveAll(root); err != nil {
+				log.Printf("删除失败%s\n", root)
+			} else {
+				log.Printf("删除成功%s\n", root)
+			}
 		}
 	}
 
@@ -176,11 +176,11 @@ func main() {
 		if err := client.Convert(root); err != nil {
 			log.Println(err)
 		} else {
-			// if err := os.RemoveAll(root); err != nil {
-			// 	log.Printf("删除失败%s\n", root)
-			// } else {
-			// 	log.Printf("删除成功%s\n", root)
-			// }
+			if err := os.RemoveAll(root); err != nil {
+				log.Printf("删除失败%s\n", root)
+			} else {
+				log.Printf("删除成功%s\n", root)
+			}
 		}
 }
 }
