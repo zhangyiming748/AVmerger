@@ -13,8 +13,11 @@ func init() {
 	util.SetLog()
 }
 
-// go test -timeout 1000h -v -run TestAll
-func TestAll(t *testing.T) {
+// go test -timeout 1000h -v -run TestProcessBilibiliVideos
+/*
+这个测试用来手动执行哔哩哔哩在电脑上客户端已经转换成功视频的再加工
+*/
+func TestProcessBilibiliVideos(t *testing.T) {
 	home, _ := os.UserHomeDir()
 	switch runtime.GOOS {
 	case "windows":
@@ -47,9 +50,11 @@ func TestAll(t *testing.T) {
 	}
 }
 
-// go test -timeout 1000h -v -run TestGetAllFiles
-
-func TestGetAllFiles(t *testing.T) {
+// go test -timeout 1000h -v -run TestProcessSpecificDirectory
+/*
+这个测试用来手动执行指定目录已经转换成功视频的再加工
+*/
+func TestProcessSpecificDirectory(t *testing.T) {
 	root := "E:\\Music"
 	files, _ := GetAllFiles(root)
 	for _, file := range files {
