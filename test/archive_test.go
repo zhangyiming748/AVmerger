@@ -1,11 +1,11 @@
-package archive
+package test
 
 import (
 	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
-
+"github.com/zhangyiming748/AVmerger/archive"
 	"github.com/zhangyiming748/AVmerger/util"
 )
 
@@ -23,29 +23,29 @@ func TestProcessBilibiliVideos(t *testing.T) {
 	case "windows":
 		// Windows 系统
 		root := filepath.Join(home, "Videos")
-		files, _ := GetAllFiles(root)
+		files, _ := archive.GetAllFiles(root)
 		for _, file := range files {
 			// 清空终端屏幕
 			print("\033[H\033[2J")
-			Convert(file)
+			archive.Convert(file)
 		}
 	case "darwin":
 		// macOS 系统
 		root := filepath.Join(home, "Videos")
-		files, _ := GetAllFiles(root)
+		files, _ := archive.GetAllFiles(root)
 		for _, file := range files {
 			// 清空终端屏幕
 			print("\033[H\033[2J")
-			Convert(file)
+			archive.Convert(file)
 		}
 	case "linux":
 		// Linux 系统
 		root := filepath.Join(home, "Videos")
-		files, _ := GetAllFiles(root)
+		files, _ := archive.GetAllFiles(root)
 		for _, file := range files {
 			// 清空终端屏幕
 			print("\033[H\033[2J")
-			Convert(file)
+			archive.Convert(file)
 		}
 	}
 }
@@ -56,9 +56,9 @@ func TestProcessBilibiliVideos(t *testing.T) {
 */
 func TestProcessSpecificDirectory(t *testing.T) {
 	root := "E:\\Music"
-	files, _ := GetAllFiles(root)
+	files, _ := archive.GetAllFiles(root)
 	for _, file := range files {
 		t.Log(file)
-		Convert(file)
+		archive.Convert(file)
 	}
 }
