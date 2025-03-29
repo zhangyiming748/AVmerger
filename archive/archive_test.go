@@ -46,3 +46,14 @@ func TestAll(t *testing.T) {
 		}
 	}
 }
+
+// go test -timeout 1000h -v -run TestGetAllFiles
+
+func TestGetAllFiles(t *testing.T) {
+	root := "E:\\Music"
+	files, _ := GetAllFiles(root)
+	for _, file := range files {
+		t.Log(file)
+		Convert(file)
+	}
+}
