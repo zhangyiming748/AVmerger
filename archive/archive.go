@@ -1,9 +1,6 @@
 package archive
 
 import (
-	"fmt"
-	"github.com/h2non/filetype"
-	"github.com/zhangyiming748/FastMediaInfo"
 	"io"
 	"log"
 	"math/rand"
@@ -13,6 +10,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/h2non/filetype"
+	"github.com/zhangyiming748/AVmerger/util"
+	"github.com/zhangyiming748/FastMediaInfo"
 )
 
 var seed = rand.New(rand.NewSource(time.Now().Unix()))
@@ -117,17 +118,18 @@ func Convert(file string) error {
 	log.Printf("base is %v\tdir is %v\ttmp is %v\tnewPath is %v\n", base, dir, tmp, newPath)
 	log.Printf("cmd is %v\n", cmd.String())
 
-	if out, err := cmd.CombinedOutput(); err != nil {
+	if err := util.ExecCommand(cmd); err != nil {
 		log.Printf("转换失败: %s\n", err)
-		os.Remove(newPath)
+		os.Remove(newPath)  // 转换失败时删除临时文件
 		return err
 	} else {
 		// 获取转换后的文件大小
 		newStat, err := os.Stat(newPath)
 		if err != nil {
 			log.Printf("获取新文件大小失败: %s\n", err)
-			os.Remove(newPath)
-			return err
+			// 这里不应该删除文件，因为转换可能是成功的
+			// 继续处理文件替换操作
+			log.Printf("继续进行文件替换操作\n")
 		}
 		newSize := uint64(newStat.Size())
 		newMB := float64(newSize) / 1024 / 1024
@@ -135,7 +137,6 @@ func Convert(file string) error {
 		log.Printf("转换后文件大小: %.2f MB (%.1f%% of original)\n", newMB, ratio)
 		savedSize := float64(originalSize-newSize) / 1024 / 1024
 		log.Printf("节省空间: %.2f MB\n", savedSize)
-		fmt.Printf("转换输出: %s\n", out)
 
 		// 直接用新文件替换旧文件
 		if err := os.Rename(newPath, file); err != nil {
