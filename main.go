@@ -157,11 +157,30 @@ func main() {
 		if err := client.Convert(root); err != nil {
 			log.Println(err)
 		} else {
-			// if err := os.RemoveAll(root); err != nil {
-			// 	log.Printf("删除失败%s\n", root)
-			// } else {
-			// 	log.Printf("删除成功%s\n", root)
-			// }
+			if err := os.RemoveAll(root); err != nil {
+				log.Printf("删除失败%s\n", root)
+			} else {
+				log.Printf("删除成功%s\n", root)
+			}
+		}
+	}
+
+	if runtime.GOOS == "windows" {
+		log.Printf("检测到 windows 系统，开始处理 windows 相关任务")
+		home, _ := os.UserHomeDir()
+		root := filepath.Join(home, "Videos", "bilibili")
+		if !isExist(root) {
+			log.Printf("未找到linux客户端目录%v跳过\n", root)
+			return
+		}
+		if err := client.Convert(root); err != nil {
+			log.Println(err)
+		} else {
+			if err := os.RemoveAll(root); err != nil {
+				log.Printf("删除失败%s\n", root)
+			} else {
+				log.Printf("删除成功%s\n", root)
+			}
 		}
 	}
 }

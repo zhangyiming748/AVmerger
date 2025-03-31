@@ -132,12 +132,12 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 		mp3Name := strings.Replace(fname, "mp4", "mp3", 1)
 		mp3Name = filepath.Join(mp3Dir, mp3Name)
 		mi := FastMediaInfo.GetStandMediaInfo(b.Video)
-		args:=[]string{"-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-c:a", "copy", "-map_chapters", "0"}
+		args := []string{"-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-c:a", "copy", "-map_chapters", "0"}
 		if mi.Video.Format == "HEVC" {
-			args=append(args, "-tag:v", "hvc1")
-		} 
-		args=append(args, fullName)
-		mp4:=exec.Command("ffmpeg", args...)
+			args = append(args, "-tag:v", "hvc1")
+		}
+		args = append(args, fullName)
+		mp4 := exec.Command("ffmpeg", args...)
 		mp3 := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "libmp3lame", mp3Name)
 		log.Printf("mp3产生的命令:%s\n", mp3.String())
 		go func() {
