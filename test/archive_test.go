@@ -1,12 +1,12 @@
 package test
 
 import (
+	"github.com/zhangyiming748/AVmerger/archive"
+	"github.com/zhangyiming748/AVmerger/util"
 	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
-"github.com/zhangyiming748/AVmerger/archive"
-	"github.com/zhangyiming748/AVmerger/util"
 )
 
 func init() {

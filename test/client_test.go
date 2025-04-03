@@ -1,10 +1,9 @@
 package test
 
 import (
-	
-	"testing"
-
 	"github.com/zhangyiming748/AVmerger/client"
+	"runtime"
+	"testing"
 )
 
 // go test -v -timeout 100h -run TestMacOS
@@ -14,6 +13,7 @@ import (
 func TestMacOS(t *testing.T) {
 	client.Convert("/Users/zen/Movies")
 }
+
 /*
 测试移除加密媒体的前缀
 */
@@ -28,7 +28,12 @@ func TestRemove(t *testing.T) {
 测试转换客户端缓存的视频
 */
 func TestConvertClientCache(t *testing.T) {
-	client.Convert("/Users/zen/Movies")
+	switch runtime.GOOS {
+	case "darwin":
+		client.Convert("/Users/zen/Movies/bilibili")
+	case "windows":
+		client.Convert("C:\\Users\\zen\\Videos\\bilibili")
+	}
 }
 
 /*

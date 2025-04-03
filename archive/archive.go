@@ -120,7 +120,7 @@ func Convert(file string) error {
 
 	if err := util.ExecCommand(cmd); err != nil {
 		log.Printf("转换失败: %s\n", err)
-		os.Remove(newPath)  // 转换失败时删除临时文件
+		os.Remove(newPath) // 转换失败时删除临时文件
 		return err
 	} else {
 		// 获取转换后的文件大小
