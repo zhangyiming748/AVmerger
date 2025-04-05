@@ -1,10 +1,11 @@
 module github.com/zhangyiming748/AVmerger
 
-go 1.24.0
+go 1.24.1
 
 require (
 	github.com/h2non/filetype v1.1.3
 	github.com/schollz/progressbar/v3 v3.18.0
+	github.com/zhangyiming748/archiveVideos v0.0.2
 	github.com/zhangyiming748/lumberjack v0.0.1
 	github.com/zhangyiming748/pretty v0.0.3
 )
