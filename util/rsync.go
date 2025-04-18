@@ -10,8 +10,8 @@ import (
 func UploadWithRsync(localDir string) error {
 	remoteDir := "/home/zen/ugreen/alist/bili/" // 服务器上的目标目录，请根据实际情况修改
 	user := "zen"                               // 服务器用户名，请根据实际情况修改
-	server := "192.168.1.9"
-	password := "123456"
+	server := "192.168.2.10"
+	password := "163453"
 	// 强烈建议不要在代码中直接使用密码，这里只是为了演示
 	// 实际应用中应该从环境变量或配置文件读取密码
 	// password := os.Getenv("RSYNC_PASSWORD")
