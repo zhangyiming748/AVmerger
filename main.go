@@ -21,14 +21,11 @@ func init() {
 	if _, err := exec.LookPath("mediainfo"); err != nil {
 		log.Fatal("未找到 mediainfo 命令，请先安装 mediainfo")
 	}
-
 	// 检查 ffmpeg 命令
 	if _, err := exec.LookPath("ffmpeg"); err != nil {
 		log.Fatal("未找到 ffmpeg 命令，请先安装 ffmpeg")
 	}
-
-	log.Println("系统环境检查通过：mediainfo 和 ffmpeg 命令可用")
-
+	log.Println("系统环境检查通过: mediainfo 和 ffmpeg 命令可用")
 	util.SetLog()
 }
 
