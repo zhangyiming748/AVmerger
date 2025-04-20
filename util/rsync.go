@@ -34,7 +34,7 @@ func UploadWithSamba(localDir string) error {
 }
 
 func UploadWithRsync(localDir string) error {
-	remoteDir := "/home/zen/ugreen/alist/bili/" // 服务器上的目标目录，请根据实际情况修改
+	remoteDir := "/Volumes/ugreen/alist/bili/" // 服务器上的目标目录，请根据实际情况修改
 	user := "zen"                               // 服务器用户名，请根据实际情况修改
 	server := "192.168.2.10"
 	password := "163453"
