@@ -22,12 +22,13 @@ func CheckSshpass() {
 	log.Println("系统环境检查通过: sshpass 命令可用")
 }
 
-func UploadWithRsyncAll(remoteDir string, localDirs ...string) {
+func UploadWithRsyncAll(remoteDir string, localDirs ...string) error {
 	for _, dir := range localDirs {
 		if err := UploadWithRsync(dir, remoteDir); err != nil {
-			log.Printf("上传文件夹 %s 失败: %v\n", dir, err)
+			return fmt.Errorf("上传文件夹 %s 失败: %v\n", dir, err)
 		}
 	}
+	return nil
 }
 
 func UploadWithRsync(localDir, remoteDir string) error {

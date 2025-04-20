@@ -36,7 +36,11 @@ func main() {
 			util.CheckRsync()
 			util.CheckSshpass()
 			log.Println("检测到 Termux 系统，开始处理 Termux 相关任务")
-			util.UploadWithRsyncAll("/Volumes/ugreen/alist/bili/", constant.ANDROIDAUDIO, constant.ANDROIDVIDEO)
+			if err := util.UploadWithRsyncAll("/Volumes/ugreen/alist/bili/", constant.ANDROIDAUDIO, constant.ANDROIDVIDEO); err != nil {
+				log.Printf("Termux rsync 上传到服务器相关任务处理发生错误%v\n", err)
+			} else {
+				log.Println("Termux rsync 上传到服务器相关任务处理完成")
+			}
 		}
 	}()
 
