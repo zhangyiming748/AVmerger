@@ -136,6 +136,19 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 		if mi.Video.Format == "HEVC" {
 			args = append(args, "-tag:v", "hvc1")
 		}
+
+		{
+			title := strings.Join([]string{"title", fname}, "=")
+			args = append(args, "-metadata", title)
+
+			artist := strings.Join([]string{"artist", subFolder}, "=")
+			args = append(args, "-metadata", artist)
+
+			formattedTime := time.Now().Format("2006-01-02 15:04:05")
+			comment := strings.Join([]string{"comment", formattedTime}, "=")
+			args = append(args, "-metadata", comment)
+		}
+
 		args = append(args, fullName)
 		mp4 := exec.Command("ffmpeg", args...)
 		mp3 := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "libmp3lame", mp3Name)
@@ -188,6 +201,7 @@ func MergeLocal(bs []util.BasicInfo) (warning bool) {
 			log.Printf("视频格式为%s\n", format)
 			mp4 = exec.Command("ffmpeg", "-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-tag:v", "hvc1", "-c:a", "copy", "-map_chapters", "0", fullName)
 		}
+		
 		mp3 := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "copy", mp3Name)
 		go func() {
 			defer wg.Done()
