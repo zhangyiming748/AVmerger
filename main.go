@@ -49,8 +49,8 @@ func main() {
 				log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
 			} else {
 				log.Printf("程序正确执行,删除文件夹:%v\n", constant.BILI)
-				err1 := util.UploadWithRsync(constant.ANDROIDVIDEO)
-				err2 := util.UploadWithRsync(constant.ANDROIDAUDIO)
+				err1 := util.UploadWithSamba(constant.ANDROIDVIDEO)
+				err2 := util.UploadWithSamba(constant.ANDROIDAUDIO)
 				if err1 != nil || err2 != nil {
 					log.Printf("上传视频文件夹失败:%v\n", err1)
 					log.Printf("上传音频文件夹失败:%v\n", err2)
@@ -71,8 +71,8 @@ func main() {
 				log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
 			} else {
 				log.Printf("程序正确执行,删除文件夹:%v\n", constant.HD)
-				err1 := util.UploadWithRsync(constant.ANDROIDVIDEO)
-				err2 := util.UploadWithRsync(constant.ANDROIDAUDIO)
+				err1 := util.UploadWithSamba(constant.ANDROIDVIDEO)
+				err2 := util.UploadWithSamba(constant.ANDROIDAUDIO)
 				if err1 != nil || err2 != nil {
 					log.Printf("上传视频文件夹失败:%v\n", err1)
 					log.Printf("上传音频文件夹失败:%v\n", err2)
@@ -93,8 +93,8 @@ func main() {
 				log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
 			} else {
 				log.Printf("程序正确执行,删除文件夹:%v\n", constant.GLOBAL)
-				err1 := util.UploadWithRsync(constant.ANDROIDVIDEO)
-				err2 := util.UploadWithRsync(constant.ANDROIDAUDIO)
+				err1 := util.UploadWithSamba(constant.ANDROIDVIDEO)
+				err2 := util.UploadWithSamba(constant.ANDROIDAUDIO)
 				if err1 != nil || err2 != nil {
 					log.Printf("上传视频文件夹失败:%v\n", err1)
 					log.Printf("上传音频文件夹失败:%v\n", err2)
@@ -115,8 +115,8 @@ func main() {
 				log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
 			} else {
 				log.Printf("程序正确执行,删除文件夹:%v\n", constant.BLUE)
-				err1 := util.UploadWithRsync(constant.ANDROIDVIDEO)
-				err2 := util.UploadWithRsync(constant.ANDROIDAUDIO)
+				err1 := util.UploadWithSamba(constant.ANDROIDVIDEO)
+				err2 := util.UploadWithSamba(constant.ANDROIDAUDIO)
 				if err1 != nil || err2 != nil {
 					log.Printf("上传视频文件夹失败:%v\n", err1)
 					log.Printf("上传音频文件夹失败:%v\n", err2)
