@@ -48,7 +48,7 @@ type VideoInfo struct {
 	UpdateTime     int64       `json:"updateTime"`
 	TotalSize      int         `json:"totalSize"`
 	LoadedSize     int         `json:"loadedSize"`
-	Progress       float64        `json:"progress"`
+	Progress       float64     `json:"progress"`
 	Speed          int         `json:"speed"`
 	CompletionTime int64       `json:"completionTime"`
 	ReportedSize   int         `json:"reportedSize"`
@@ -233,7 +233,7 @@ func ReadVideoInfo(jsonPath string) (*VideoInfo, error) {
 	// 解析 JSON 到 VideoInfo 结构体
 	var videoInfo VideoInfo
 	if err := json.Unmarshal(content, &videoInfo); err != nil {
-		log.Fatalf("无法解析%v\t JSON: %v",jsonPath, err)
+		log.Fatalf("无法解析%v\t JSON: %v", jsonPath, err)
 	}
 
 	return &videoInfo, nil

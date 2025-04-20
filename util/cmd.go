@@ -26,11 +26,11 @@ func ExecCommand(c *exec.Cmd) (e error) {
 	}
 	for {
 		tmp := make([]byte, 1024)
-		_, err := stdout.Read(tmp)
+		_, e := stdout.Read(tmp)
 		t := string(tmp)
 		t = strings.Replace(t, "\u0000", "", -1)
 		fmt.Println(t)
-		if err != nil {
+		if e != nil {
 			break
 		}
 	}
@@ -61,12 +61,12 @@ func ExecCommandWithBar(c *exec.Cmd, totalFrame string) (e error) {
 	}
 	for {
 		tmp := make([]byte, 1024)
-		_, err := stdout.Read(tmp)
+		_, e := stdout.Read(tmp)
 		t := string(tmp)
 		if frame, none := GetFrameNum(t); none == nil {
 			bar.Set(frame)
 		}
-		if err != nil {
+		if e != nil {
 			break
 		}
 	}
