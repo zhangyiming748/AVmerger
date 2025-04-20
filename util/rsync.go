@@ -15,8 +15,8 @@ func CheckRsync() {
 	log.Println("系统环境检查通过: rsync 命令可用")
 }
 
-func CheckSshpass(){
-	if _, err := exec.LookPath("sshpass"); err!= nil {
+func CheckSshpass() {
+	if _, err := exec.LookPath("sshpass"); err != nil {
 		log.Fatal("未找到 sshpass 命令，请先安装 sshpass")
 	}
 	log.Println("系统环境检查通过: sshpass 命令可用")
@@ -24,15 +24,15 @@ func CheckSshpass(){
 
 func UploadWithRsyncAll(remoteDir string, localDirs ...string) {
 	for _, dir := range localDirs {
-		if err := UploadWithRsync(dir,remoteDir); err != nil {
+		if err := UploadWithRsync(dir, remoteDir); err != nil {
 			log.Printf("上传文件夹 %s 失败: %v\n", dir, err)
 		}
 	}
 }
 
-func UploadWithRsync(localDir,remoteDir string) error {
-	remoteDir = "/Volumes/ugreen/alist/bili/" // 服务器上的目标目录，请根据实际情况修改
-	user := "zen"                              // 服务器用户名，请根据实际情况修改
+func UploadWithRsync(localDir, remoteDir string) error {
+	// remoteDir = "/Volumes/ugreen/alist/bili/" // 服务器上的目标目录，请根据实际情况修改
+	user := "zen" // 服务器用户名，请根据实际情况修改
 	server := "192.168.2.10"
 	password := "163453"
 	// 强烈建议不要在代码中直接使用密码，这里只是为了演示

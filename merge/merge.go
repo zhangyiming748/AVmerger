@@ -201,7 +201,7 @@ func MergeLocal(bs []util.BasicInfo) (warning bool) {
 			log.Printf("视频格式为%s\n", format)
 			mp4 = exec.Command("ffmpeg", "-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-tag:v", "hvc1", "-c:a", "copy", "-map_chapters", "0", fullName)
 		}
-		
+
 		mp3 := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "copy", mp3Name)
 		go func() {
 			defer wg.Done()
