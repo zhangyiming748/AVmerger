@@ -31,11 +31,15 @@ func init() {
 
 func main() {
 	defer func() {
-		if err := recover(); err != nil {
-			log.Printf("程序运行最终收集的panic:%v\n", err)
+		// 检查环境变量 TERMUX_VERSION 是否存在
+		if util.OnTermux() {
+			util.CheckRsync()
+			util.CheckSshpass()
+			log.Println("检测到 Termux 系统，开始处理 Termux 相关任务")
+			util.UploadWithRsyncAll("/Volumes/ugreen/alist/bili/" ,constant.ANDROIDAUDIO,constant.ANDROIDVIDEO)
 		}
 	}()
-	
+
 	var (
 		found bool
 	)
@@ -54,6 +58,7 @@ func main() {
 		}
 		found = true
 	}
+
 	if isExist(constant.HD) {
 		bs := merge.GetBasicInfo(constant.HD)
 		if merge.Merge(bs) {
@@ -68,6 +73,7 @@ func main() {
 		}
 		found = true
 	}
+
 	if isExist(constant.GLOBAL) {
 		bs := merge.GetBasicInfo(constant.GLOBAL)
 		if merge.Merge(bs) {
@@ -82,6 +88,7 @@ func main() {
 		}
 		found = true
 	}
+
 	if isExist(constant.BLUE) {
 		bs := merge.GetBasicInfo(constant.BLUE)
 		if merge.Merge(bs) {
