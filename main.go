@@ -32,7 +32,7 @@ func init() {
 func main() {
 	defer func() {
 		// 检查环境变量 TERMUX_VERSION 是否存在
-		if util.OnTermux() {
+		if runtime.GOOS == "android" && runtime.GOARCH == "arm64" {
 			util.CheckRsync()
 			util.CheckSshpass()
 			log.Println("检测到 Termux 系统，开始处理 Termux 相关任务")
@@ -41,6 +41,8 @@ func main() {
 			} else {
 				log.Println("Termux rsync 上传到服务器相关任务处理完成")
 			}
+		} else {
+			log.Println("未检测到 Termux 系统，跳过 Termux 相关任务")
 		}
 	}()
 
