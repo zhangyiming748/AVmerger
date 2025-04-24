@@ -109,6 +109,67 @@ func main() {
 		}
 		found = true
 	}
+
+	if isExist(constant.BILI999) {
+		bs := merge.GetBasicInfo(constant.BILI999)
+		if merge.Merge(bs) {
+			log.Printf("程序有错误,%s目录不会被删除\n", constant.BILI999)
+		} else {
+			err := os.RemoveAll(constant.BILI999)
+			if err != nil {
+				log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
+			} else {
+				log.Printf("程序正确执行,删除文件夹:%v\n", constant.BILI999)
+			}
+		}
+		found = true
+	}
+
+	if isExist(constant.HD999) {
+		bs := merge.GetBasicInfo(constant.HD999)
+		if merge.Merge(bs) {
+			log.Printf("程序有错误,%s目录不会被删除\n", constant.HD999)
+		} else {
+			err := os.RemoveAll(constant.HD999)
+			if err != nil {
+				log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
+			} else {
+				log.Printf("程序正确执行,删除文件夹:%v\n", constant.HD999)
+			}
+		}
+		found = true
+	}
+
+	if isExist(constant.GLOBAL999) {
+		bs := merge.GetBasicInfo(constant.GLOBAL999)
+		if merge.Merge(bs) {
+			log.Printf("程序有错误,%s目录不会被删除\n", constant.GLOBAL999)
+		} else {
+			err := os.RemoveAll(constant.GLOBAL999)
+			if err != nil {
+				log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
+			} else {
+				log.Printf("程序正确执行,删除文件夹:%v\n", constant.GLOBAL999)
+			}
+		}
+		found = true
+	}
+
+	if isExist(constant.BLUE999) {
+		bs := merge.GetBasicInfo(constant.BLUE999)
+		if merge.Merge(bs) {
+			log.Printf("程序有错误,%s目录不会被删除\n", constant.BLUE999)
+		} else {
+			err := os.RemoveAll(constant.BLUE999)
+			if err != nil {
+				log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
+			} else {
+				log.Printf("程序正确执行,删除文件夹:%v\n", constant.BLUE)
+			}
+		}
+		found = true
+	}
+
 	src := filepath.Join(getRoot(), "downloads")
 	if isExist(src) {
 		if !found {

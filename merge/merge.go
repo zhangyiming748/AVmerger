@@ -69,6 +69,7 @@ type Entry struct {
 		DownloadSubtitle string `json:"download_subtitle"`
 	} `json:"page_data"`
 }
+
 type PlanB struct {
 	MediaType                  int    `json:"media_type"`
 	HasDashAudio               bool   `json:"has_dash_audio"`
