@@ -58,6 +58,8 @@ func Convert(root string) (err error) {
 	files, err := FindVideoInfoFiles(root)
 	if err != nil {
 		return err
+	}else {
+		log.Printf("files is %+v\n", files)
 	}
 	for _, file := range files {
 		log.Printf("json file is %s\n", file)

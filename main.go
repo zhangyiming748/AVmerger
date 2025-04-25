@@ -191,9 +191,9 @@ func main() {
 		log.Printf("检测到 macOS 系统，开始处理 macOS 相关任务")
 		home, _ := os.UserHomeDir()
 		root := filepath.Join(home, "Movies", "bilibili")
-		defer func() {
-			archiveVideos.ArchiveVideos(root)
-		}()
+		// defer func() {
+		// 	archiveVideos.ArchiveVideos(root)
+		// }()
 		if !isExist(root) {
 			log.Printf("未找到macos客户端目录%v跳过\n", root)
 			return
