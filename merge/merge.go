@@ -116,6 +116,7 @@ type PlanB struct {
 func Merge(bs []util.BasicInfo) (warning bool) {
 	var wg sync.WaitGroup
 	for _, b := range bs {
+		log.Printf("循环一次开始处理%+v\n", b.EntryFullPath)
 		wg.Add(1)
 		fname, subFolder, err := getName(b.EntryFullPath)
 		if err != nil {
@@ -127,10 +128,11 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 		dir := filepath.Join(constant.ANDROIDVIDEO, subFolder)
 		os.MkdirAll(dir, 0777)
 		fname = strings.Join([]string{fname, "mp4"}, ".")
+		log.Printf("加入了第一次mp4扩展名处理后的文件名%v\n", fname)
 		fullName := filepath.Join(dir, fname)
 		mp3Dir := filepath.Join(constant.ANDROIDAUDIO, subFolder)
 		os.MkdirAll(mp3Dir, 0777)
-		mp3Name := strings.Replace(fname, "mp4", "mp3", 1)
+		mp3Name := strings.Replace(fname, "mp4", "mp3", -1)
 		mp3Name = filepath.Join(mp3Dir, mp3Name)
 		mi := FastMediaInfo.GetStandMediaInfo(b.Video)
 		args := []string{"-i", b.Video, "-i", b.Audio, "-c:v", "copy", "-c:a", "copy", "-map_chapters", "0"}
