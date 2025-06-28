@@ -182,13 +182,12 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 		mp3 := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "libmp3lame", mp3Name)
 		log.Printf("mp3产生的命令:%s\n", mp3.String())
 		// 在goroutine中异步处理音频提取
-		go func() {
-			defer wg.Done()
-			// 执行音频提取命令并处理可能的错误
-			if out, err := mp3.CombinedOutput(); err != nil {
-				log.Printf("mp3命令执行输出%s出错:%v\n", out, err) // 使用 Printf 而不是 Panic
-			}
-		}()
+
+		// 执行音频提取命令并处理可能的错误
+		if out, err := mp3.CombinedOutput(); err != nil {
+			log.Printf("mp3命令执行输出%s出错:%v\n", out, err) // 使用 Printf 而不是 Panic
+		}
+
 		log.Printf("mp4产生的命令:%s\n", mp4.String())
 		// 获取视频总帧数用于进度显示
 		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
@@ -210,15 +209,7 @@ func Merge(bs []util.BasicInfo) (warning bool) {
 		}
 	}
 	log.Println("等待mp3合并完成")
-	// 创建可取消的上下文用于控制goroutine监控
-	ctx, cancel := context.WithCancel(context.Background())
-	// 启动goroutine数量监控
-	go NumsOfGoroutine(ctx)
-	// 等待所有音频处理完成
-	wg.Wait()
-	// 取消监控
-	cancel() // 直接取消上下文
-	// 返回处理状态
+
 	return warning
 }
 
