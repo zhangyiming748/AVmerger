@@ -3,7 +3,6 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/zhangyiming748/FastMediaInfo"
 	"io"
 	"log"
 	"os"
@@ -12,6 +11,9 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/zhangyiming748/AVmerger/storage"
+	"github.com/zhangyiming748/FastMediaInfo"
 )
 
 type VideoInfo struct {
@@ -62,6 +64,7 @@ func Convert(root string) (err error) {
 		log.Printf("files is %+v\n", files)
 	}
 	for _, file := range files {
+		one := new(storage.History)
 		log.Printf("json file is %s\n", file)
 		dir := filepath.Dir(file)
 		log.Printf("dir is %s\n", dir)
@@ -112,6 +115,18 @@ func Convert(root string) (err error) {
 		}
 		os.MkdirAll(baseDir, 0755)
 		title := strings.Join([]string{vi.Title, "mp4"}, ".")
+		one.Title = vi.Title
+		if has, _ := one.FindByTitle(); has {
+			log.Printf("已存在%s,跳过\n", title)
+			continue
+		} else {
+			insertOne, err := one.InsertOne()
+			if err != nil {
+				log.Printf("插入历史记录失败: %v", err)
+			} else {
+				log.Printf("插入历史记录成功,id为%d\n", insertOne)
+			}
+		}
 		target := filepath.Join(baseDir, title)
 		mi1 := FastMediaInfo.GetStandMediaInfo(media[0])
 		mi2 := FastMediaInfo.GetStandMediaInfo(media[1])
