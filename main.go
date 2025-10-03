@@ -2,11 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/zhangyiming748/AVmerger/client"
-	"github.com/zhangyiming748/AVmerger/constant"
-	"github.com/zhangyiming748/AVmerger/merge"
-	"github.com/zhangyiming748/AVmerger/util"
-	"github.com/zhangyiming748/archiveVideos"
 	"log"
 	"os"
 	"os/exec"
@@ -14,6 +9,11 @@ import (
 	"path/filepath"
 	"runtime"
 	"time"
+
+	"github.com/zhangyiming748/AVmerger/client"
+	"github.com/zhangyiming748/AVmerger/constant"
+	"github.com/zhangyiming748/AVmerger/merge"
+	"github.com/zhangyiming748/AVmerger/util"
 )
 
 // init 初始化函数，在程序启动时执行
@@ -46,29 +46,6 @@ func init() {
 // 3. 清理处理完成的源文件
 // 4. 特殊平台（如Termux、macOS）的额外处理
 func main() {
-	// Termux系统上传功能（当前已注释）
-	// defer func() {
-	// 	// 在Termux（Android终端模拟器）环境下
-	// 	if runtime.GOOS == "android" && runtime.GOARCH == "arm64" {
-	// 		// 检查rsync和sshpass命令
-	// 		util.CheckRsync()
-	// 		util.CheckSshpass()
-	// 		log.Println("检测到 Termux 系统，开始处理 Termux 相关任务")
-	// 		// 将处理后的文件上传到远程服务器
-	// 		if err := util.UploadWithRsyncAll("/Volumes/ugreen/alist/bili/", constant.ANDROIDAUDIO, constant.ANDROIDVIDEO); err != nil {
-	// 			log.Printf("Termux rsync 上传到服务器相关任务处理发生错误%v\n", err)
-	// 		} else {
-	// 			log.Println("Termux rsync 上传到服务器相关任务处理完成")
-	// 		}
-	// 	} else {
-	// 		log.Println("未检测到 Termux 系统，跳过 Termux 相关任务")
-	// 	}
-	// }()
-
-	// found 标记是否找到并处理了任何B站客户端的下载目录
-	var (
-		found bool
-	)
 
 	// 处理标准B站客户端的下载目录
 	if isExist(constant.BILI) {
@@ -87,7 +64,7 @@ func main() {
 				log.Printf("程序正确执行,删除文件夹:%v\n", constant.BILI)
 			}
 		}
-		found = true
+
 	}
 
 	// 处理B站HD版（平板）客户端的下载目录
@@ -103,7 +80,7 @@ func main() {
 				log.Printf("程序正确执行,删除文件夹:%v\n", constant.HD)
 			}
 		}
-		found = true
+
 	}
 
 	// 处理B站国际版客户端的下载目录
@@ -119,7 +96,7 @@ func main() {
 				log.Printf("程序正确执行,删除文件夹:%v\n", constant.GLOBAL)
 			}
 		}
-		found = true
+
 	}
 
 	// 处理B站海外版客户端的下载目录
@@ -135,7 +112,7 @@ func main() {
 				log.Printf("程序正确执行,删除文件夹:%v\n", constant.BLUE)
 			}
 		}
-		found = true
+
 	}
 
 	// 处理标准B站客户端在第二存储空间的下载目录
@@ -151,7 +128,7 @@ func main() {
 				log.Printf("程序正确执行,删除文件夹:%v\n", constant.BILI999)
 			}
 		}
-		found = true
+
 	}
 
 	// 处理B站HD版在第二存储空间的下载目录
@@ -167,7 +144,7 @@ func main() {
 				log.Printf("程序正确执行,删除文件夹:%v\n", constant.HD999)
 			}
 		}
-		found = true
+
 	}
 
 	// 处理B站国际版在第二存储空间的下载目录
@@ -183,7 +160,7 @@ func main() {
 				log.Printf("程序正确执行,删除文件夹:%v\n", constant.GLOBAL999)
 			}
 		}
-		found = true
+
 	}
 
 	// 处理B站海外版在第二存储空间的下载目录
@@ -199,33 +176,8 @@ func main() {
 				log.Printf("程序正确执行,删除文件夹:%v\n", constant.BLUE)
 			}
 		}
-		found = true
+
 	}
-
-	// 获取本地下载目录路径
-	src := filepath.Join(getRoot(), "downloads")
-
-	// 检查本地下载目录是否存在且尚未处理过其他目录
-	if isExist(src) {
-		if !found {
-			// 获取目录中的基本信息（音视频文件路径等）
-			bs := merge.GetBasicInfo(src)
-			// 尝试合并本地音视频文件（不进行编码转换）
-			if merge.MergeLocal(bs) {
-				// 合并过程中出现错误，保留源文件目录
-				log.Printf("程序有错误,%s目录不会被删除\n", src)
-			} else {
-				// 合并成功，删除源文件目录
-				err := os.RemoveAll(src)
-				if err != nil {
-					log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
-				} else {
-					log.Printf("程序正确执行,删除文件夹:%v\n", src)
-				}
-			}
-		}
-	}
-
 	if runtime.GOOS == "darwin" {
 		log.Printf("检测到 macOS 系统，开始处理 macOS 相关任务")
 		home, _ := os.UserHomeDir()
@@ -252,11 +204,11 @@ func main() {
 		log.Printf("检测到 windows 系统，开始处理 windows 相关任务")
 		home, _ := os.UserHomeDir()
 		root := filepath.Join(home, "Videos", "bilibili")
-		defer func() {
-			archiveVideos.ArchiveVideos(root)
-		}()
+		//defer func() {
+		//	archiveVideos.ArchiveVideos(root)
+		//}()
 		if !isExist(root) {
-			log.Printf("未找到linux客户端目录%v跳过\n", root)
+			log.Printf("未找到Windows客户端目录%v跳过\n", root)
 			return
 		}
 		if err := client.Convert(root); err != nil {
