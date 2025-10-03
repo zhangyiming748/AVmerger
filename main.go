@@ -13,6 +13,7 @@ import (
 	"github.com/zhangyiming748/AVmerger/client"
 	"github.com/zhangyiming748/AVmerger/constant"
 	"github.com/zhangyiming748/AVmerger/merge"
+	"github.com/zhangyiming748/AVmerger/storage"
 	"github.com/zhangyiming748/AVmerger/util"
 )
 
@@ -202,6 +203,7 @@ func main() {
 
 	if runtime.GOOS == "windows" {
 		log.Printf("检测到 windows 系统，开始处理 windows 相关任务")
+		storage.SetMysql("root", "163453", "192.168.5.2", "3306", "merge")
 		home, _ := os.UserHomeDir()
 		root := filepath.Join(home, "Videos", "bilibili")
 		//defer func() {
