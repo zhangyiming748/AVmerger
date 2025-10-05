@@ -1,0 +1,12 @@
+.DS_Store
+.idea
+.fleet
+.vscode
+*.m4s
+*.xml
+*.mp4
+*.aac
+*.tar
+downloads
+*.log
+vendor
