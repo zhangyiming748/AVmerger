@@ -29,5 +29,6 @@ func TestAndroid2PC(t *testing.T) {
 	mc.MysqlHost = "192.168.5.2"
 	mc.MysqlPort = "3306"
 	mc.VideoRoot = "F:\\alist\\alist\\bilibili"
-	Android2PC(mc)
+	//Android2PC(mc)
+	Client(mc)
 }
