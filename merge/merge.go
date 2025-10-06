@@ -124,7 +124,7 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 	var wg sync.WaitGroup
 	// 遍历每个基本信息条目
 	for _, b := range bs {
-		one := new(storage.Android2pc)
+		one := new(storage.History)
 		log.Printf("循环一次开始处理%+v\n", b.EntryFullPath)
 
 		wg.Add(1)

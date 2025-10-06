@@ -6,7 +6,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 
+	"github.com/zhangyiming748/AVmerger/convert"
 	"github.com/zhangyiming748/AVmerger/merge"
 	"github.com/zhangyiming748/AVmerger/storage"
 )
@@ -30,15 +32,42 @@ func init() {
 	log.Println("系统环境检查通过: mediainfo 和 ffmpeg 命令可用")
 }
 
-// main 程序的主入口函数
-// 主要功能：
-// 1. 检查并处理各种B站客户端的下载目录
-// 2. 合并音视频文件
-// 3. 清理处理完成的源文件
-// 4. 特殊平台（如Termux、macOS）的额外处理
+func Client(mc *MergeConfig) {
+	OperatingSystem := runtime.GOOS
+	var (
+		root string
+		home string
+	)
+	home, _ = os.UserHomeDir()
+	switch OperatingSystem {
+	case "darwin":
+		root = filepath.Join(home, "Movies", "bilibili")
+	case "linux", "windows":
+		root = filepath.Join(home, "Videos", "bilibili")
+	default:
+		log.Println("不支持的操作系统")
+		return
+	}
+	log.Printf("检测到 %v 系统，开始处理 %v 相关任务\n", OperatingSystem, root)
+	storage.SetMysql(mc.MysqlUser, mc.MysqlPassword, mc.MysqlHost, mc.MysqlPort, "merge")
+	storage.GetMysql().Sync2(storage.History{})
+	if !isExist(root) {
+		log.Printf("未找到%v客户端目录%v跳过\n", OperatingSystem, root)
+		return
+	}
+	if err := convert.Convert(root); err != nil {
+		log.Println(err)
+	} else {
+		if err := os.RemoveAll(root); err != nil {
+			log.Printf("删除失败%s\n", root)
+		} else {
+			log.Printf("删除成功%s\n", root)
+		}
+	}
+}
 func Android2PC(mc *MergeConfig) {
 	storage.SetMysql(mc.MysqlUser, mc.MysqlPassword, mc.MysqlHost, mc.MysqlPort, "merge")
-	storage.GetMysql().Sync2(storage.Android2pc{})
+	storage.GetMysql().Sync2(storage.History{})
 	root := mc.VideoRoot
 	src := filepath.Join(root, "download")
 	dst := filepath.Join(root, "merged")
