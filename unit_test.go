@@ -28,6 +28,6 @@ func TestAndroid2PC(t *testing.T) {
 	mc.MysqlPassword = "163453"
 	mc.MysqlHost = "192.168.5.2"
 	mc.MysqlPort = "3306"
-	mc.VideoRoot = "/storage/emulated/0/Android/data/tv.danmaku.bili/download"
+	mc.VideoRoot = "C:\\Users\\zen\\Github\\AVmerger"
 	Android2PC(mc)
 }

@@ -119,11 +119,11 @@ type PlanB struct {
 // bs: 包含音视频文件基本信息的切片
 // 返回warning: 表示处理过程中是否出现警告
 func Merge(bs []util.BasicInfo, dst string) (warning bool) {
-	one := new(storage.History)
 	// 创建等待组用于同步音频和视频的处理
 	var wg sync.WaitGroup
 	// 遍历每个基本信息条目
 	for _, b := range bs {
+		one := new(storage.History)
 		log.Printf("循环一次开始处理%+v\n", b.EntryFullPath)
 
 		wg.Add(1)
@@ -205,6 +205,13 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 			// 出错时等待10秒并设置警告标志
 			time.Sleep(10 * time.Second)
 			warning = true
+		} else {
+			insertOne, err := one.InsertOne()
+			if err != nil {
+				log.Fatalf("插入数据失败:%v\n", err)
+			}
+
+			log.Printf("插入数据成功:%v\n", insertOne)
 		}
 		// 如果处理成功，清理临时文件
 		if !warning {
@@ -215,12 +222,7 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 			// 删除entry.json文件
 			os.RemoveAll(b.EntryFullPath)
 		}
-		insertOne, err := one.InsertOne()
-		if err != nil {
-			log.Fatalf("插入数据失败:%v\n", err)
-		} else {
-			log.Printf("插入数据成功:%v\n", insertOne)
-		}
+
 	}
 	log.Println("等待mp3合并完成")
 
