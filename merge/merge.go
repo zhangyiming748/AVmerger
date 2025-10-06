@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -123,13 +124,15 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 	var wg sync.WaitGroup
 	// 遍历每个基本信息条目
 	for _, b := range bs {
-		one := new(storage.History)
+		one := new(storage.Android2pc)
 		log.Printf("循环一次开始处理%+v\n", b.EntryFullPath)
 
 		wg.Add(1)
-		fname, subFolder, err := getName(b.EntryFullPath)
+		fname, subFolder, abvid, err := getName(b.EntryFullPath)
 
 		one.Title = fname
+		one.Keyword = abvid
+
 		has, err := one.FindByTitle()
 		if has {
 			log.Printf("文件\"%v\"已存在，跳过\n", fname)
@@ -258,19 +261,19 @@ func GetBasicInfo(rootPath string) []util.BasicInfo {
 // getName 从entry.json文件中解析并返回规范化的文件名和UP主名称
 // jackson: entry.json文件的路径
 // 返回值: 文件名, UP主名称, 错误信息
-func getName(jackson string) (string, string, error) {
+func getName(jackson string) (string, string, string, error) {
 	// 定义Entry结构体变量
 	var entry Entry
 	// 读取entry.json文件内容
 	file, err := os.ReadFile(jackson)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 	// 解析json内容到Entry结构体
 	err = json.Unmarshal(file, &entry)
 
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	// 初始化文件名变量
@@ -298,7 +301,11 @@ func getName(jackson string) (string, string, error) {
 	// 移除开头空格
 	name = replace.RemoveLeadingSpace(name)
 	// 返回处理后的文件名和UP主名称
-	return name, entry.OwnerName, nil
+	var key string
+	if key = entry.Bvid; key == "" {
+		key = strconv.Itoa(entry.Avid)
+	}
+	return name, entry.OwnerName, key, nil
 }
 
 /*

@@ -38,7 +38,7 @@ func init() {
 // 4. 特殊平台（如Termux、macOS）的额外处理
 func Android2PC(mc *MergeConfig) {
 	storage.SetMysql(mc.MysqlUser, mc.MysqlPassword, mc.MysqlHost, mc.MysqlPort, "merge")
-	storage.GetMysql().Sync2(storage.History{})
+	storage.GetMysql().Sync2(storage.Android2pc{})
 	root := mc.VideoRoot
 	src := filepath.Join(root, "download")
 	dst := filepath.Join(root, "merged")
