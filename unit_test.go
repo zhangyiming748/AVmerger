@@ -1,8 +1,25 @@
 package AVmerge
 
 import (
+	"io"
+	"log"
+	"os"
 	"testing"
 )
+
+func init() {
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
+
+	/*
+		日志同时打印到控制台 并且保存到log文件
+	*/
+	logFile, err := os.OpenFile("test.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatal("打开日志文件失败：", err)
+	}
+	mw := io.MultiWriter(os.Stdout, logFile)
+	log.SetOutput(mw)
+}
 
 // go test -v -run  TestRemoveSrc
 func TestAndroid2PC(t *testing.T) {
@@ -11,5 +28,6 @@ func TestAndroid2PC(t *testing.T) {
 	mc.MysqlPassword = "163453"
 	mc.MysqlHost = "192.168.5.2"
 	mc.MysqlPort = "3306"
+	mc.VideoRoot = "/storage/emulated/0/Android/data/tv.danmaku.bili/download"
 	Android2PC(mc)
 }

@@ -11,3 +11,4 @@ download
 merged
 *.log
 vendor
+*.zip

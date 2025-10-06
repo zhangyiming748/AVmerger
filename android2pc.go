@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 
 	"github.com/zhangyiming748/AVmerger/merge"
 	"github.com/zhangyiming748/AVmerger/storage"
@@ -40,7 +39,7 @@ func init() {
 func Android2PC(mc *MergeConfig) {
 	storage.SetMysql(mc.MysqlUser, mc.MysqlPassword, mc.MysqlHost, mc.MysqlPort, "merge")
 	storage.GetMysql().Sync2(storage.History{})
-	root := filepath.Dir(getRoot())
+	root := mc.VideoRoot
 	src := filepath.Join(root, "download")
 	dst := filepath.Join(root, "merged")
 	// 处理标准B站客户端的下载目录
@@ -62,12 +61,6 @@ func Android2PC(mc *MergeConfig) {
 		}
 
 	}
-}
-
-func getRoot() string {
-	_, filename, _, _ := runtime.Caller(0)
-	log.Printf("当前的工作目录:%v\n", filename)
-	return filename
 }
 
 /*

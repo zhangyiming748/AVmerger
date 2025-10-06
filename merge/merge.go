@@ -215,14 +215,15 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 			// 删除entry.json文件
 			os.RemoveAll(b.EntryFullPath)
 		}
+		insertOne, err := one.InsertOne()
+		if err != nil {
+			log.Fatalf("插入数据失败:%v\n", err)
+		} else {
+			log.Printf("插入数据成功:%v\n", insertOne)
+		}
 	}
 	log.Println("等待mp3合并完成")
-	insertOne, err := one.InsertOne()
-	if err != nil {
-		log.Fatalf("插入数据失败:%v\n", err)
-	} else {
-		log.Printf("插入数据成功:%v\n", insertOne)
-	}
+
 	return warning
 }
 
