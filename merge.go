@@ -33,6 +33,7 @@ func init() {
 }
 
 func Client(mc *MergeConfig) {
+	DB := storage.NewSimpleDB("database.txt")
 	OperatingSystem := runtime.GOOS
 	var (
 		root string
@@ -49,13 +50,11 @@ func Client(mc *MergeConfig) {
 		return
 	}
 	log.Printf("检测到 %v 系统，开始处理 %v 相关任务\n", OperatingSystem, root)
-	storage.SetMysql(mc.MysqlUser, mc.MysqlPassword, mc.MysqlHost, mc.MysqlPort, "merge")
-	storage.GetMysql().Sync2(storage.History{})
 	if !isExist(root) {
 		log.Printf("未找到%v客户端目录%v跳过\n", OperatingSystem, root)
 		return
 	}
-	if err := convert.Convert(root); err != nil {
+	if err := convert.Convert(root, DB); err != nil {
 		log.Println(err)
 	} else {
 		if err := os.RemoveAll(root); err != nil {
@@ -66,8 +65,7 @@ func Client(mc *MergeConfig) {
 	}
 }
 func Android2PC(mc *MergeConfig) {
-	storage.SetMysql(mc.MysqlUser, mc.MysqlPassword, mc.MysqlHost, mc.MysqlPort, "merge")
-	storage.GetMysql().Sync2(storage.History{})
+	DB := storage.NewSimpleDB("database.txt")
 	root := mc.VideoRoot
 	src := filepath.Join(root, "download")
 	dst := filepath.Join(root, "merged")
@@ -76,7 +74,7 @@ func Android2PC(mc *MergeConfig) {
 		// 获取目录中的基本信息（音视频文件路径等）
 		bs := merge.GetBasicInfo(src)
 		// 尝试合并音视频文件
-		if merge.Merge(bs, dst) {
+		if merge.Merge(bs, dst, DB) {
 			// 合并过程中出现错误，保留源文件目录
 			log.Printf("程序有错误,%s目录不会被删除\n", src)
 		} else {

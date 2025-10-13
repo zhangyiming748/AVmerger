@@ -56,7 +56,7 @@ type VideoInfo struct {
 	ReportedSize   int         `json:"reportedSize"`
 }
 
-func Convert(root string) (err error) {
+func Convert(root string, db *storage.SimpleDB) (err error) {
 	files, err := FindVideoInfoFiles(root)
 	if err != nil {
 		return err
@@ -64,7 +64,6 @@ func Convert(root string) (err error) {
 		log.Printf("files is %+v\n", files)
 	}
 	for _, file := range files {
-		one := new(storage.History)
 		log.Printf("json file is %s\n", file)
 		dir := filepath.Dir(file)
 		log.Printf("dir is %s\n", dir)
@@ -115,23 +114,16 @@ func Convert(root string) (err error) {
 		}
 		os.MkdirAll(baseDir, 0755)
 		title := strings.Join([]string{vi.Title, "mp4"}, ".")
-		var key string
-		if vi.Bvid != "" {
-			key = vi.Bvid
-		} else {
-			key = fmt.Sprint(vi.Aid)
-		}
-		one.Title = vi.Title
-		one.Keyword = key
-		if has, _ := one.FindByTitle(); has {
-			log.Printf("已存在%s,跳过\n", title)
+		key := title
+		value, _ := json.Marshal(vi)
+
+		if v, has := db.Get(key); has {
+			log.Printf("已存在%s,跳过\n", v)
 			continue
 		} else {
-			insertOne, err := one.InsertOne()
+			err := db.Set(key, string(value))
 			if err != nil {
-				log.Printf("插入历史记录失败: %v", err)
-			} else {
-				log.Printf("插入历史记录成功,id为%d\n", insertOne)
+				log.Printf("写入数据库失败%v\n", err)
 			}
 		}
 		target := filepath.Join(baseDir, title)

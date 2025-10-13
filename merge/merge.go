@@ -119,30 +119,26 @@ type PlanB struct {
 // Merge 合并从B站下载的音视频文件
 // bs: 包含音视频文件基本信息的切片
 // 返回warning: 表示处理过程中是否出现警告
-func Merge(bs []util.BasicInfo, dst string) (warning bool) {
+func Merge(bs []util.BasicInfo, dst string, db *storage.SimpleDB) (warning bool) {
 	// 创建等待组用于同步音频和视频的处理
 	var wg sync.WaitGroup
 	// 遍历每个基本信息条目
 	for _, b := range bs {
-		one := new(storage.History)
 		log.Printf("循环一次开始处理%+v\n", b.EntryFullPath)
 
 		wg.Add(1)
-		fname, subFolder, abvid, err := getName(b.EntryFullPath)
+		fname, subFolder, _, _ := getName(b.EntryFullPath)
 
-		one.Title = fname
-		one.Keyword = abvid
-
-		has, err := one.FindByTitle()
-		if has {
-			log.Printf("文件\"%v\"已存在，跳过\n", fname)
-		}
-
-		if err != nil {
-			log.Printf("文件%v在最终处理文件名的过程中出错%v跳过\n", b.EntryPurgePath, err)
-			time.Sleep(10 * time.Second)
-			warning = true
+		key := fname
+		value, _ := json.Marshal(b)
+		if v, has := db.Get(key); has {
+			log.Printf("已存在%s,跳过\n", v)
 			continue
+		} else {
+			err := db.Set(key, string(value))
+			if err != nil {
+				log.Printf("写入数据库失败%v\n", err)
+			}
 		}
 		// 构建视频输出目录路径
 		dir := filepath.Join(dst, subFolder)
@@ -209,12 +205,10 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 			time.Sleep(10 * time.Second)
 			warning = true
 		} else {
-			insertOne, err := one.InsertOne()
+			err := db.Set(key, string(value))
 			if err != nil {
-				log.Fatalf("插入数据失败:%v\n", err)
+				log.Printf("写入数据库失败%v\n", err)
 			}
-
-			log.Printf("插入数据成功:%v\n", insertOne)
 		}
 		// 如果处理成功，清理临时文件
 		if !warning {
