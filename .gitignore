@@ -12,3 +12,4 @@ merged
 *.log
 vendor
 *.zip
+history.txt

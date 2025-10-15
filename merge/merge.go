@@ -119,7 +119,7 @@ type PlanB struct {
 // Merge 合并从B站下载的音视频文件
 // bs: 包含音视频文件基本信息的切片
 // 返回warning: 表示处理过程中是否出现警告
-func Merge(bs []util.BasicInfo, dst string, db *storage.SimpleDB) (warning bool) {
+func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 	// 创建等待组用于同步音频和视频的处理
 	var wg sync.WaitGroup
 	// 遍历每个基本信息条目
@@ -128,22 +128,20 @@ func Merge(bs []util.BasicInfo, dst string, db *storage.SimpleDB) (warning bool)
 
 		wg.Add(1)
 		fname, subFolder, _, _ := getName(b.EntryFullPath)
-
 		key := fname
-		value, _ := json.Marshal(b)
-		if v, has := db.Get(key); has {
-			log.Printf("已存在%s,跳过\n", v)
+		if storage.IsDownloaded(key) {
+			log.Printf("已存在%s,跳过\n", key)
 			continue
 		} else {
-			err := db.Set(key, string(value))
-			if err != nil {
-				log.Printf("写入数据库失败%v\n", err)
-			}
+			storage.AppendHistory(key)
 		}
 		// 构建视频输出目录路径
 		dir := filepath.Join(dst, subFolder)
 		// 创建视频输出目录
-		os.MkdirAll(dir, 0777)
+		err := os.MkdirAll(dir, 0777)
+		if err != nil {
+			log.Printf("创建目录%s失败:%v\n", dir, err)
+		}
 		// 添加mp4扩展名
 		fname = strings.Join([]string{fname, "mp4"}, ".")
 		log.Printf("加入了第一次mp4扩展名处理后的文件名%v\n", fname)
@@ -152,7 +150,10 @@ func Merge(bs []util.BasicInfo, dst string, db *storage.SimpleDB) (warning bool)
 		// 构建音频输出目录路径
 		mp3Dir := filepath.Join(dst, subFolder)
 		// 创建音频输出目录
-		os.MkdirAll(mp3Dir, 0777)
+		err = os.MkdirAll(mp3Dir, 0777)
+		if err != nil {
+			log.Printf("创建目录%s失败:%v\n", mp3Dir, err)
+		}
 		// 构建音频文件名和完整路径
 		mp3Name := strings.Replace(fname, "mp4", "mp3", -1)
 		mp3Name = filepath.Join(mp3Dir, mp3Name)
@@ -205,10 +206,7 @@ func Merge(bs []util.BasicInfo, dst string, db *storage.SimpleDB) (warning bool)
 			time.Sleep(10 * time.Second)
 			warning = true
 		} else {
-			err := db.Set(key, string(value))
-			if err != nil {
-				log.Printf("写入数据库失败%v\n", err)
-			}
+			storage.AppendHistory(key)
 		}
 		// 如果处理成功，清理临时文件
 		if !warning {
