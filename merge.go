@@ -31,6 +31,9 @@ func init() {
 	log.Println("系统环境检查通过: mediainfo 和 ffmpeg 命令可用")
 }
 
+/*
+dst为输出的基础路径
+*/
 func Client(dst string) {
 	OperatingSystem := runtime.GOOS
 	var (
@@ -52,7 +55,7 @@ func Client(dst string) {
 		log.Printf("未找到%v客户端目录%v跳过\n", OperatingSystem, root)
 		return
 	}
-	if err := convert.Convert(root); err != nil {
+	if err := convert.Convert(root, dst); err != nil {
 		log.Println(err)
 	} else {
 		if err := os.RemoveAll(root); err != nil {
@@ -62,6 +65,11 @@ func Client(dst string) {
 		}
 	}
 }
+
+/*
+root为安卓客户端下载目录download所在路径(不包括download本身)
+dst为输出的基础路径
+*/
 func Android2PC(root string) {
 	src := filepath.Join(root, "download")
 	dst := filepath.Join(root, "merged")
