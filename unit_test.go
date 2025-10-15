@@ -23,12 +23,7 @@ func init() {
 
 // go test -timeout 24h -v -run TestAndroid2PC
 func TestAndroid2PC(t *testing.T) {
-	mc := new(MergeConfig)
-	//mc.MysqlUser = "root"
-	//mc.MysqlPassword = "163453"
-	//mc.MysqlHost = "192.168.5.2"
-	//mc.MysqlPort = "3306"
-	mc.VideoRoot = "F:\\alist\\alist\\bilibili"
-	//Android2PC(mc)
-	Client(mc)
+	//root := "F:\\alist\\alist\\bilibili"
+	//Android2PC(root)
+	Client()
 }

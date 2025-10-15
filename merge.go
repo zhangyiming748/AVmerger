@@ -10,7 +10,6 @@ import (
 
 	"github.com/zhangyiming748/AVmerger/convert"
 	"github.com/zhangyiming748/AVmerger/merge"
-	"github.com/zhangyiming748/AVmerger/storage"
 )
 
 // init 初始化函数，在程序启动时执行
@@ -32,8 +31,7 @@ func init() {
 	log.Println("系统环境检查通过: mediainfo 和 ffmpeg 命令可用")
 }
 
-func Client(mc *MergeConfig) {
-	DB := storage.NewSimpleDB("database.txt")
+func Client() {
 	OperatingSystem := runtime.GOOS
 	var (
 		root string
@@ -54,7 +52,7 @@ func Client(mc *MergeConfig) {
 		log.Printf("未找到%v客户端目录%v跳过\n", OperatingSystem, root)
 		return
 	}
-	if err := convert.Convert(root, DB); err != nil {
+	if err := convert.Convert(root); err != nil {
 		log.Println(err)
 	} else {
 		if err := os.RemoveAll(root); err != nil {
@@ -64,9 +62,7 @@ func Client(mc *MergeConfig) {
 		}
 	}
 }
-func Android2PC(mc *MergeConfig) {
-	DB := storage.NewSimpleDB("database.txt")
-	root := mc.VideoRoot
+func Android2PC(root string) {
 	src := filepath.Join(root, "download")
 	dst := filepath.Join(root, "merged")
 	// 处理标准B站客户端的下载目录
@@ -74,7 +70,7 @@ func Android2PC(mc *MergeConfig) {
 		// 获取目录中的基本信息（音视频文件路径等）
 		bs := merge.GetBasicInfo(src)
 		// 尝试合并音视频文件
-		if merge.Merge(bs, dst, DB) {
+		if merge.Merge(bs, dst) {
 			// 合并过程中出现错误，保留源文件目录
 			log.Printf("程序有错误,%s目录不会被删除\n", src)
 		} else {

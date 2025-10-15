@@ -56,7 +56,7 @@ type VideoInfo struct {
 	ReportedSize   int         `json:"reportedSize"`
 }
 
-func Convert(root string, db *storage.SimpleDB) (err error) {
+func Convert(root string) (err error) {
 	files, err := FindVideoInfoFiles(root)
 	if err != nil {
 		return err
@@ -114,17 +114,12 @@ func Convert(root string, db *storage.SimpleDB) (err error) {
 		}
 		os.MkdirAll(baseDir, 0755)
 		title := strings.Join([]string{vi.Title, "mp4"}, ".")
-		key := title
-		value, _ := json.Marshal(vi)
-
-		if v, has := db.Get(key); has {
-			log.Printf("已存在%s,跳过\n", v)
+		key := vi.Title
+		if storage.IsDownloaded(key) {
+			log.Printf("已存在%s,跳过\n", key)
 			continue
 		} else {
-			err := db.Set(key, string(value))
-			if err != nil {
-				log.Printf("写入数据库失败%v\n", err)
-			}
+			storage.AppendHistory(key)
 		}
 		target := filepath.Join(baseDir, title)
 		mi1 := FastMediaInfo.GetStandMediaInfo(media[0])
@@ -155,6 +150,7 @@ func Convert(root string, db *storage.SimpleDB) (err error) {
 		if err != nil {
 			return err
 		}
+		storage.AppendHistory(key)
 		fmt.Printf("out is %s", out)
 		if audio, err := GetMusicFile(media[0], media[1]); err != nil {
 			log.Printf("音频转换失败%v\n", err)
