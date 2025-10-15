@@ -93,7 +93,7 @@ func findHistoryFile() string {
 		// 如果找到名为history.txt的文件
 		if info.Name() == "history.txt" {
 			result = path
-			return filepath.SkipDir // 找到第一个后停止遍历
+			return filepath.SkipDir // 跳过当前目录的遍历
 		}
 		return nil
 	})
@@ -105,11 +105,14 @@ func findHistoryFile() string {
 	}
 	// 如果最后都没有找到，则在工作目录下创建history.txt并返回
 	h := filepath.Join(dir, "history.txt")
-	file, err := os.Create(h)
-	if err != nil {
-		log.Fatalf("获取处理过的历史文件函数中在整个目录都不存在history.txt文件时创建新的history.txt文件发生错误: %v\n", err)
+	// 检查文件是否已经存在（双重检查）
+	if _, err := os.Stat(h); os.IsNotExist(err) {
+		file, err := os.Create(h)
+		if err != nil {
+			log.Fatalf("获取处理过的历史文件函数中在整个目录都不存在history.txt文件时创建新的history.txt文件发生错误: %v\n", err)
+		}
+		file.Close()
 	}
-	file.Close()
 
 	// 返回绝对路径
 	absPath, err := filepath.Abs(h)
