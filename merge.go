@@ -31,7 +31,7 @@ func init() {
 	log.Println("系统环境检查通过: mediainfo 和 ffmpeg 命令可用")
 }
 
-func Client() {
+func Client(dst string) {
 	OperatingSystem := runtime.GOOS
 	var (
 		root string

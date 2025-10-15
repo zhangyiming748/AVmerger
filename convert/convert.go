@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"time"
 
@@ -56,7 +55,7 @@ type VideoInfo struct {
 	ReportedSize   int         `json:"reportedSize"`
 }
 
-func Convert(root string) (err error) {
+func Convert(root, dst string) (err error) {
 	files, err := FindVideoInfoFiles(root)
 	if err != nil {
 		return err
@@ -107,11 +106,7 @@ func Convert(root string) (err error) {
 		}
 		vi, _ := ReadVideoInfo(file)
 		log.Printf("videoInfo = %+v\n", vi)
-		home, _ := os.UserHomeDir()
-		baseDir := filepath.Join(home, "Movies", vi.Uname)
-		if runtime.GOOS == "windows" {
-			baseDir = filepath.Join(home, "Videos", vi.Uname)
-		}
+		baseDir := filepath.Join(dst, vi.Uname)
 		os.MkdirAll(baseDir, 0755)
 		title := strings.Join([]string{vi.Title, "mp4"}, ".")
 		key := vi.Title
