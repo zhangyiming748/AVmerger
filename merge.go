@@ -70,9 +70,9 @@ func Client(dst string) {
 root为安卓客户端下载目录download所在路径(不包括download本身)
 dst为输出的基础路径
 */
-func Android2PC(root string) {
+func Android2PC(root, dst string) {
 	src := filepath.Join(root, "download")
-	dst := filepath.Join(root, "merged")
+	dst = filepath.Join(dst, "merged")
 	// 处理标准B站客户端的下载目录
 	if isExist(src) {
 		// 获取目录中的基本信息（音视频文件路径等）
