@@ -109,13 +109,13 @@ func Convert(root, dst string) (err error) {
 		baseDir := filepath.Join(dst, vi.Uname)
 		os.MkdirAll(baseDir, 0755)
 		title := strings.Join([]string{vi.Title, "mp4"}, ".")
-		h:=new(sqlite.History)
+		h := new(sqlite.History)
 		h.Title = vi.Title
-		if has ,_ := h.ExistsByTitle();has{
+		if has, _ := h.ExistsByTitle(); has {
 			log.Printf("已存在%s,跳过\n", title)
 			continue
-		} 
-		
+		}
+
 		// if storage.IsDownloaded(key) {
 		// 	log.Printf("已存在%s,跳过\n", key)
 		// 	continue
@@ -151,7 +151,7 @@ func Convert(root, dst string) (err error) {
 		if err != nil {
 			return err
 		}
-		
+
 		h.Insert()
 		fmt.Printf("out is %s", out)
 		if audio, err := GetMusicFile(media[0], media[1]); err != nil {

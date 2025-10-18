@@ -120,18 +120,18 @@ type PlanB struct {
 // 返回warning: 表示处理过程中是否出现警告
 func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 	// 创建等待组用于同步音频和视频的处理
-	
+
 	// 遍历每个基本信息条目
 	for _, b := range bs {
 		log.Printf("循环一次开始处理%+v\n", b.EntryFullPath)
 		fname, subFolder, _, _ := getName(b.EntryFullPath)
-		h:=new(sqlite.History)
+		h := new(sqlite.History)
 		h.Title = fname
-		if has ,_ := h.ExistsByTitle();has{
+		if has, _ := h.ExistsByTitle(); has {
 			log.Printf("已存在%s,跳过\n", fname)
 			continue
 		}
-		
+
 		// 构建视频输出目录路径
 		dir := filepath.Join(dst, subFolder)
 		// 创建视频输出目录
