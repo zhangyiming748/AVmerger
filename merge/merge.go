@@ -12,11 +12,10 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/zhangyiming748/AVmerger/replace"
-	"github.com/zhangyiming748/AVmerger/storage"
+	"github.com/zhangyiming748/AVmerger/sqlite"
 	"github.com/zhangyiming748/AVmerger/util"
 	"github.com/zhangyiming748/FastMediaInfo"
 )
@@ -121,20 +120,18 @@ type PlanB struct {
 // 返回warning: 表示处理过程中是否出现警告
 func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 	// 创建等待组用于同步音频和视频的处理
-	var wg sync.WaitGroup
+	
 	// 遍历每个基本信息条目
 	for _, b := range bs {
 		log.Printf("循环一次开始处理%+v\n", b.EntryFullPath)
-
-		wg.Add(1)
 		fname, subFolder, _, _ := getName(b.EntryFullPath)
-		key := fname
-		if storage.IsDownloaded(key) {
-			log.Printf("已存在%s,跳过\n", key)
+		h:=new(sqlite.History)
+		h.Title = fname
+		if has ,_ := h.ExistsByTitle();has{
+			log.Printf("已存在%s,跳过\n", fname)
 			continue
-		} else {
-			storage.AppendHistory(key)
 		}
+		
 		// 构建视频输出目录路径
 		dir := filepath.Join(dst, subFolder)
 		// 创建视频输出目录
@@ -206,7 +203,7 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 			time.Sleep(10 * time.Second)
 			warning = true
 		} else {
-			storage.AppendHistory(key)
+			h.Insert()
 		}
 		// 如果处理成功，清理临时文件
 		if !warning {

@@ -3,20 +3,25 @@ module github.com/zhangyiming748/AVmerger
 go 1.24.1
 
 require (
-	github.com/go-sql-driver/mysql v1.9.3
-	github.com/go-xorm/xorm v0.7.9
-	github.com/h2non/filetype v1.1.3
+	github.com/glebarez/sqlite v1.11.0
 	github.com/schollz/progressbar/v3 v3.18.0
-	github.com/zhangyiming748/archiveVideos v0.0.2
-	github.com/zhangyiming748/lumberjack v0.0.1
 	github.com/zhangyiming748/pretty v0.0.3
+	gorm.io/gorm v1.31.0
 )
 
 require (
-	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/glebarez/go-sqlite v1.21.2 // indirect
+	github.com/google/uuid v1.3.0 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
-	xorm.io/builder v0.3.6 // indirect
-	xorm.io/core v0.7.2-0.20190928055935-90aeac8d08eb // indirect
+	modernc.org/libc v1.22.5 // indirect
+	modernc.org/mathutil v1.5.0 // indirect
+	modernc.org/memory v1.5.0 // indirect
+	modernc.org/sqlite v1.23.1 // indirect
 )
 
 require (

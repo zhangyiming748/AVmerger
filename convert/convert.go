@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/zhangyiming748/AVmerger/storage"
+	"github.com/zhangyiming748/AVmerger/sqlite"
 	"github.com/zhangyiming748/FastMediaInfo"
 )
 
@@ -109,13 +109,19 @@ func Convert(root, dst string) (err error) {
 		baseDir := filepath.Join(dst, vi.Uname)
 		os.MkdirAll(baseDir, 0755)
 		title := strings.Join([]string{vi.Title, "mp4"}, ".")
-		key := vi.Title
-		if storage.IsDownloaded(key) {
-			log.Printf("已存在%s,跳过\n", key)
+		h:=new(sqlite.History)
+		h.Title = vi.Title
+		if has ,_ := h.ExistsByTitle();has{
+			log.Printf("已存在%s,跳过\n", title)
 			continue
-		} else {
-			storage.AppendHistory(key)
-		}
+		} 
+		
+		// if storage.IsDownloaded(key) {
+		// 	log.Printf("已存在%s,跳过\n", key)
+		// 	continue
+		// } else {
+		// 	storage.AppendHistory(key)
+		// }
 		target := filepath.Join(baseDir, title)
 		mi1 := FastMediaInfo.GetStandMediaInfo(media[0])
 		mi2 := FastMediaInfo.GetStandMediaInfo(media[1])
@@ -145,7 +151,8 @@ func Convert(root, dst string) (err error) {
 		if err != nil {
 			return err
 		}
-		storage.AppendHistory(key)
+		
+		h.Insert()
 		fmt.Printf("out is %s", out)
 		if audio, err := GetMusicFile(media[0], media[1]); err != nil {
 			log.Printf("音频转换失败%v\n", err)

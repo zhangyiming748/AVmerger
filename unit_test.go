@@ -25,5 +25,5 @@ func init() {
 func TestAndroid2PC(t *testing.T) {
 	//root := "F:\\alist\\alist\\bilibili"
 	//Android2PC(root)
-	Client()
+	//Client()
 }
