@@ -2,14 +2,14 @@ package AVmerge
 
 import (
 	"fmt"
+	"github.com/zhangyiming748/AVmerger/convert"
+	"github.com/zhangyiming748/AVmerger/merge"
+	"github.com/zhangyiming748/AVmerger/sqlite"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
-
-	"github.com/zhangyiming748/AVmerger/convert"
-	"github.com/zhangyiming748/AVmerger/merge"
 )
 
 // init 初始化函数，在程序启动时执行
@@ -29,6 +29,7 @@ func init() {
 		log.Fatal("未找到 ffmpeg 命令，请先安装 ffmpeg")
 	}
 	log.Println("系统环境检查通过: mediainfo 和 ffmpeg 命令可用")
+	sqlite.SetSqlite()
 }
 
 /*
