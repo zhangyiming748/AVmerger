@@ -30,6 +30,9 @@ func init() {
 	}
 	log.Println("系统环境检查通过: mediainfo 和 ffmpeg 命令可用")
 	sqlite.SetSqlite()
+	//创建数据库成功后创建表结构
+	h:=new(sqlite.History)
+	h.Sync()
 }
 
 /*
