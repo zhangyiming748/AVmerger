@@ -130,7 +130,7 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 		if has, err := h.ExistsByTitle(); has {
 			log.Printf("已存在%s,跳过\n", fname)
 			continue
-		}else if err != nil {
+		} else if err != nil {
 			log.Fatalf("查询数据库出现错误:%+v,发生在%s\n", err, fname)
 		}
 
