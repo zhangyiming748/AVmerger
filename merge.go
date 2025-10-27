@@ -85,16 +85,7 @@ func Android2PC(root, dst string) {
 		if merge.Merge(bs, dst) {
 			// 合并过程中出现错误，保留源文件目录
 			log.Printf("程序有错误,%s目录不会被删除\n", src)
-		} else {
-			// 合并成功，删除源文件目录
-			err := os.RemoveAll(src)
-			if err != nil {
-				log.Printf("程序正确执行但删除文件夹失败:%v\n", err)
-			} else {
-				log.Printf("程序正确执行,删除文件夹:%v\n", src)
-			}
 		}
-
 	}
 }
 
