@@ -5,8 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/zhangyiming748/pretty"
 )
 
 // BasicInfo 存储视频和音频文件的基本信息
@@ -80,8 +78,7 @@ func GetEntryFilesWithExt(dir, ext string) (bs []BasicInfo, err error) {
 					}
 				}
 				// 输出调试信息
-				pretty.P(b)
-				fmt.Println(b)
+				// pretty.P(b)
 				bs = append(bs, b)
 			}
 		}

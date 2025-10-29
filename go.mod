@@ -5,7 +5,6 @@ go 1.25.3
 require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/schollz/progressbar/v3 v3.18.0
-	github.com/zhangyiming748/pretty v0.0.3
 	gorm.io/gorm v1.31.0
 )
 
@@ -28,7 +27,6 @@ require (
 require (
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/zhangyiming748/FastMediaInfo v0.0.7
 	golang.org/x/sys v0.37.0 // indirect
 	golang.org/x/term v0.36.0 // indirect
