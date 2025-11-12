@@ -2,27 +2,42 @@
 
 合并哔哩哔哩手机版缓存的视频
 
-# 在安卓termux上编译
+## 2025/11/12 更新
 
-```shell
-go build -o ../../../usr/bin/merge main.go 
+放弃直接使用，变成作为go modules提供
+使用方法参考
+
+```go
+package main
+
+import (
+    "log"
+
+    "github.com/zhangyiming748/AVmerger"
+    "github.com/zhangyiming748/archive"
+    "github.com/zhangyiming748/finder"
+)
+
+func init() {
+    log.SetFlags(log.Ltime | log.Lshortfile)
+}
+func main() {
+    dst := "C:\\Users\\zen\\Gitea\\UseAVmerge"
+    AVmerge.Client(dst)
+    AVmerge.Android2PC("",dst)
+    folders := finder.FindAllFolders(dst)
+    for i, folder := range folders {
+        log.Printf("正在处理第%d/%d个文件夹:%s\n", i+1, len(folders), folder)
+        vFiles := finder.FindAllVideosInRoot(folder)
+        for j, vFile := range vFiles {
+            log.Printf("正在处理第%d/%d个文件夹:%s中的第个%d/%d文件:%s\n", i+1, len(folders), folder, j+1, len(vFiles), vFile)
+            archive.Convert2H265(vFile)
+        }
+    }
+}
 ```
-其中`.shortcuts/bili.sh`文件内容
 
-```shell
-#!/data/data/com.termux/files/usr/bin/bash
-sudo merge 
-```
-
-
-# Todo
-- [x] 找到entry的同级目录
-- [x] 保持之前的逻辑
-- [x] 同时支持main函数和包调用
-
-# single文件结构
-
-`./main Single /Users/zen/Movies/bilibili/single /Users/zen/Movies/bilibili/done`
+### download文件夹结构
 
 ```shell
 single/
@@ -117,93 +132,3 @@ single/
 
 33 directories, 55 files
 ```
-
-# multi目录结构
-
-`./main Multi /Users/zen/Movies/bilibili/multi/216750947 /Users/zen/Movies/bilibili/done`
-
-```shell
-.
-├── c_796513071
-│             ├── 80
-│             │             ├── audio.m4s
-│             │             ├── index.json
-│             │             └── video.m4s
-│             ├── danmaku.xml
-│             └── entry.json
-├── c_796516399
-│             ├── 80
-│             │             ├── audio.m4s
-│             │             ├── index.json
-│             │             └── video.m4s
-│             ├── danmaku.xml
-│             └── entry.json
-├── c_796517384
-│             ├── 80
-│             │             ├── audio.m4s
-│             │             ├── index.json
-│             │             └── video.m4s
-│             ├── danmaku.xml
-│             └── entry.json
-├── c_796517809
-│             ├── 80
-│             │             ├── audio.m4s
-│             │             ├── index.json
-│             │             └── video.m4s
-│             ├── danmaku.xml
-│             └── entry.json
-├── c_796518132
-│             ├── 80
-│             │             ├── audio.m4s
-│             │             ├── index.json
-│             │             └── video.m4s
-│             ├── danmaku.xml
-│             └── entry.json
-├── c_796518531
-│             ├── 80
-│             │             ├── audio.m4s
-│             │             ├── index.json
-│             │             └── video.m4s
-│             ├── danmaku.xml
-│             └── entry.json
-├── c_796518775
-│             ├── 80
-│             │             ├── audio.m4s
-│             │             ├── index.json
-│             │             └── video.m4s
-│             ├── danmaku.xml
-│             └── entry.json
-├── c_796519173
-│             ├── 80
-│             │             ├── audio.m4s
-│             │             ├── index.json
-│             │             └── video.m4s
-│             ├── danmaku.xml
-│             └── entry.json
-├── c_796525400
-│             ├── 80
-│             │             ├── audio.m4s
-│             │             ├── index.json
-│             │             └── video.m4s
-│             ├── danmaku.xml
-│             └── entry.json
-├── c_796525959
-│             ├── 80
-│             │             ├── audio.m4s
-│             │             ├── index.json
-│             │             └── video.m4s
-│             ├── danmaku.xml
-│             └── entry.json
-└── multi.md
-
-20 directories, 51 files
-```
-
-
-# 优化
-
-
-一把梭
-
-
-自动判断目录
