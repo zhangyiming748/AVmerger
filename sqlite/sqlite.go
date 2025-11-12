@@ -20,7 +20,7 @@ func SetSqlite() {
 	}
 
 	gormDB = db
-	log.Println("本地sqlite数据库初始化完成")
+	log.Printf("本地sqlite数据库初始化完成!位置在%s\n", dbLocal)
 }
 
 func GetSqlite() *gorm.DB {
