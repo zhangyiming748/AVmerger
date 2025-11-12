@@ -1,4 +1,4 @@
-name: Update Go Modules
+name: Update Go Modules without root
 
 on:
   push:
