@@ -1,0 +1,32 @@
+name: Update Go Modules with master
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-go-modules:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: 'master'
+      
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: 'stable'
+          check-latest: true
+      
+      - name: get go info
+        run: |
+          go env >> go_info.txt
+
+      
+      - name: Upload vendor directory as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: info
+          path: go_info.txt
+          retention-days: 3
