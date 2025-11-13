@@ -1,6 +1,6 @@
 module github.com/zhangyiming748/AVmerger
 
-go 1.25.4
+go 1.25.3
 
 require (
 	github.com/glebarez/sqlite v1.11.0
