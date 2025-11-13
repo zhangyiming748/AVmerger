@@ -44,4 +44,11 @@ jobs:
         with:
           name: vendor-directory
           path: vendor/
-          retention-days: 30
+          retention-days: 3
+
+      - name: Upload pkg directory as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mod_cache
+          path: /home/runner/go/pkg/mod
+          retention-days: 3

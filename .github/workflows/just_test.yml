@@ -1,4 +1,4 @@
-name: Update Go Modules with master
+name: just_test
 
 on:
   workflow_dispatch:
