@@ -34,3 +34,14 @@ jobs:
           git add .
           git commit -m "Update go modules with workflow" || echo "No changes to commit"
           git push origin master
+      
+      - name: vendor
+        run: |
+          go mod vendor
+      
+      - name: Upload vendor directory as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vendor-directory
+          path: vendor/
+          retention-days: 30
