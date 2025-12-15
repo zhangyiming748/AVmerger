@@ -2,14 +2,16 @@ package AVmerge
 
 import (
 	"fmt"
-	"github.com/zhangyiming748/AVmerger/convert"
-	"github.com/zhangyiming748/AVmerger/merge"
-	"github.com/zhangyiming748/AVmerger/sqlite"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+
+	"github.com/zhangyiming748/AVmerger/classify"
+	"github.com/zhangyiming748/AVmerger/convert"
+	"github.com/zhangyiming748/AVmerger/merge"
+	"github.com/zhangyiming748/AVmerger/sqlite"
 )
 
 // init 初始化函数，在程序启动时执行
@@ -88,6 +90,13 @@ func Android2PC(root, dst string) {
 			log.Printf("程序有错误,%s目录不会被删除\n", src)
 		}
 	}
+}
+
+func ClassifyAfterMerge(srcRoot, dstRoot string, keywords []string) {
+	if keywords == nil {
+		keywords = classify.DefaultKeywords
+	}
+	classify.Classify(srcRoot, dstRoot, keywords)
 }
 
 /*
