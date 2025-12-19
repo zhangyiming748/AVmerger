@@ -95,6 +95,8 @@ func Android2PC(root, dst string) {
 func ClassifyAfterMerge(srcRoot, dstRoot string, keywords []string) {
 	if keywords == nil {
 		keywords = classify.DefaultKeywords
+	} else {
+		keywords = append(classify.DefaultKeywords, keywords...)
 	}
 	classify.Classify(srcRoot, dstRoot, keywords)
 }
