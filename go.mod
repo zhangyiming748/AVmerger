@@ -5,6 +5,7 @@ go 1.25.3
 require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/schollz/progressbar/v3 v3.18.0
+	github.com/zhangyiming748/finder v0.0.6
 	gorm.io/gorm v1.31.1
 )
 
@@ -18,12 +19,11 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	github.com/zhangyiming748/finder v0.0.6 // indirect
 	golang.org/x/exp v0.0.0-20251209150349-8475f28825e9 // indirect
 	modernc.org/libc v1.67.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
-	modernc.org/sqlite v1.40.1 // indirect
+	modernc.org/sqlite v1.41.0 // indirect
 )
 
 require (
