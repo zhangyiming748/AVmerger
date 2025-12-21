@@ -39,36 +39,36 @@ func init() {
 }
 
 /*
+src为客户端基础路径(到bilibili层级即可),如果为空则自动设定为默认的缓存文件夹
 dst为输出的基础路径
 */
-func Client(dst string) {
+func Client(src, dst string) {
 	OperatingSystem := runtime.GOOS
-	var (
-		root string
-		home string
-	)
-	home, _ = os.UserHomeDir()
-	switch OperatingSystem {
-	case "darwin":
-		root = filepath.Join(home, "Movies", "bilibili")
-	case "linux", "windows":
-		root = filepath.Join(home, "Videos", "bilibili")
-	default:
-		log.Println("不支持的操作系统")
+	if src == "" {
+		home, _ := os.UserHomeDir()
+		switch OperatingSystem {
+		case "darwin":
+			src = filepath.Join(home, "Movies", "bilibili")
+		case "linux", "windows":
+			src = filepath.Join(home, "Videos", "bilibili")
+		default:
+			log.Println("不支持的操作系统")
+			return
+		}
+	}
+
+	log.Printf("检测到 %v 系统，开始处理 %v 相关任务\n", OperatingSystem, src)
+	if !isExist(src) {
+		log.Printf("未找到%v客户端目录%v跳过\n", OperatingSystem, src)
 		return
 	}
-	log.Printf("检测到 %v 系统，开始处理 %v 相关任务\n", OperatingSystem, root)
-	if !isExist(root) {
-		log.Printf("未找到%v客户端目录%v跳过\n", OperatingSystem, root)
-		return
-	}
-	if err := convert.Convert(root, dst); err != nil {
+	if err := convert.Convert(src, dst); err != nil {
 		log.Println(err)
 	} else {
-		if err := os.RemoveAll(root); err != nil {
-			log.Printf("删除失败%s\n", root)
+		if err := os.RemoveAll(src); err != nil {
+			log.Printf("删除失败%s\n", src)
 		} else {
-			log.Printf("删除成功%s\n", root)
+			log.Printf("删除成功%s\n", src)
 		}
 	}
 }
