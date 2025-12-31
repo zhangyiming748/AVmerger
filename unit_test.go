@@ -1,4 +1,4 @@
-package AVmerge
+package AVmerger
 
 import (
 	"io"
