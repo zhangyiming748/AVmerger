@@ -43,6 +43,9 @@ src为客户端基础路径(到bilibili层级即可),如果为空则自动设定
 dst为输出的基础路径
 */
 func Client(src, dst string) {
+	if src == dst {
+		log.Fatalf("src不能和dst相同,程序运行后src目录会被删除\n")
+	}
 	OperatingSystem := runtime.GOOS
 	if src == "" {
 		home, _ := os.UserHomeDir()
