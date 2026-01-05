@@ -202,6 +202,7 @@ var DefaultKeywords = []string{
 	"黄渤",
 	"黄霑",
 	"齐秦",
+	"王蓉",
 }
 
 // 这个包的功能是用来整理已经merged的文件,按照给定的关键词创建目标文件夹并移动到目标文件夹
@@ -264,8 +265,8 @@ func Classify(srcDir, dstDir string, keywords []string) {
 
 		// 遍历关键词列表
 		for _, keyword := range keywords {
-			// 检查文件名是否包含关键词
-			if strings.Contains(filename, keyword) {
+			// 检查文件名是否包含关键词（忽略大小写）
+			if strings.Contains(strings.ToLower(filename), strings.ToLower(keyword)) {
 				// 创建目标目录路径：dstDir/typeDir/keyword
 				targetDir := filepath.Join(dstDir, typeDir, keyword)
 
