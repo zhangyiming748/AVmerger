@@ -3,7 +3,7 @@ name: Update Go Modules with master
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   update-go-modules:
