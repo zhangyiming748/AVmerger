@@ -6,6 +6,7 @@ require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/schollz/progressbar/v3 v3.19.0
 	github.com/zhangyiming748/finder v0.0.6
+	github.com/zhangyiming748/lumberjack v0.0.1
 	gorm.io/gorm v1.31.1
 )
 
