@@ -77,16 +77,17 @@ func Client(src, dst string) {
 }
 
 /*
-root为安卓客户端下载目录download所在路径(不包括download本身)
+root为安卓客户端下载目录download所在路径(包括download本身 比如 /storage/emulated/0/Android/data/tv.danmaku.bili/download)
 dst为输出的基础路径
 */
-func Android2PC(root, dst string) {
-	src := filepath.Join(root, "download")
-	dst = filepath.Join(dst, "merged")
+func Android2PC(src, dst string) {
 	// 处理标准B站客户端的下载目录
 	if isExist(src) {
 		// 获取目录中的基本信息（音视频文件路径等）
 		bs := merge.GetBasicInfo(src)
+		if len(bs) == 0 {
+			log.Fatalf("未找到任何目录结构,这个是安卓转换视频的函数,不要错误使用")
+		}
 		// 尝试合并音视频文件
 		if merge.Merge(bs, dst) {
 			// 合并过程中出现错误，保留源文件目录
