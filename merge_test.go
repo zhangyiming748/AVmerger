@@ -1,4 +1,5 @@
 package AVmerger
+
 import (
 	"io"
 	"log"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/zhangyiming748/lumberjack"
 )
+
 func init() {
 	SetLog("avmerge.log")
 }
