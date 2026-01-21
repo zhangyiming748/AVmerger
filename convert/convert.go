@@ -57,6 +57,9 @@ type VideoInfo struct {
 
 func Convert(root, dst string) (err error) {
 	files, err := FindVideoInfoFiles(root)
+	if len(files) == 0 {
+		log.Fatalf("未找到%s目录下的任何videoInfo.json文件\n", root)
+	}
 	if err != nil {
 		return err
 	} else {
@@ -175,6 +178,10 @@ func Convert(root, dst string) (err error) {
 			}
 			log.Printf("out is %s", out)
 		}
+		log.Printf("转换成功,删除源文件\n")
+		os.Remove(media[0])
+		os.Remove(media[1])
+		os.Remove(file)
 	}
 	return nil
 }

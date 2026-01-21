@@ -65,15 +65,8 @@ func Client(src, dst string) {
 		log.Printf("未找到%v客户端目录%v跳过\n", OperatingSystem, src)
 		return
 	}
-	if err := convert.Convert(src, dst); err != nil {
-		log.Println(err)
-	} else {
-		if err := os.RemoveAll(src); err != nil {
-			log.Printf("删除失败%s\n", src)
-		} else {
-			log.Printf("删除成功%s\n", src)
-		}
-	}
+	err := convert.Convert(src, dst)
+	log.Println(err)
 }
 
 /*
