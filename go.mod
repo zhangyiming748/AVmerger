@@ -1,6 +1,6 @@
 module AVmerger
 
-go 1.25.3
+go 1.26.0
 
 require (
 	github.com/glebarez/sqlite v1.11.0
@@ -22,19 +22,19 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	github.com/spf13/pflag v1.0.9 // indirect
-	golang.org/x/exp v0.0.0-20260112195511-716be5621a96 // indirect
-	modernc.org/libc v1.67.6 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
+	golang.org/x/tools v0.42.0 // indirect
+	modernc.org/libc v1.69.0 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
-	modernc.org/sqlite v1.44.2 // indirect
+	modernc.org/sqlite v1.46.1 // indirect
 )
 
 require (
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/zhangyiming748/FastMediaInfo v0.0.7
-	golang.org/x/sys v0.40.0 // indirect
-	golang.org/x/term v0.39.0 // indirect
-	golang.org/x/text v0.33.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/term v0.40.0 // indirect
+	golang.org/x/text v0.34.0 // indirect
 )
