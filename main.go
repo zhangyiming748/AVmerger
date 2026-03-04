@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	src    string
-	dst    string
+	src     string
+	dst     string
 	archive string
 )
 
