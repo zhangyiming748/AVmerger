@@ -9,8 +9,9 @@ import (
 )
 
 var (
-	src string
-	dst string
+	src    string
+	dst    string
+	archive string
 )
 
 var rootCmd = &cobra.Command{
@@ -28,6 +29,9 @@ var clientCmd = &cobra.Command{
 			log.Fatal("src 不能和 dst 相同，程序运行后 src 目录会被删除")
 		}
 		core.Client(src, dst)
+		if archive != "" {
+			core.ClassifyAfterMerge(dst, archive, nil)
+		}
 	},
 }
 
@@ -46,6 +50,9 @@ var android2pcCmd = &cobra.Command{
 			log.Fatal("src 不能和 dst 相同，程序运行后 src 目录会被删除")
 		}
 		core.Android2PC(src, dst)
+		if archive != "" {
+			core.ClassifyAfterMerge(dst, archive, nil)
+		}
 	},
 }
 
@@ -53,11 +60,13 @@ func init() {
 	// 为 client 命令添加标志
 	clientCmd.Flags().StringVarP(&src, "src", "i", "", "B 站客户端缓存目录基础路径 (可选，为空则使用默认路径)")
 	clientCmd.Flags().StringVarP(&dst, "dst", "o", "", "输出目录基础路径 (必填)")
+	clientCmd.Flags().StringVarP(&archive, "archive", "a", "", "归档目录基础路径 (可选，用于分类整理合并后的文件)")
 	clientCmd.MarkFlagRequired("dst")
 
 	// 为 android2pc 命令添加标志
 	android2pcCmd.Flags().StringVarP(&src, "src", "i", "", "安卓客户端下载目录路径 (必填)")
 	android2pcCmd.Flags().StringVarP(&dst, "dst", "o", "", "输出目录基础路径 (必填)")
+	android2pcCmd.Flags().StringVarP(&archive, "archive", "a", "", "归档目录基础路径 (可选，用于分类整理合并后的文件)")
 	android2pcCmd.MarkFlagRequired("src")
 	android2pcCmd.MarkFlagRequired("dst")
 
