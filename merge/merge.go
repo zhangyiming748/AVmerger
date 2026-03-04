@@ -118,14 +118,10 @@ type PlanB struct {
 // bs: 包含音视频文件基本信息的切片
 // 返回warning: 表示处理过程中是否出现警告
 func Merge(bs []util.BasicInfo, dst string) (warning bool) {
-	// 创建等待组用于同步音频和视频的处理
-
 	// 遍历每个基本信息条目
 	for _, b := range bs {
 		log.Printf("循环一次开始处理%+v\n", b.EntryFullPath)
 		fname, subFolder, _, _ := getName(b.EntryFullPath)
-		
-
 		// 构建视频输出目录路径
 		dir := filepath.Join(dst, subFolder)
 		// 创建视频输出目录
@@ -156,7 +152,6 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 		if mi.Video.Format == "HEVC" {
 			args = append(args, "-tag:v", "hvc1")
 		}
-
 		// 添加元数据信息
 		{
 			// 设置视频标题
@@ -172,7 +167,6 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 			comment := strings.Join([]string{"comment", formattedTime}, "=")
 			args = append(args, "-metadata", comment)
 		}
-
 		// 添加输出文件路径到参数列表
 		args = append(args, fullName)
 		// 创建视频合并命令
@@ -180,25 +174,19 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 		// 创建音频提取命令，使用libmp3lame编码器
 		mp3 := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "libmp3lame", mp3Name)
 		log.Printf("mp3产生的命令:%s\n", mp3.String())
-		// 在goroutine中异步处理音频提取
-
 		// 执行音频提取命令并处理可能的错误
 		if out, err := mp3.CombinedOutput(); err != nil {
 			log.Printf("mp3命令执行输出%s出错:%v\n", out, err) // 使用 Printf 而不是 Panic
 		}
-
 		log.Printf("mp4产生的命令:%s\n", mp4.String())
 		// 获取视频总帧数用于进度显示
 		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
 		// 执行视频合并命令，显示进度条
 		if err := util.ExecCommandWithBar(mp4, frame); err != nil {
-			log.Printf("命令执行失败\n")
-			// 出错时等待10秒并设置警告标志
-			time.Sleep(10 * time.Second)
+			log.Printf("视频命令执行失败\n")
 			warning = true
-		} 
-		// 如果处理成功，清理临时文件
-		if !warning {
+			// 出错时等待10秒并设置警告标志
+		} else {
 			// 删除原始音频文件
 			os.RemoveAll(b.Audio)
 			// 删除原始视频文件
@@ -206,10 +194,7 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 			// 删除entry.json文件
 			os.RemoveAll(b.EntryFullPath)
 		}
-
 	}
-	log.Println("等待mp3合并完成")
-
 	return warning
 }
 

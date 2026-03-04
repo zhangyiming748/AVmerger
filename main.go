@@ -76,8 +76,26 @@ var coverCmd = &cobra.Command{
 	},
 }
 
+var archiveCmd = &cobra.Command{
+	Use:   "archive",
+	Short: "归档合并后的视频文件",
+	Long:  `将源目录中合并后的视频文件按照分类规则归档到目标目录`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if src == "" {
+			log.Fatal("源目录 (--src) 必须指定")
+		}
+		if dst == "" {
+			log.Fatal("目标目录 (--dst) 必须指定")
+		}
+		if src == dst {
+			log.Fatal("src 不能和 dst 相同")
+		}
+		core.ClassifyAfterMerge(src, dst, nil)
+	},
+}
+
 func init() {
-	log.SetFlags(log.Lshortfile |log.Ltime)
+	log.SetFlags(log.Lshortfile | log.Ltime)
 	util.SetLog("avmerge.log")
 	// 为 client 命令添加标志
 	clientCmd.Flags().StringVarP(&src, "src", "i", "", "B 站客户端缓存目录基础路径 (可选，为空则使用默认路径)")
@@ -98,10 +116,17 @@ func init() {
 	coverCmd.MarkFlagRequired("src")
 	coverCmd.MarkFlagRequired("dst")
 
+	// 为 archive 命令添加标志
+	archiveCmd.Flags().StringVarP(&src, "src", "i", "", "源目录路径 (必填)")
+	archiveCmd.Flags().StringVarP(&dst, "dst", "o", "", "目标目录路径 (必填)")
+	archiveCmd.MarkFlagRequired("src")
+	archiveCmd.MarkFlagRequired("dst")
+
 	// 将子命令添加到根命令
 	rootCmd.AddCommand(clientCmd)
 	rootCmd.AddCommand(android2pcCmd)
 	rootCmd.AddCommand(coverCmd)
+	rootCmd.AddCommand(archiveCmd)
 }
 
 func main() {

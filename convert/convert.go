@@ -3,6 +3,7 @@ package convert
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/zhangyiming748/FastMediaInfo"
 	"io"
 	"log"
 	"os"
@@ -10,7 +11,6 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-	"github.com/zhangyiming748/FastMediaInfo"
 )
 
 type VideoInfo struct {
