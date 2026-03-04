@@ -1,4 +1,4 @@
-package AVmerger
+package main_test
 
 import (
 	"io"
