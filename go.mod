@@ -5,6 +5,7 @@ go 1.25.3
 require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/schollz/progressbar/v3 v3.19.0
+	github.com/spf13/cobra v1.10.2
 	github.com/zhangyiming748/finder v0.0.6
 	github.com/zhangyiming748/lumberjack v0.0.1
 	gorm.io/gorm v1.31.1
@@ -21,7 +22,6 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
 	golang.org/x/exp v0.0.0-20260112195511-716be5621a96 // indirect
 	modernc.org/libc v1.67.6 // indirect
