@@ -7,7 +7,7 @@ import (
 // go test -v -run TestFindAllCover
 func TestFindAllCover(t *testing.T) {
 	src := "/Volumes/Untitled/代码测试用例/download"
-	covers, err := FindAllCover(src)
+	covers, err := findAllCover(src)
 	if err != nil {
 		t.Error(err)
 	}

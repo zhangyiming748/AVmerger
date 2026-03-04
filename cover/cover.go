@@ -13,7 +13,7 @@ import (
 类似 find src -type f -name "cover.jpg"
 并返回符合条件文件的绝对路径切片
 */
-func FindAllCover(src string) (covers []string, err error) {
+func findAllCover(src string) (covers []string, err error) {
 	err = filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -44,7 +44,7 @@ func FindAllCover(src string) (covers []string, err error) {
 
 func ArchiveCovers(src, dst string) {
 	os.MkdirAll(dst, 0755)
-	covers, err := FindAllCover(src)
+	covers, err := findAllCover(src)
 	if err != nil {
 		panic(err)
 	}
