@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"AVmerger/replace"
-	"AVmerger/sqlite"
 	"AVmerger/util"
 	"github.com/zhangyiming748/FastMediaInfo"
 )
@@ -125,14 +124,7 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 	for _, b := range bs {
 		log.Printf("循环一次开始处理%+v\n", b.EntryFullPath)
 		fname, subFolder, _, _ := getName(b.EntryFullPath)
-		h := new(sqlite.History)
-		h.Title = fname
-		if has, err := h.ExistsByTitle(); has {
-			log.Printf("已存在%s,跳过\n", fname)
-			continue
-		} else if err != nil {
-			log.Fatalf("查询数据库出现错误:%+v,发生在%s\n", err, fname)
-		}
+		
 
 		// 构建视频输出目录路径
 		dir := filepath.Join(dst, subFolder)
@@ -204,9 +196,7 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 			// 出错时等待10秒并设置警告标志
 			time.Sleep(10 * time.Second)
 			warning = true
-		} else {
-			h.Insert()
-		}
+		} 
 		// 如果处理成功，清理临时文件
 		if !warning {
 			// 删除原始音频文件

@@ -11,7 +11,6 @@ import (
 	"AVmerger/classify"
 	"AVmerger/convert"
 	"AVmerger/merge"
-	"AVmerger/sqlite"
 )
 
 // init 初始化函数，在程序启动时执行
@@ -31,11 +30,6 @@ func init() {
 		log.Fatal("未找到 ffmpeg 命令，请先安装 ffmpeg")
 	}
 	log.Println("系统环境检查通过: mediainfo 和 ffmpeg 命令可用")
-	sqlite.SetSqlite()
-	log.Printf("初始化数据库之后的数据库指针:%+v\n", sqlite.GetSqlite())
-	//创建数据库成功后创建表结构
-	h := new(sqlite.History)
-	h.Sync()
 }
 
 /*
