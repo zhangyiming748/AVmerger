@@ -1,0 +1,115 @@
+package core
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
+
+	"AVmerger/classify"
+	"AVmerger/convert"
+	"AVmerger/merge"
+	"AVmerger/sqlite"
+)
+
+// init 初始化函数，在程序启动时执行
+// 主要完成以下工作：
+// 1. 检查系统中是否安装了必要的命令行工具（mediainfo和ffmpeg）
+// 2. 初始化日志系统
+func init() {
+	// 检查 mediainfo 命令是否可用
+	// mediainfo用于获取媒体文件的详细信息
+	if _, err := exec.LookPath("mediainfo"); err != nil {
+		log.Fatal("未找到 mediainfo 命令，请先安装 mediainfo")
+	}
+
+	// 检查 ffmpeg 命令是否可用
+	// ffmpeg用于音视频文件的处理（合并、转码等）
+	if _, err := exec.LookPath("ffmpeg"); err != nil {
+		log.Fatal("未找到 ffmpeg 命令，请先安装 ffmpeg")
+	}
+	log.Println("系统环境检查通过: mediainfo 和 ffmpeg 命令可用")
+	sqlite.SetSqlite()
+	log.Printf("初始化数据库之后的数据库指针:%+v\n", sqlite.GetSqlite())
+	//创建数据库成功后创建表结构
+	h := new(sqlite.History)
+	h.Sync()
+}
+
+/*
+src为客户端基础路径(到bilibili层级即可),如果为空则自动设定为默认的缓存文件夹
+dst为输出的基础路径
+*/
+func Client(src, dst string) {
+	if src == dst {
+		log.Fatalf("src不能和dst相同,程序运行后src目录会被删除\n")
+	}
+	OperatingSystem := runtime.GOOS
+	if src == "" {
+		home, _ := os.UserHomeDir()
+		switch OperatingSystem {
+		case "darwin":
+			src = filepath.Join(home, "Movies", "bilibili")
+		case "linux", "windows":
+			src = filepath.Join(home, "Videos", "bilibili")
+		default:
+			log.Println("不支持的操作系统")
+			return
+		}
+	}
+
+	log.Printf("检测到 %v 系统，开始处理 %v 相关任务\n", OperatingSystem, src)
+	if !isExist(src) {
+		log.Printf("未找到%v客户端目录%v跳过\n", OperatingSystem, src)
+		return
+	}
+	err := convert.Convert(src, dst)
+	log.Println(err)
+}
+
+/*
+root为安卓客户端下载目录download所在路径(包括download本身 比如 /storage/emulated/0/Android/data/tv.danmaku.bili/download)
+dst为输出的基础路径
+*/
+func Android2PC(src, dst string) {
+	// 处理标准B站客户端的下载目录
+	if isExist(src) {
+		// 获取目录中的基本信息（音视频文件路径等）
+		bs := merge.GetBasicInfo(src)
+		if len(bs) == 0 {
+			log.Fatalf("未找到任何目录结构,这个是安卓转换视频的函数,不要错误使用")
+		}
+		// 尝试合并音视频文件
+		if merge.Merge(bs, dst) {
+			// 合并过程中出现错误，保留源文件目录
+			log.Printf("程序有错误,%s目录不会被删除\n", src)
+		}
+	}
+}
+
+func ClassifyAfterMerge(srcRoot, dstRoot string, keywords []string) {
+	if keywords == nil {
+		keywords = classify.DefaultKeywords
+	} else {
+		keywords = append(classify.DefaultKeywords, keywords...)
+	}
+	classify.Classify(srcRoot, dstRoot, keywords)
+}
+
+/*
+判断路径是否存在
+*/
+func isExist(path string) bool {
+	if _, err := os.Stat(path); err == nil {
+		fmt.Println("路径存在")
+		return true
+	} else if os.IsNotExist(err) {
+		fmt.Println("路径不存在")
+		return false
+	} else {
+		fmt.Println("发生错误：", err)
+		return false
+	}
+}
