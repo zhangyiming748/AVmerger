@@ -38,7 +38,7 @@ var clientCmd = &cobra.Command{
 }
 
 var android2pcCmd = &cobra.Command{
-	Use:   "android2pc",
+	Use:   "a2p",
 	Short: "转换安卓客户端下载目录",
 	Long:  `将安卓客户端下载目录中的音视频文件合并并转换到 PC 端格式`,
 	Run: func(cmd *cobra.Command, args []string) {
