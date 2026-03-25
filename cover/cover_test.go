@@ -6,7 +6,7 @@ import (
 
 // go test -v -run TestFindAllCover
 func TestFindAllCover(t *testing.T) {
-	src := "/Volumes/Untitled/代码测试用例/download"
+	src := "C:\\Users\\zen\\Videos\\download"
 	covers, err := findAllCover(src)
 	if err != nil {
 		t.Error(err)
@@ -18,6 +18,7 @@ func TestFindAllCover(t *testing.T) {
 
 // go test -v -run TestArchiveCover
 func TestArchiveCover(t *testing.T) {
-	src := "/Volumes/Untitled/代码测试用例/download"
-	ArchiveCovers(src, "/Volumes/Untitled/cover")
+	src := "C:\\Users\\zen\\Videos\\download"
+	dst := "C:\\Users\\zen\\Videos\\cover"
+	ArchiveCovers(src, dst)
 }

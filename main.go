@@ -63,12 +63,7 @@ var coverCmd = &cobra.Command{
 	Short: "归档封面图片",
 	Long:  `将源目录下的所有 cover.jpg 文件移动到目标目录并按顺序重命名`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if src == "" {
-			log.Fatal("源目录 (--src) 必须指定")
-		}
-		if dst == "" {
-			log.Fatal("目标目录 (--dst) 必须指定")
-		}
+
 		if src == dst {
 			log.Fatal("src 不能和 dst 相同")
 		}
