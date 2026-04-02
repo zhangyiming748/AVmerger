@@ -137,9 +137,10 @@ func Convert(root, dst string) (err error) {
 		log.Printf("开始转换 %s\n", cmd.String())
 		out, err := cmd.CombinedOutput()
 		if err != nil {
+			log.Printf("out is %s\nbut error\n", string(out))
 			return err
 		}
-		fmt.Printf("命令运行后输出:%s", out)
+		fmt.Printf("命令运行后输出:%s", string(out))
 		if audio, err := GetMusicFile(media[0], media[1]); err != nil {
 			log.Printf("音频转换失败%v\n", err)
 		} else {
