@@ -62,10 +62,10 @@ func ExecCommand(c *exec.Cmd) (e error) {
 //
 // 返回值:
 //   - error: 执行过程中的错误，如果执行成功则返回nil
-func ExecCommandWithBar(c *exec.Cmd, totalFrame string) (e error) {
+func ExecCommandWithBar(c *exec.Cmd, totalFrame int) (e error) {
 	log.Printf("开始执行命令:%v\n", c.String())
 	// 将总帧数转换为整数并创建进度条
-	total, _ := strconv.Atoi(totalFrame)
+	total := totalFrame
 	bar := progressbar.New(total)
 	defer bar.Finish()
 	// 获取命令的标准输出管道
@@ -99,6 +99,7 @@ func ExecCommandWithBar(c *exec.Cmd, totalFrame string) (e error) {
 		log.Printf("命令执行中产生错误:%v\n", err)
 		return err
 	}
+	bar.Finish()
 	log.Printf("命令结束:%v\n", c.String())
 	return nil
 }

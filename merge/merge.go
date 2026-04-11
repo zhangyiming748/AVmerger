@@ -182,7 +182,8 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 		// 获取视频总帧数用于进度显示
 		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
 		// 执行视频合并命令，显示进度条
-		if err := util.ExecCommandWithBar(mp4, frame); err != nil {
+		frameCount,_:=strconv.Atoi(frame)
+		if err := util.ExecCommandWithBar(mp4, frameCount); err != nil {
 			log.Printf("视频命令执行失败\n")
 			warning = true
 			// 出错时等待10秒并设置警告标志
