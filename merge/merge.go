@@ -17,6 +17,7 @@ import (
 	"AVmerger/replace"
 	"AVmerger/util"
 	"github.com/zhangyiming748/FastMediaInfo"
+	"github.com/zhangyiming748/stand"
 )
 
 // Entry 定义了B站视频条目的数据结构，用于解析下载文件的entry.json
@@ -183,7 +184,7 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
 		// 执行视频合并命令，显示进度条
 		frameCount,_:=strconv.Atoi(frame)
-		if err := util.ExecCommandWithBar(mp4, frameCount); err != nil {
+		if err := stand.ExecCommandWithBar(mp4,frameCount); err != nil {
 			log.Printf("视频命令执行失败\n")
 			warning = true
 			// 出错时等待10秒并设置警告标志

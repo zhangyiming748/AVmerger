@@ -90,7 +90,6 @@ var archiveCmd = &cobra.Command{
 }
 
 func init() {
-	log.SetFlags(log.Lshortfile | log.Ltime)
 	util.SetLog("avmerge.log")
 	// 为 client 命令添加标志
 	clientCmd.Flags().StringVarP(&src, "src", "i", "", "B 站客户端缓存目录基础路径 (可选，为空则使用默认路径)")
