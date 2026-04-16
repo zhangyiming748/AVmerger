@@ -1,9 +1,9 @@
 package convert
 
 import (
+	"AVmerger/replace"
 	"encoding/json"
 	"fmt"
-	"github.com/zhangyiming748/FastMediaInfo"
 	"io"
 	"log"
 	"os"
@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/zhangyiming748/FastMediaInfo"
 )
 
 type VideoInfo struct {
@@ -107,10 +109,13 @@ func Convert(root, dst string) (err error) {
 		}
 		vi, _ := ReadVideoInfo(file)
 		log.Printf("videoInfo = %+v\n", vi)
+		// 清理标题中的非法字符
+		cleanTitle := replace.ForFileName(vi.Title)
 		baseDir := filepath.Join(dst, vi.Uname)
 		os.MkdirAll(baseDir, 0755)
-		title := strings.Join([]string{vi.Title, "mp4"}, ".")
+		title := strings.Join([]string{cleanTitle, "mp4"}, ".")
 		target := filepath.Join(baseDir, title)
+		log.Printf("原始标题: %s\n清理后标题: %s\n输出文件: %s\n", vi.Title, cleanTitle, target)
 		mi1 := FastMediaInfo.GetStandMediaInfo(media[0])
 		mi2 := FastMediaInfo.GetStandMediaInfo(media[1])
 		args := []string{"-i", media[0], "-i", media[1], "-c:v", "copy", "-c:a", "copy"}
@@ -120,52 +125,56 @@ func Convert(root, dst string) (err error) {
 			args = append(args, "-tag:v", "hvc1")
 		}
 		{
-			title := strings.Join([]string{"title", vi.Title}, "=")
+			// 使用引号包裹元数据值，避免特殊字符问题
+			title := fmt.Sprintf("title=%s", vi.Title)
 			args = append(args, "-metadata", title)
 
-			artist := strings.Join([]string{"artist", vi.Uname}, "=")
+			artist := fmt.Sprintf("artist=%s", vi.Uname)
 			args = append(args, "-metadata", artist)
 
 			timeStamp := int64(vi.CompletionTime)
 			t := time.Unix(timeStamp/1000, 0)
 			formattedTime := t.Format("2006-01-02 15:04:05")
-			comment := strings.Join([]string{"comment", formattedTime}, "=")
+			comment := fmt.Sprintf("comment=%s", formattedTime)
 			args = append(args, "-metadata", comment)
 		}
 		args = append(args, target)
 		cmd := exec.Command("ffmpeg", args...)
-		log.Printf("开始转换 %s\n", cmd.String())
+		log.Printf("开始转换:\n  输入文件1: %s\n  输入文件2: %s\n  输出文件: %s\n  完整命令: %s\n", media[0], media[1], target, cmd.String())
 		out, err := cmd.CombinedOutput()
 		if err != nil {
-			log.Printf("out is %s\nbut error\n", string(out))
-			return err
+			log.Printf("❌ ffmpeg命令执行失败:\n  错误码: %v\n  错误类型: %T\n  完整输出:\n%s\n", err, err, string(out))
+			return fmt.Errorf("ffmpeg转换失败 [文件: %s -> %s]: %w", media[0], target, err)
 		}
-		fmt.Printf("命令运行后输出:%s", string(out))
+		log.Printf("✅ 转换成功,ffmpeg输出:\n%s", string(out))
 		if audio, err := GetMusicFile(media[0], media[1]); err != nil {
 			log.Printf("音频转换失败%v\n", err)
 		} else {
 			mp3 := strings.Replace(target, ".mp4", ".mp3", 1)
 			args := []string{"-i", audio, "-c:a", "libmp3lame"}
 			{
-				title := strings.Join([]string{"title", vi.Title}, "=")
+				// 使用清理后的标题
+				title := fmt.Sprintf("title=%s", cleanTitle)
 				args = append(args, "-metadata", title)
 
-				artist := strings.Join([]string{"artist", vi.Uname}, "=")
+				artist := fmt.Sprintf("artist=%s", vi.Uname)
 				args = append(args, "-metadata", artist)
 
 				timeStamp := int64(vi.CompletionTime)
 				t := time.Unix(timeStamp/1000, 0)
 				formattedTime := t.Format("2006-01-02 15:04:05")
-				comment := strings.Join([]string{"comment", formattedTime}, "=")
+				comment := fmt.Sprintf("comment=%s", formattedTime)
 				args = append(args, "-metadata", comment)
 			}
 			args = append(args, mp3)
 			cmd := exec.Command("ffmpeg", args...)
+			log.Printf("开始音频转换:\n  输入: %s\n  输出: %s\n  命令: %s\n", audio, mp3, cmd.String())
 			out, err := cmd.CombinedOutput()
 			if err != nil {
-				return err
+				log.Printf("❌ MP3转换失败:\n  错误: %v\n  输出:\n%s\n", err, string(out))
+				return fmt.Errorf("MP3转换失败 [文件: %s -> %s]: %w", audio, mp3, err)
 			}
-			log.Printf("out is %s", out)
+			log.Printf("✅ MP3转换成功")
 		}
 		log.Printf("转换成功,删除源文件\n")
 		os.Remove(media[0])
