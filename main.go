@@ -5,6 +5,7 @@ import (
 
 	"AVmerger/core"
 	"AVmerger/cover"
+	"AVmerger/rename"
 	"AVmerger/util"
 
 	"github.com/spf13/cobra"
@@ -14,6 +15,7 @@ var (
 	src     string
 	dst     string
 	archive string
+	dir     string
 )
 
 var rootCmd = &cobra.Command{
@@ -89,6 +91,15 @@ var archiveCmd = &cobra.Command{
 	},
 }
 
+var renameCmd = &cobra.Command{
+	Use:   "rename",
+	Short: "批量重命名文件",
+	Long:  `批量替换指定目录下所有文件名中的特定字符串`,
+	Run: func(cmd *cobra.Command, args []string) {
+		rename.RenameAll(dir, src, dst)
+	},
+}
+
 func init() {
 	util.SetLog("avmerge.log")
 	// 为 client 命令添加标志
@@ -116,11 +127,20 @@ func init() {
 	archiveCmd.MarkFlagRequired("src")
 	archiveCmd.MarkFlagRequired("dst")
 
+	// 为 rename 命令添加标志
+	renameCmd.Flags().StringVarP(&dir, "dir", "d", "", "要处理的根目录路径 (必填)")
+	renameCmd.Flags().StringVarP(&src, "src", "i", "", "需要被替换的字符串 (必填)")
+	renameCmd.Flags().StringVarP(&dst, "dst", "o", "", "替换后的字符串 (必填)")
+	renameCmd.MarkFlagRequired("dir")
+	renameCmd.MarkFlagRequired("src")
+	renameCmd.MarkFlagRequired("dst")
+
 	// 将子命令添加到根命令
 	rootCmd.AddCommand(clientCmd)
 	rootCmd.AddCommand(android2pcCmd)
 	rootCmd.AddCommand(coverCmd)
 	rootCmd.AddCommand(archiveCmd)
+	rootCmd.AddCommand(renameCmd)
 }
 
 func main() {
