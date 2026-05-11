@@ -16,7 +16,9 @@ import (
 
 	"AVmerger/replace"
 	"AVmerger/util"
+
 	"github.com/zhangyiming748/FastMediaInfo"
+	"github.com/zhangyiming748/stand"
 )
 
 // Entry 定义了B站视频条目的数据结构，用于解析下载文件的entry.json
@@ -154,17 +156,18 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 		}
 		// 添加元数据信息
 		{
-			// 设置视频标题
-			title := strings.Join([]string{"title", fname}, "=")
+			// 设置视频标题（fname已经过ForFileName处理）
+			title := fmt.Sprintf("title=%s", fname)
 			args = append(args, "-metadata", title)
 
-			// 设置艺术家（UP主）
-			artist := strings.Join([]string{"artist", subFolder}, "=")
+			// 设置艺术家（UP主），需要清理非法字符
+			cleanArtist := replace.ForFileName(subFolder)
+			artist := fmt.Sprintf("artist=%s", cleanArtist)
 			args = append(args, "-metadata", artist)
 
 			// 添加处理时间戳作为注释
 			formattedTime := time.Now().Format("2006-01-02 15:04:05")
-			comment := strings.Join([]string{"comment", formattedTime}, "=")
+			comment := fmt.Sprintf("comment=%s", formattedTime)
 			args = append(args, "-metadata", comment)
 		}
 		// 添加输出文件路径到参数列表
@@ -173,19 +176,20 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 		mp4 := exec.Command("ffmpeg", args...)
 		// 创建音频提取命令，使用libmp3lame编码器
 		mp3 := exec.Command("ffmpeg", "-i", b.Audio, "-c:a", "libmp3lame", mp3Name)
-		log.Printf("mp3产生的命令:%s\n", mp3.String())
+		log.Printf("mp3产生的命令:\n  输入: %s\n  输出: %s\n  完整命令: %s\n", b.Audio, mp3Name, mp3.String())
 		// 执行音频提取命令并处理可能的错误
 		if out, err := mp3.CombinedOutput(); err != nil {
-			log.Printf("mp3命令执行输出%s出错:%v\n", out, err) // 使用 Printf 而不是 Panic
+			log.Printf("⚠️ MP3提取失败:\n  错误: %v\n  输出:\n%s\n", err, string(out))
 		}
-		log.Printf("mp4产生的命令:%s\n", mp4.String())
+		log.Printf("mp4产生的命令:\n  输入视频: %s\n  输入音频: %s\n  输出文件: %s\n  完整命令: %s\n", b.Video, b.Audio, fullName, mp4.String())
 		// 获取视频总帧数用于进度显示
 		frame := FastMediaInfo.GetStandMediaInfo(b.Video).Video.FrameCount
 		// 执行视频合并命令，显示进度条
-		if err := util.ExecCommandWithBar(mp4, frame); err != nil {
-			log.Printf("视频命令执行失败\n")
+		frameCount, _ := strconv.Atoi(frame)
+		if err := stand.ExecCommandWithBar(mp4, frameCount); err != nil {
+			log.Printf("❌ 视频合并失败:\n  错误: %v\n  错误类型: %T\n  源文件:\n    视频: %s\n    音频: %s\n  目标文件: %s\n",
+				err, err, b.Video, b.Audio, fullName)
 			warning = true
-			// 出错时等待10秒并设置警告标志
 		} else {
 			// 删除原始音频文件
 			os.RemoveAll(b.Audio)
