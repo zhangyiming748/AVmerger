@@ -20,8 +20,9 @@ func init() {
 	}
 	log.Println("系统环境检查通过: mediainfo 和 ffmpeg 命令可用")
 }
+// go test -v -timeout 10h -run TestConvert
 func TestConvert(t *testing.T) {
-	src := "C:\\Users\\zen\\Videos\\bilibili"
-	dst := "C:\\Users\\zen\\Videos\\Convert"
+	src := "D:\\Users\\Public\\Videos\\bilibili"
+	dst := "D:\\Users\\Public\\Videos\\DONE"
 	Convert(src, dst)
 }

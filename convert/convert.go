@@ -3,7 +3,6 @@ package convert
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/zhangyiming748/FastMediaInfo"
 	"io"
 	"log"
 	"os"
@@ -11,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/zhangyiming748/FastMediaInfo"
 )
 
 type VideoInfo struct {
@@ -24,7 +25,7 @@ type VideoInfo struct {
 	P              int         `json:"p"`
 	TabP           int         `json:"tabP"`
 	TabName        string      `json:"tabName"`
-	Uid            string      `json:"uid"`
+	Uid            int         `json:"uid"`
 	Uname          string      `json:"uname"`
 	Avatar         string      `json:"avatar"`
 	CoverUrl       string      `json:"coverUrl"`
@@ -45,12 +46,12 @@ type VideoInfo struct {
 	CoverPath      string      `json:"coverPath"`
 	GroupCoverPath string      `json:"groupCoverPath"`
 	UpdateTime     int64       `json:"updateTime"`
-	TotalSize      int         `json:"totalSize"`
-	LoadedSize     int         `json:"loadedSize"`
+	TotalSize      int64       `json:"totalSize"`
+	LoadedSize     int64       `json:"loadedSize"`
 	Progress       float64     `json:"progress"`
 	Speed          int         `json:"speed"`
 	CompletionTime int64       `json:"completionTime"`
-	ReportedSize   int         `json:"reportedSize"`
+	ReportedSize   int64       `json:"reportedSize"`
 }
 
 func Convert(root, dst string) (err error) {
