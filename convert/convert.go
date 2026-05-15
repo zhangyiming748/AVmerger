@@ -31,7 +31,7 @@ type VideoInfo struct {
 	Avatar         string      `json:"avatar"`
 	CoverUrl       string      `json:"coverUrl"`
 	Title          string      `json:"title"`
-	Duration       int         `json:"duration"`
+	Duration       float64     `json:"duration"`
 	GroupTitle     string      `json:"groupTitle"`
 	GroupCoverUrl  string      `json:"groupCoverUrl"`
 	Danmaku        int         `json:"danmaku"`
