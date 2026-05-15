@@ -270,6 +270,13 @@ func getName(jackson string) (string, string, string, error) {
 	name = strings.TrimRight(name, " ")
 	// 移除开头空格
 	name = replace.RemoveLeadingSpace(name)
+	var unikey string
+	if entry.Avid != 0 {
+		unikey = strconv.Itoa(entry.Avid)
+	} else {
+		unikey = entry.Bvid
+	}
+	name = strings.Join([]string{name, unikey}, "_")
 	// 返回处理后的文件名和UP主名称
 	var key string
 	if key = entry.Bvid; key == "" {
