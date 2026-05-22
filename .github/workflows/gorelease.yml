@@ -10,19 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0  # 获取完整历史以便GoReleaser正常工作
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
           go-version: 'stable'
-      - name: Update dependencies
-        run: |
-          go version
-          go mod tidy
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@v7
         with:
           # either 'goreleaser' (default) or 'goreleaser-pro'
           distribution: goreleaser
