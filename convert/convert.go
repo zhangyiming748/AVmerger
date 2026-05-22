@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,43 +17,43 @@ import (
 )
 
 type VideoInfo struct {
-	Type           string      `json:"type"`
-	Codecid        int         `json:"codecid"`
-	GroupId        interface{} `json:"groupId"`
-	ItemId         int64       `json:"itemId"`
-	Aid            int64       `json:"aid"`
-	Cid            int64       `json:"cid"`
-	Bvid           string      `json:"bvid"`
-	P              int         `json:"p"`
-	TabP           int         `json:"tabP"`
-	TabName        string      `json:"tabName"`
-	Uid            int         `json:"uid"`
-	Uname          string      `json:"uname"`
-	Avatar         string      `json:"avatar"`
-	CoverUrl       string      `json:"coverUrl"`
-	Title          string      `json:"title"`
-	Duration       float64     `json:"duration"`
-	GroupTitle     string      `json:"groupTitle"`
-	GroupCoverUrl  string      `json:"groupCoverUrl"`
-	Danmaku        int         `json:"danmaku"`
-	View           int         `json:"view"`
-	Pubdate        int         `json:"pubdate"`
-	Vt             int         `json:"vt"`
-	Status         string      `json:"status"`
-	Active         bool        `json:"active"`
-	Loaded         bool        `json:"loaded"`
-	Qn             int         `json:"qn"`
-	AllowHEVC      bool        `json:"allowHEVC"`
-	CreateTime     int64       `json:"createTime"`
-	CoverPath      string      `json:"coverPath"`
-	GroupCoverPath string      `json:"groupCoverPath"`
-	UpdateTime     int64       `json:"updateTime"`
-	TotalSize      int64       `json:"totalSize"`
-	LoadedSize     int64       `json:"loadedSize"`
-	Progress       float64     `json:"progress"`
-	Speed          int         `json:"speed"`
-	CompletionTime int64       `json:"completionTime"`
-	ReportedSize   int64       `json:"reportedSize"`
+	Type           string `json:"type"`
+	Codecid        string `json:"codecid"`
+	GroupId        string `json:"groupId"`
+	ItemId         string `json:"itemId"`
+	Aid            string `json:"aid"`
+	Cid            string `json:"cid"`
+	Bvid           string `json:"bvid"`
+	P              string `json:"p"`
+	TabP           string `json:"tabP"`
+	TabName        string `json:"tabName"`
+	Uid            string `json:"uid"`
+	Uname          string `json:"uname"`
+	Avatar         string `json:"avatar"`
+	CoverUrl       string `json:"coverUrl"`
+	Title          string `json:"title"`
+	Duration       string `json:"duration"`
+	GroupTitle     string `json:"groupTitle"`
+	GroupCoverUrl  string `json:"groupCoverUrl"`
+	Danmaku        string `json:"danmaku"`
+	View           string `json:"view"`
+	Pubdate        string `json:"pubdate"`
+	Vt             string `json:"vt"`
+	Status         string `json:"status"`
+	Active         string `json:"active"`
+	Loaded         string `json:"loaded"`
+	Qn             string `json:"qn"`
+	AllowHEVC      string `json:"allowHEVC"`
+	CreateTime     string `json:"createTime"`
+	CoverPath      string `json:"coverPath"`
+	GroupCoverPath string `json:"groupCoverPath"`
+	UpdateTime     string `json:"updateTime"`
+	TotalSize      string `json:"totalSize"`
+	LoadedSize     string `json:"loadedSize"`
+	Progress       string `json:"progress"`
+	Speed          string `json:"speed"`
+	CompletionTime string `json:"completionTime"`
+	ReportedSize   string `json:"reportedSize"`
 }
 
 func Convert(root, dst string) (err error) {
@@ -132,7 +133,11 @@ func Convert(root, dst string) (err error) {
 			artist := fmt.Sprintf("artist=%s", vi.Uname)
 			args = append(args, "-metadata", artist)
 
-			timeStamp := int64(vi.CompletionTime)
+			// 将字符串时间戳转换为 int64
+			var timeStamp int64
+			if ts, err := strconv.ParseInt(vi.CompletionTime, 10, 64); err == nil {
+				timeStamp = ts
+			}
 			t := time.Unix(timeStamp/1000, 0)
 			formattedTime := t.Format("2006-01-02 15:04:05")
 			comment := fmt.Sprintf("comment=%s", formattedTime)
@@ -160,7 +165,11 @@ func Convert(root, dst string) (err error) {
 				artist := fmt.Sprintf("artist=%s", vi.Uname)
 				args = append(args, "-metadata", artist)
 
-				timeStamp := int64(vi.CompletionTime)
+				// 将字符串时间戳转换为 int64
+				var timeStamp int64
+				if ts, err := strconv.ParseInt(vi.CompletionTime, 10, 64); err == nil {
+					timeStamp = ts
+				}
 				t := time.Unix(timeStamp/1000, 0)
 				formattedTime := t.Format("2006-01-02 15:04:05")
 				comment := fmt.Sprintf("comment=%s", formattedTime)
