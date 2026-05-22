@@ -51,12 +51,6 @@ var android2pcCmd = &cobra.Command{
 	Short: "转换安卓客户端下载目录",
 	Long:  `将安卓客户端下载目录中的音视频文件合并并转换到 PC 端格式`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if src == "" {
-			log.Fatal("安卓源目录 (--src) 必须指定")
-		}
-		if dst == "" {
-			log.Fatal("目标输出目录 (--dst) 必须指定")
-		}
 		if src == dst {
 			log.Fatal("src 不能和 dst 相同，程序运行后 src 目录会被删除")
 		}
@@ -90,12 +84,6 @@ var archiveCmd = &cobra.Command{
 	Short: "归档合并后的视频文件",
 	Long:  `将源目录中合并后的视频文件按照分类规则归档到目标目录`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if src == "" {
-			log.Fatal("源目录 (--src) 必须指定")
-		}
-		if dst == "" {
-			log.Fatal("目标目录 (--dst) 必须指定")
-		}
 		if src == dst {
 			log.Fatal("src 不能和 dst 相同")
 		}
