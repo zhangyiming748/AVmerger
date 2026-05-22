@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"strings"
 
 	"AVmerger/core"
 	"AVmerger/cover"
@@ -12,10 +13,11 @@ import (
 )
 
 var (
-	src     string
-	dst     string
-	archive string
-	dir     string
+	src      string
+	dst      string
+	archive  string
+	dir      string
+	keywords string
 )
 
 var rootCmd = &cobra.Command{
@@ -32,9 +34,14 @@ var clientCmd = &cobra.Command{
 		if src == dst {
 			log.Fatal("src 不能和 dst 相同,程序运行后 src 目录会被删除")
 		}
+		var kwSlice []string
+		if keywords != "" {
+			keywords = strings.ReplaceAll(keywords, "；", ";")
+			kwSlice = strings.Split(keywords, ";")
+		}
 		core.Client(src, dst)
 		if archive != "" {
-			core.ClassifyAfterMerge(dst, archive, nil)
+			core.ClassifyAfterMerge(dst, archive, kwSlice)
 		}
 	},
 }
@@ -53,9 +60,14 @@ var android2pcCmd = &cobra.Command{
 		if src == dst {
 			log.Fatal("src 不能和 dst 相同，程序运行后 src 目录会被删除")
 		}
+		var kwSlice []string
+		if keywords != "" {
+			keywords = strings.ReplaceAll(keywords, "；", ";")
+			kwSlice = strings.Split(keywords, ";")
+		}
 		core.Android2PC(src, dst)
 		if archive != "" {
-			core.ClassifyAfterMerge(dst, archive, nil)
+			core.ClassifyAfterMerge(dst, archive, kwSlice)
 		}
 	},
 }
@@ -87,7 +99,12 @@ var archiveCmd = &cobra.Command{
 		if src == dst {
 			log.Fatal("src 不能和 dst 相同")
 		}
-		core.ClassifyAfterMerge(src, dst, nil)
+		var kwSlice []string
+		if keywords != "" {
+			keywords = strings.ReplaceAll(keywords, "；", ";")
+			kwSlice = strings.Split(keywords, ";")
+		}
+		core.ClassifyAfterMerge(src, dst, kwSlice)
 	},
 }
 
@@ -106,12 +123,14 @@ func init() {
 	clientCmd.Flags().StringVarP(&src, "src", "i", "", "B 站客户端缓存目录基础路径 (可选，为空则使用默认路径)")
 	clientCmd.Flags().StringVarP(&dst, "dst", "o", "", "输出目录基础路径 (必填)")
 	clientCmd.Flags().StringVarP(&archive, "archive", "a", "", "归档目录基础路径 (可选，用于分类整理合并后的文件)")
+	clientCmd.Flags().StringVarP(&keywords, "keyword", "k", "", "分类关键词，多个关键词用分号分隔 (可选)")
 	clientCmd.MarkFlagRequired("dst")
 
 	// 为 android2pc 命令添加标志
 	android2pcCmd.Flags().StringVarP(&src, "src", "i", "", "安卓客户端下载目录路径 (必填)")
 	android2pcCmd.Flags().StringVarP(&dst, "dst", "o", "", "输出目录基础路径 (必填)")
 	android2pcCmd.Flags().StringVarP(&archive, "archive", "a", "", "归档目录基础路径 (可选，用于分类整理合并后的文件)")
+	android2pcCmd.Flags().StringVarP(&keywords, "keyword", "k", "", "分类关键词，多个关键词用分号分隔 (可选)")
 	android2pcCmd.MarkFlagRequired("src")
 	android2pcCmd.MarkFlagRequired("dst")
 
@@ -124,6 +143,7 @@ func init() {
 	// 为 archive 命令添加标志
 	archiveCmd.Flags().StringVarP(&src, "src", "i", "", "源目录路径 (必填)")
 	archiveCmd.Flags().StringVarP(&dst, "dst", "o", "", "目标目录路径 (必填)")
+	archiveCmd.Flags().StringVarP(&keywords, "keyword", "k", "", "分类关键词，多个关键词用分号分隔 (可选)")
 	archiveCmd.MarkFlagRequired("src")
 	archiveCmd.MarkFlagRequired("dst")
 
