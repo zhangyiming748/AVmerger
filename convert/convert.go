@@ -17,43 +17,43 @@ import (
 )
 
 type VideoInfo struct {
-	Type           string `json:"type"`
-	Codecid        string `json:"codecid"`
-	GroupId        string `json:"groupId"`
-	ItemId         string `json:"itemId"`
-	Aid            string `json:"aid"`
-	Cid            string `json:"cid"`
-	Bvid           string `json:"bvid"`
-	P              string `json:"p"`
-	TabP           string `json:"tabP"`
-	TabName        string `json:"tabName"`
-	Uid            string `json:"uid"`
-	Uname          string `json:"uname"`
-	Avatar         string `json:"avatar"`
-	CoverUrl       string `json:"coverUrl"`
-	Title          string `json:"title"`
-	Duration       string `json:"duration"`
-	GroupTitle     string `json:"groupTitle"`
-	GroupCoverUrl  string `json:"groupCoverUrl"`
-	Danmaku        string `json:"danmaku"`
-	View           string `json:"view"`
-	Pubdate        string `json:"pubdate"`
-	Vt             string `json:"vt"`
-	Status         string `json:"status"`
-	Active         string `json:"active"`
-	Loaded         string `json:"loaded"`
-	Qn             string `json:"qn"`
-	AllowHEVC      string `json:"allowHEVC"`
-	CreateTime     string `json:"createTime"`
-	CoverPath      string `json:"coverPath"`
-	GroupCoverPath string `json:"groupCoverPath"`
-	UpdateTime     string `json:"updateTime"`
-	TotalSize      string `json:"totalSize"`
-	LoadedSize     string `json:"loadedSize"`
-	Progress       string `json:"progress"`
-	Speed          string `json:"speed"`
-	CompletionTime string `json:"completionTime"`
-	ReportedSize   string `json:"reportedSize"`
+	Type           string      `json:"type"`
+	Codecid        json.Number `json:"codecid"`
+	GroupId        json.Number `json:"groupId"`
+	ItemId         json.Number `json:"itemId"`
+	Aid            json.Number `json:"aid"`
+	Cid            json.Number `json:"cid"`
+	Bvid           string      `json:"bvid"`
+	P              json.Number `json:"p"`
+	TabP           json.Number `json:"tabP"`
+	TabName        string      `json:"tabName"`
+	Uid            json.Number `json:"uid"`
+	Uname          string      `json:"uname"`
+	Avatar         string      `json:"avatar"`
+	CoverUrl       string      `json:"coverUrl"`
+	Title          string      `json:"title"`
+	Duration       json.Number `json:"duration"`
+	GroupTitle     string      `json:"groupTitle"`
+	GroupCoverUrl  string      `json:"groupCoverUrl"`
+	Danmaku        json.Number `json:"danmaku"`
+	View           json.Number `json:"view"`
+	Pubdate        json.Number `json:"pubdate"`
+	IsCheese       bool        `json:"isCheese"`
+	Status         string      `json:"status"`
+	Active         bool        `json:"active"`
+	Loaded         bool        `json:"loaded"`
+	Qn             json.Number `json:"qn"`
+	AllowHEVC      bool        `json:"allowHEVC"`
+	CreateTime     json.Number `json:"createTime"`
+	CoverPath      string      `json:"coverPath"`
+	GroupCoverPath string      `json:"groupCoverPath"`
+	UpdateTime     json.Number `json:"updateTime"`
+	TotalSize      json.Number `json:"totalSize"`
+	LoadedSize     json.Number `json:"loadedSize"`
+	Progress       json.Number `json:"progress"`
+	Speed          json.Number `json:"speed"`
+	CompletionTime json.Number `json:"completionTime"`
+	ReportedSize   json.Number `json:"reportedSize"`
 }
 
 func Convert(root, dst string) (err error) {
@@ -135,7 +135,7 @@ func Convert(root, dst string) (err error) {
 
 			// 将字符串时间戳转换为 int64
 			var timeStamp int64
-			if ts, err := strconv.ParseInt(vi.CompletionTime, 10, 64); err == nil {
+			if ts, err := strconv.ParseInt(vi.CompletionTime.String(), 10, 64); err == nil {
 				timeStamp = ts
 			}
 			t := time.Unix(timeStamp/1000, 0)
@@ -167,7 +167,7 @@ func Convert(root, dst string) (err error) {
 
 				// 将字符串时间戳转换为 int64
 				var timeStamp int64
-				if ts, err := strconv.ParseInt(vi.CompletionTime, 10, 64); err == nil {
+				if ts, err := strconv.ParseInt(vi.CompletionTime.String(), 10, 64); err == nil {
 					timeStamp = ts
 				}
 				t := time.Unix(timeStamp/1000, 0)

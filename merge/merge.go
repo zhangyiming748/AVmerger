@@ -23,95 +23,95 @@ import (
 
 // Entry 定义了B站视频条目的数据结构，用于解析下载文件的entry.json
 type Entry struct {
-	MediaType                  int    `json:"media_type"`
-	HasDashAudio               bool   `json:"has_dash_audio"`
-	IsCompleted                bool   `json:"is_completed"`
-	TotalBytes                 int    `json:"total_bytes"`
-	DownloadedBytes            int    `json:"downloaded_bytes"`
-	Title                      string `json:"title"`
-	TypeTag                    string `json:"type_tag"`
-	Cover                      string `json:"cover"`
-	VideoQuality               int    `json:"video_quality"`
-	PreferedVideoQuality       int    `json:"prefered_video_quality"`
-	GuessedTotalBytes          int    `json:"guessed_total_bytes"`
-	TotalTimeMilli             int    `json:"total_time_milli"`
-	DanmakuCount               int    `json:"danmaku_count"`
-	TimeUpdateStamp            int64  `json:"time_update_stamp"`
-	TimeCreateStamp            int64  `json:"time_create_stamp"`
-	CanPlayInAdvance           bool   `json:"can_play_in_advance"`
-	InterruptTransformTempFile bool   `json:"interrupt_transform_temp_file"`
-	QualityPithyDescription    string `json:"quality_pithy_description"`
-	QualitySuperscript         string `json:"quality_superscript"`
-	CacheVersionCode           int    `json:"cache_version_code"`
-	PreferredAudioQuality      int    `json:"preferred_audio_quality"`
-	AudioQuality               int    `json:"audio_quality"`
-	Avid                       int    `json:"avid"`
-	Spid                       int    `json:"spid"`
-	SeasionId                  int    `json:"seasion_id"`
-	Bvid                       string `json:"bvid"`
-	OwnerId                    int    `json:"owner_id"`
-	OwnerName                  string `json:"owner_name"`
-	OwnerAvatar                string `json:"owner_avatar"`
+	MediaType                  json.Number `json:"media_type"`
+	HasDashAudio               bool        `json:"has_dash_audio"`
+	IsCompleted                bool        `json:"is_completed"`
+	TotalBytes                 json.Number `json:"total_bytes"`
+	DownloadedBytes            json.Number `json:"downloaded_bytes"`
+	Title                      string      `json:"title"`
+	TypeTag                    string      `json:"type_tag"`
+	Cover                      string      `json:"cover"`
+	VideoQuality               json.Number `json:"video_quality"`
+	PreferedVideoQuality       json.Number `json:"prefered_video_quality"`
+	GuessedTotalBytes          json.Number `json:"guessed_total_bytes"`
+	TotalTimeMilli             json.Number `json:"total_time_milli"`
+	DanmakuCount               json.Number `json:"danmaku_count"`
+	TimeUpdateStamp            json.Number `json:"time_update_stamp"`
+	TimeCreateStamp            json.Number `json:"time_create_stamp"`
+	CanPlayInAdvance           bool        `json:"can_play_in_advance"`
+	InterruptTransformTempFile bool        `json:"interrupt_transform_temp_file"`
+	QualityPithyDescription    string      `json:"quality_pithy_description"`
+	QualitySuperscript         string      `json:"quality_superscript"`
+	CacheVersionCode           json.Number `json:"cache_version_code"`
+	PreferredAudioQuality      json.Number `json:"preferred_audio_quality"`
+	AudioQuality               json.Number `json:"audio_quality"`
+	Avid                       json.Number `json:"avid"`
+	Spid                       json.Number `json:"spid"`
+	SeasionId                  json.Number `json:"seasion_id"`
+	Bvid                       string      `json:"bvid"`
+	OwnerId                    json.Number `json:"owner_id"`
+	OwnerName                  string      `json:"owner_name"`
+	OwnerAvatar                string      `json:"owner_avatar"`
 	PageData                   struct {
-		Cid              int    `json:"cid"`
-		Page             int    `json:"page"`
-		From             string `json:"from"`
-		Part             string `json:"part"`
-		Link             string `json:"link"`
-		RichVid          string `json:"rich_vid"`
-		Vid              string `json:"vid"`
-		HasAlias         bool   `json:"has_alias"`
-		Weblink          string `json:"weblink"`
-		Offsite          string `json:"offsite"`
-		Tid              int    `json:"tid"`
-		Width            int    `json:"width"`
-		Height           int    `json:"height"`
-		Rotate           int    `json:"rotate"`
-		DownloadTitle    string `json:"download_title"`
-		DownloadSubtitle string `json:"download_subtitle"`
+		Cid              json.Number `json:"cid"`
+		Page             json.Number `json:"page"`
+		From             string      `json:"from"`
+		Part             string      `json:"part"`
+		Link             string      `json:"link"`
+		RichVid          string      `json:"rich_vid"`
+		Vid              string      `json:"vid"`
+		HasAlias         bool        `json:"has_alias"`
+		Weblink          string      `json:"weblink"`
+		Offsite          string      `json:"offsite"`
+		Tid              json.Number `json:"tid"`
+		Width            json.Number `json:"width"`
+		Height           json.Number `json:"height"`
+		Rotate           json.Number `json:"rotate"`
+		DownloadTitle    string      `json:"download_title"`
+		DownloadSubtitle string      `json:"download_subtitle"`
 	} `json:"page_data"`
 }
 
 // PlanB 定义了B站番剧视频条目的备选数据结构，当Entry结构无法满足时使用
 type PlanB struct {
-	MediaType                  int    `json:"media_type"`
-	HasDashAudio               bool   `json:"has_dash_audio"`
-	IsCompleted                bool   `json:"is_completed"`
-	TotalBytes                 int    `json:"total_bytes"`
-	DownloadedBytes            int    `json:"downloaded_bytes"`
-	Title                      string `json:"title"`
-	TypeTag                    string `json:"type_tag"`
-	Cover                      string `json:"cover"`
-	VideoQuality               int    `json:"video_quality"`
-	PreferedVideoQuality       int    `json:"prefered_video_quality"`
-	GuessedTotalBytes          int    `json:"guessed_total_bytes"`
-	TotalTimeMilli             int    `json:"total_time_milli"`
-	DanmakuCount               int    `json:"danmaku_count"`
-	TimeUpdateStamp            int64  `json:"time_update_stamp"`
-	TimeCreateStamp            int64  `json:"time_create_stamp"`
-	CanPlayInAdvance           bool   `json:"can_play_in_advance"`
-	InterruptTransformTempFile bool   `json:"interrupt_transform_temp_file"`
-	QualityPithyDescription    string `json:"quality_pithy_description"`
-	QualitySuperscript         string `json:"quality_superscript"`
-	CacheVersionCode           int    `json:"cache_version_code"`
-	PreferredAudioQuality      int    `json:"preferred_audio_quality"`
-	AudioQuality               int    `json:"audio_quality"`
+	MediaType                  json.Number `json:"media_type"`
+	HasDashAudio               bool        `json:"has_dash_audio"`
+	IsCompleted                bool        `json:"is_completed"`
+	TotalBytes                 json.Number `json:"total_bytes"`
+	DownloadedBytes            json.Number `json:"downloaded_bytes"`
+	Title                      string      `json:"title"`
+	TypeTag                    string      `json:"type_tag"`
+	Cover                      string      `json:"cover"`
+	VideoQuality               json.Number `json:"video_quality"`
+	PreferedVideoQuality       json.Number `json:"prefered_video_quality"`
+	GuessedTotalBytes          json.Number `json:"guessed_total_bytes"`
+	TotalTimeMilli             json.Number `json:"total_time_milli"`
+	DanmakuCount               json.Number `json:"danmaku_count"`
+	TimeUpdateStamp            json.Number `json:"time_update_stamp"`
+	TimeCreateStamp            json.Number `json:"time_create_stamp"`
+	CanPlayInAdvance           bool        `json:"can_play_in_advance"`
+	InterruptTransformTempFile bool        `json:"interrupt_transform_temp_file"`
+	QualityPithyDescription    string      `json:"quality_pithy_description"`
+	QualitySuperscript         string      `json:"quality_superscript"`
+	CacheVersionCode           json.Number `json:"cache_version_code"`
+	PreferredAudioQuality      json.Number `json:"preferred_audio_quality"`
+	AudioQuality               json.Number `json:"audio_quality"`
 	Ep                         struct {
-		AvId       int    `json:"av_id"`
-		Page       int    `json:"page"`
-		Danmaku    int    `json:"danmaku"`
-		Cover      string `json:"cover"`
-		EpisodeId  int    `json:"episode_id"`
-		Index      string `json:"index"`
-		IndexTitle string `json:"index_title"`
-		From       string `json:"from"`
-		SeasonType int    `json:"season_type"`
-		Width      int    `json:"width"`
-		Height     int    `json:"height"`
-		Rotate     int    `json:"rotate"`
-		Link       string `json:"link"`
-		Bvid       string `json:"bvid"`
-		SortIndex  int    `json:"sort_index"`
+		AvId       json.Number `json:"av_id"`
+		Page       json.Number `json:"page"`
+		Danmaku    json.Number `json:"danmaku"`
+		Cover      string      `json:"cover"`
+		EpisodeId  json.Number `json:"episode_id"`
+		Index      string      `json:"index"`
+		IndexTitle string      `json:"index_title"`
+		From       string      `json:"from"`
+		SeasonType json.Number `json:"season_type"`
+		Width      json.Number `json:"width"`
+		Height     json.Number `json:"height"`
+		Rotate     json.Number `json:"rotate"`
+		Link       string      `json:"link"`
+		Bvid       string      `json:"bvid"`
+		SortIndex  json.Number `json:"sort_index"`
 	} `json:"ep"`
 	SeasonId string `json:"season_id"`
 }
@@ -271,8 +271,8 @@ func getName(jackson string) (string, string, string, error) {
 	// 移除开头空格
 	name = replace.RemoveLeadingSpace(name)
 	var unikey string
-	if entry.Avid != 0 {
-		unikey = strconv.Itoa(entry.Avid)
+	if avidStr := entry.Avid.String(); avidStr != "0" && avidStr != "" {
+		unikey = avidStr
 	} else {
 		unikey = entry.Bvid
 	}
@@ -280,7 +280,7 @@ func getName(jackson string) (string, string, string, error) {
 	// 返回处理后的文件名和UP主名称
 	var key string
 	if key = entry.Bvid; key == "" {
-		key = strconv.Itoa(entry.Avid)
+		key = entry.Avid.String()
 	}
 	return name, entry.OwnerName, key, nil
 }
