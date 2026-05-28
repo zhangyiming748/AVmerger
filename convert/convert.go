@@ -19,7 +19,7 @@ import (
 type VideoInfo struct {
 	Type           string      `json:"type"`
 	Codecid        json.Number `json:"codecid"`
-	GroupId        json.Number `json:"groupId"`
+	GroupId        interface{} `json:"groupId"`
 	ItemId         json.Number `json:"itemId"`
 	Aid            json.Number `json:"aid"`
 	Cid            json.Number `json:"cid"`
@@ -38,6 +38,7 @@ type VideoInfo struct {
 	Danmaku        json.Number `json:"danmaku"`
 	View           json.Number `json:"view"`
 	Pubdate        json.Number `json:"pubdate"`
+	Vt             json.Number `json:"vt"`
 	IsCheese       bool        `json:"isCheese"`
 	Status         string      `json:"status"`
 	Active         bool        `json:"active"`
