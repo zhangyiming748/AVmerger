@@ -11,6 +11,12 @@ import (
 	"github.com/dgraph-io/badger/v4"
 )
 
+// 全局数据库实例（单例模式）
+var (
+	globalDB *DB
+	once     sync.Once
+)
+
 // DB 封装 BadgerDB 数据库操作
 type DB struct {
 	db     *badger.DB
@@ -86,6 +92,51 @@ func (d *DB) Close() error {
 
 	d.closed = true
 	log.Println("数据库已关闭")
+	return nil
+}
+
+// InitDB 初始化全局数据库实例（单例模式）
+// 应该在程序启动时调用一次
+// dir: 数据库存储目录
+func InitDB(dir string) error {
+	var initErr error
+	once.Do(func() {
+		config := DefaultConfig(dir)
+		db, err := New(config)
+		if err != nil {
+			initErr = err
+			return
+		}
+		globalDB = db
+	})
+	return initErr
+}
+
+// GetInstance 获取全局数据库实例
+// 如果数据库尚未初始化，返回 nil
+func GetInstance() *DB {
+	return globalDB
+}
+
+// MustGetInstance 获取全局数据库实例
+// 如果数据库尚未初始化，会 panic
+func MustGetInstance() *DB {
+	if globalDB == nil {
+		panic("数据库尚未初始化，请先调用 InitDB() 初始化数据库")
+	}
+	return globalDB
+}
+
+// IsInitialized 检查数据库是否已初始化
+func IsInitialized() bool {
+	return globalDB != nil
+}
+
+// CloseGlobalDB 关闭全局数据库实例
+func CloseGlobalDB() error {
+	if globalDB != nil {
+		return globalDB.Close()
+	}
 	return nil
 }
 

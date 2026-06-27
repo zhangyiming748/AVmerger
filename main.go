@@ -2,8 +2,10 @@ package main
 
 import (
 	"log"
+	"os"
 	"strings"
 
+	"AVmerger/badgerDB"
 	"AVmerger/core"
 	"AVmerger/cover"
 	"AVmerger/rename"
@@ -107,6 +109,8 @@ var renameCmd = &cobra.Command{
 
 func init() {
 	util.SetLog("avmerge.log")
+	home,_ := os.UserHomeDir()
+	badgerdb.InitDB(home)
 	// 为 client 命令添加标志
 	clientCmd.Flags().StringVarP(&src, "src", "i", "", "B 站客户端缓存目录基础路径 (可选，为空则使用默认路径)")
 	clientCmd.Flags().StringVarP(&dst, "dst", "o", "", "输出目录基础路径 (必填)")

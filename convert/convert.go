@@ -1,6 +1,7 @@
 package convert
 
 import (
+	badgerdb "AVmerger/BadgerDB"
 	"AVmerger/replace"
 	"encoding/json"
 	"fmt"
@@ -111,6 +112,18 @@ func Convert(root, dst string) (err error) {
 		}
 		vi, _ := ReadVideoInfo(file)
 		log.Printf("videoInfo = %+v\n", vi)
+		bid := vi.Bvid
+		log.Printf("bid = %s\n", bid)
+		// 查询数据库中是否已存在该 bid
+		if db := badgerdb.GetInstance(); db != nil {
+			var existingTime string
+			if err := db.Get(bid, &existingTime); err == nil {
+				log.Printf("⚠️ 数据库中已存在该 bid [bid=%s, 上次转换时间=%s]", bid, existingTime)
+				return nil // 已存在，跳过转换
+			} else {
+				log.Printf("✅ 数据库中不存在该 bid [bid=%s]，将是首次转换", bid)
+			}
+		}
 		// 清理标题中的非法字符
 		cleanTitle := replace.ForFileName(vi.Title)
 		baseDir := filepath.Join(dst, vi.Uname)
@@ -151,8 +164,19 @@ func Convert(root, dst string) (err error) {
 		if err != nil {
 			log.Printf("❌ ffmpeg命令执行失败:\n  错误码: %v\n  错误类型: %T\n  完整输出:\n%s\n", err, err, string(out))
 			return fmt.Errorf("ffmpeg转换失败 [文件: %s -> %s]: %w", media[0], target, err)
+		} else {
+			log.Printf("✅ 转换成功,ffmpeg输出:\n%s", string(out))
+			// 获取数据库实例并保存转换时间（上海时区）
+			if db := badgerdb.GetInstance(); db != nil {
+				shanghaiTZ, _ := time.LoadLocation("Asia/Shanghai")
+				now := time.Now().In(shanghaiTZ)
+				if err := db.Set(bid, now.Format("2006-01-02 15:04:05"), 0); err != nil {
+					log.Printf("⚠️ 保存转换时间到数据库失败 [bid=%s]: %v", bid, err)
+				} else {
+					log.Printf("💾 已保存转换时间到数据库 [bid=%s, time=%s]", bid, now.Format("2006-01-02 15:04:05"))
+				}
+			}
 		}
-		log.Printf("✅ 转换成功,ffmpeg输出:\n%s", string(out))
 		if audio, err := GetMusicFile(media[0], media[1]); err != nil {
 			log.Printf("音频转换失败%v\n", err)
 		} else {
