@@ -118,8 +118,8 @@ func Convert(root, dst string) (err error) {
 		if db := badgerdb.GetInstance(); db != nil {
 			var existingTime string
 			if err := db.Get(bid, &existingTime); err == nil {
-				log.Printf("⚠️ 数据库中已存在该 bid [bid=%s, 上次转换时间=%s]", bid, existingTime)
-				return nil // 已存在，跳过转换
+				log.Printf("⚠️ 数据库中已存在该 bid [bid=%s, 上次转换时间=%s]，跳过转换", bid, existingTime)
+				continue // 跳过当前视频，继续处理下一个
 			} else {
 				log.Printf("✅ 数据库中不存在该 bid [bid=%s]，将是首次转换", bid)
 			}
