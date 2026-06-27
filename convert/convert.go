@@ -1,7 +1,7 @@
 package convert
 
 import (
-	badgerdb "AVmerger/BadgerDB"
+	"AVmerger/badgerDB"
 	"AVmerger/replace"
 	"encoding/json"
 	"fmt"

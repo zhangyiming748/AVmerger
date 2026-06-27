@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"AVmerger/badgerDB"
 	"AVmerger/replace"
 	"AVmerger/util"
 
@@ -123,7 +124,19 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 	// 遍历每个基本信息条目
 	for _, b := range bs {
 		log.Printf("循环一次开始处理%+v\n", b.EntryFullPath)
-		fname, subFolder, _, _ := getName(b.EntryFullPath)
+		fname, subFolder, key, _ := getName(b.EntryFullPath)
+
+		// 查询数据库中是否已存在该 bid/key
+		if db := badgerdb.GetInstance(); db != nil {
+			var existingTime string
+			if err := db.Get(key, &existingTime); err == nil {
+				log.Printf("⚠️ 数据库中已存在该 bid [bid=%s, 上次转换时间=%s]，跳过转换", key, existingTime)
+				continue // 跳过当前视频，继续处理下一个
+			} else {
+				log.Printf("✅ 数据库中不存在该 bid [bid=%s]，将是首次转换", key)
+			}
+		}
+
 		// 构建视频输出目录路径
 		dir := filepath.Join(dst, subFolder)
 		// 创建视频输出目录
@@ -197,6 +210,18 @@ func Merge(bs []util.BasicInfo, dst string) (warning bool) {
 			os.RemoveAll(b.Video)
 			// 删除entry.json文件
 			os.RemoveAll(b.EntryFullPath)
+
+			// 保存转换时间到数据库
+			if db := badgerdb.GetInstance(); db != nil {
+				shanghaiTZ, _ := time.LoadLocation("Asia/Shanghai")
+				now := time.Now().In(shanghaiTZ)
+				timeStr := now.Format("2006-01-02 15:04:05")
+				if err := db.Set(key, timeStr, 0); err != nil {
+					log.Printf("⚠️ 保存转换时间到数据库失败 [bid=%s]: %v", key, err)
+				} else {
+					log.Printf("💾 已保存转换时间到数据库 [bid=%s, time=%s]", key, timeStr)
+				}
+			}
 		}
 	}
 	return warning
