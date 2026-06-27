@@ -1,0 +1,10 @@
+# BadgerDB 数据文件
+testdata/
+*.badger
+LOCK
+MANIFEST
+*.sst
+*.vlog
+
+# 备份文件
+backup/
